@@ -1,0 +1,24 @@
+# Build and debug artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# IDE-specific settings
+.vscode/
+.idea/
+*.DotSettings.user
+
+*.user
+*.suo
+*.vs/
+
+# NuGet-specific cache files
+*.nuget.*
+project.nuget.cache
+*.sln
+
+#python
+.venv/
+venv/
