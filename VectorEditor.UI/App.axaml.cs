@@ -1,8 +1,9 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using VectorEditor.UI;
 
-namespace VectorEditorProject;
+namespace VectorEditor.UI;
 
 public partial class App : Application
 {

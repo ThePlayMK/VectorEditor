@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorEditor.Core", "VectorEditor.Core\VectorEditor.Core.csproj", "{B75F917B-6AD0-4A8C-B876-8E84C6742839}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorEditor.CLI", "VectorEditor.CLI\VectorEditor.CLI.csproj", "{A4F32C2F-C948-44BB-8CB6-7F04F4586CED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorEditor.UI", "VectorEditor.UI\VectorEditor.UI.csproj", "{9C3F5942-B80B-46DD-975A-A7B0C9B21B25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B75F917B-6AD0-4A8C-B876-8E84C6742839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B75F917B-6AD0-4A8C-B876-8E84C6742839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B75F917B-6AD0-4A8C-B876-8E84C6742839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B75F917B-6AD0-4A8C-B876-8E84C6742839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F32C2F-C948-44BB-8CB6-7F04F4586CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F32C2F-C948-44BB-8CB6-7F04F4586CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F32C2F-C948-44BB-8CB6-7F04F4586CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F32C2F-C948-44BB-8CB6-7F04F4586CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C3F5942-B80B-46DD-975A-A7B0C9B21B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3F5942-B80B-46DD-975A-A7B0C9B21B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3F5942-B80B-46DD-975A-A7B0C9B21B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C3F5942-B80B-46DD-975A-A7B0C9B21B25}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

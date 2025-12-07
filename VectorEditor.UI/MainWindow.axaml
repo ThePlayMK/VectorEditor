@@ -3,10 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="VectorEditorProject.MainWindow"
-        Title="VectorEditorProject">
-    
-
+        x:Class="VectorEditor.UI.MainWindow"
+        Title="VectorEditor.UI">
     <Grid ShowGridLines="True" Margin="5" ColumnDefinitions="50, *, 50" RowDefinitions="50, *">
         <!-- TOP RIGHT -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="10">
