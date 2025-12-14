@@ -1,141 +1,155 @@
 @startuml
 
 '====================================================
-'                     SHAPES
+'                SHAPES (COMPOSITE)
 '====================================================
-abstract class Shape {
-    +Name : string
-    +Color : ConsoleColor
-    +Draw() : void
-}
+abstract class Shape
 
-class Rectangle {
-    +X : int
-    +Y : int
-    +Width : int
-    +Height : int
-    +Draw() : void
-}
+class Rectangle
+class Circle
+class Triangle
+class Line
+class CustomShape
 
-class Circle {
-    +CX : int
-    +CY : int
-    +R  : int
-    +Draw() : void
-}
+class Layer
+class Canvas
 
 Shape <|-- Rectangle
 Shape <|-- Circle
+Shape <|-- Triangle
+Shape <|-- Line
+Shape <|-- CustomShape
+
+Layer  o-->  Shape
+Layer  o-->  Layer
+Canvas o-->  Shape
+Canvas o-->  Layer
 
 
 '====================================================
-'                  SHAPE BUILDERS
+'              SHAPE BUILDERS (BUILDER)
 '====================================================
-interface IShapeBuilder {
-    +AskUserParameters() : void
-    +Build() : Shape
-}
+interface IShapeBuilder
 
-class RectangleBuilder {
-    -x : int
-    -y : int
-    -width : int
-    -height : int
-    -color : ConsoleColor
-    +AskUserParameters() : void
-    +Build() : Shape
-}
-
-class CircleBuilder {
-    -cx : int
-    -cy : int
-    -r : int
-    -color : ConsoleColor
-    +AskUserParameters() : void
-    +Build() : Shape
-}
+class RectangleBuilder
+class CircleBuilder
+class TriangleBuilder
+class LineBuilder
+class CustomShapeBuilder
 
 IShapeBuilder <|.. RectangleBuilder
 IShapeBuilder <|.. CircleBuilder
+IShapeBuilder <|.. TriangleBuilder
+IShapeBuilder <|.. LineBuilder
+IShapeBuilder <|.. CustomShapeBuilder
 
-RectangleBuilder --> Rectangle
-CircleBuilder --> Circle
-
-
-'====================================================
-'                    SHAPE FACTORY
-'====================================================
-class ShapeBuilderFactory {
-    +CreateBuilder(shapeType : string) : IShapeBuilder
-}
-
-ShapeBuilderFactory --> IShapeBuilder
+RectangleBuilder ..> Rectangle 
+CircleBuilder    ..> Circle   
+TriangleBuilder  ..> Triangle 
+LineBuilder      ..> Line     
+CustomShapeBuilder ..> CustomShape 
 
 
 '====================================================
-'                      CANVAS
+'           MODIFICATION (STRATEGY)
 '====================================================
-class Canvas {
-    +Shapes : List<Shape>
-    +Draw() : void
-}
+interface IModificationStrategy
 
-Canvas --> "0..*" Shape
+class ChangeContentColorStrategy
+class ChangeContourColorStrategy
+class ScaleStrategy
+class AlignStrategy
+class RemoveStrategy
+class BlockLayerStategy
+class HideLayerStrategy
+
+IModificationStrategy <|.. ChangeContentColorStrategy
+IModificationStrategy <|.. ChangeContourColorStrategy
+IModificationStrategy <|.. ScaleStrategy
+IModificationStrategy <|.. AlignStrategy
+IModificationStrategy <|.. RemoveStrategy
+IModificationStrategy <|.. BlockLayerStategy
+IModificationStrategy <|.. HideLayerStrategy
+
+class ApplyStrategyCommand
+
+ApplyStrategyCommand --> IModificationStrategy 
 
 
 '====================================================
-'                      COMMANDS
+'              EDITOR STATE (STATE)
 '====================================================
-interface ICommand {
-    +Execute() : void
-    +Undo() : void
-}
+interface IEditorState
 
-class AddShapeCommand {
-    -canvas : Canvas
-    -shape : Shape
-    +Execute() : void
-    +Undo() : void
-}
+class SavedState
+class ModifiedState
+class EmptyState
+class EditorContext
 
-class MoveShapeCommand {
-    -shape : Rectangle
-    -oldX : int
-    -oldY : int
-    -newX : int
-    -newY : int
-    +Execute() : void
-    +Undo() : void
-}
+IEditorState <|.. SavedState
+IEditorState <|.. ModifiedState
+IEditorState <|.. EmptyState
 
-class ChangeColorCommand {
-    -shape : Shape
-    -oldColor : ConsoleColor
-    -newColor : ConsoleColor
-    +Execute() : void
-    +Undo() : void
-}
+EditorContext o--> IEditorState
+SavedState    --> EditorContext
+ModifiedState --> EditorContext
+EmptyState --> EditorContext
+
+ApplyStrategyCommand  --> Canvas        
+
+
+'====================================================
+'                COMMANDS (COMMAND)
+'====================================================
+interface ICommand
+
+class AddShapeCommand
+class GroupCommand
+class ShowNetCommand
 
 ICommand <|.. AddShapeCommand
-ICommand <|.. MoveShapeCommand
-ICommand <|.. ChangeColorCommand
+ICommand <|.. ApplyStrategyCommand
+ICommand <|.. GroupCommand
+ICommand <|.. ShowNetCommand
 
+
+AddShapeCommand --> IShapeBuilder 
 AddShapeCommand --> Canvas
-AddShapeCommand --> Shape
-MoveShapeCommand --> Rectangle
-ChangeColorCommand --> Shape
+GroupCommand    --> Layer 
 
 
 '====================================================
-'                  COMMAND MANAGER
+'            SYSTEM INTEGRATION
 '====================================================
 class CommandManager {
-    -undoStack : Stack<ICommand>
-    -redoStack : Stack<ICommand>
-    +Execute(cmd : ICommand) : void
-    +Undo() : void
-    +Redo() : void
+    - undoStack
+    - redoStack
+    - editorContext : EditorContext
+    + Execute(cmd : ICommand)
+    + Undo()
+    + Redo()
 }
 
-CommandManager --> ICommand : manages
+CommandManager --> ICommand
+CommandManager --> EditorContext
+
+
+'====================================================
+'                  GEOMETRY
+'====================================================
+class Point 
+{
+    - int X
+    - int Y
+}
+
+class Net
+
+Circle       o-->  Point
+Triangle     o-->  Point
+Rectangle    o-->  Point
+Line         o-->  Point
+CustomShape  o-->  Point
+ShowNetCommand <-- Net
+
 @enduml
