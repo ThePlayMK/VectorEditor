@@ -5,33 +5,38 @@
 '====================================================
 interface Shape
 {
-    + Execute()
+  +Execute()
 }
 
 class Rectangle
 {
     - Point point1
     - Point point2
+      +Execute()
 }
 class Circle
 {
     - Point point
     - Double radius
+      +Execute()
 }
 class Triangle
 {
     - Point point1
     - Point point2
     - Point point3
+      +Execute()
 }
 class Line
 {
     - Point point1
     - Point point2
+      +Execute()
 }
 class CustomShape
 {
     - List<Point> points;
+      +Execute()
 }
 
 class Layer
