@@ -12,49 +12,44 @@ class Rectangle
 {
     - Point point1
     - Point point2
-    + Execute()
 }
 class Circle
 {
     - Point point
     - Double radius
-    + Execute()
 }
 class Triangle
 {
     - Point point1
     - Point point2
     - Point point3
-    + Execute()
 }
 class Line
 {
     - Point point1
     - Point point2
-    + Execute()
 }
 class CustomShape
 {
     - List<Point> points;
-    + Execute()
 }
 
 class Layer
 {
--children: Shape[]
-+AddShape(Shape)
-+removeShape(Shpae)
-+getShape()
-+execute()
+  -children: Shape[]
+  +AddShape(Shape)
+  +RemoveShape(Shpae)
+  +GetShape()
+  +Execute()
 }
 
 class Canvas
 {
--children: Layer[]
-+AddLayer(Layer)
-+removeLayer(Layer)
-+getLayer()
-+execute()
+  -children: Layer[]
+  +AddLayer(Layer)
+  +RemoveLayer(Layer)
+  +GetLayer()
+  +Execute()
 }
 
 Shape <|-- Rectangle
@@ -74,7 +69,7 @@ Canvas o-->  Layer
 '====================================================
 interface IShapeBuilder
 {
-  + reset()
+  + Reset()
   + BuildStart()
   + BuildLine()
 }
@@ -189,39 +184,39 @@ ApplyStrategyCommand --> IModificationStrategy
 '              EDITOR STATE (STATE)
 '====================================================
 interface IEditorState{
-+doThis()
-+doThat()
++DoThis()
++DoThat()
 }
 
 class SavedState
 {
 -context
-+setSaved(context)
-+doThis()
-+doThat()
++SetSaved(context)
++DoThis()
++DoThat()
 }
 class ModifiedState
 {
 -context
-+setModified(context)
-+doThis()
-+doThat()
++SetModified(context)
++DoThis()
++DoThat()
 }
 class EmptyState
 {
 -context
-+setEmpty(context)
-+doThis()
-+doThat()
++SetEmpty(context)
++DoThis()
++DoThat()
 }
 
 class EditorContext
 {
 -state
 +EditorContext(initialState)
-+changeState(state)
-+doThis
-+doThat
++ChangeState(state)
++DoThis
++DoThat
 }
 
 IEditorState <|.. SavedState
