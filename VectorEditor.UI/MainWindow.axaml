@@ -1,200 +1,312 @@
-<Window
-    x:Class="VectorEditor.UI.MainWindow"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:material="using:Material.Icons.Avalonia"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="Vector Editor"
-    WindowStartupLocation="CenterScreen"
-    WindowState="Maximized">
-    <Grid>
-        <Grid
-            ColumnDefinitions="50,*,250"
-            RowDefinitions="50,*"
-            ShowGridLines="True">
-            <Button
-                Grid.Row="0"
-                Grid.Column="0"
-                Click="ToggleMenu">
-                <material:MaterialIcon
-                    Width="20"
-                    Height="20"
-                    Foreground="White"
-                    Kind="Menu" />
-            </Button>
-            <StackPanel
-                Grid.Row="1"
-                Grid.Column="0"
-                Orientation="Vertical">
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="Navigation" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="Select" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="Brush" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="VectorLine" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="VectorSquare" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="CircleOutline" />
-                </Button>
-                <Button Click="SelectTool">
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="ShapePolygonPlus" />
-                </Button>
-            </StackPanel>
-            <StackPanel
-                Grid.Row="0"
-                Grid.Column="1"
-                Orientation="Horizontal">
-                <Button>
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="Undo" />
-                </Button>
-                <Button>
-                    <material:MaterialIcon
-                        Width="20"
-                        Height="20"
-                        Foreground="White"
-                        Kind="Redo" />
-                </Button>
-                <Button Click="SelectColor">
-                    ⬜
-                </Button>
-                <Button Click="SelectColor">
-                    ⬛
-                </Button>
-                <Button Click="SelectColor">
-                    🟥
-                </Button>
-                <Button Click="SelectColor">
-                    🟩
-                </Button>
-                <Button Click="SelectColor">
-                    🟦
-                </Button>
-                <Button Click="SelectColor">
-                    🟧
-                </Button>
-            </StackPanel>
-            <Border
-                Grid.Row="1"
-                Grid.Column="1"
-                Margin="10"
-                BorderBrush="Gray"
-                BorderThickness="2">
-                <Canvas x:Name="MyDrawingCanvas" Background="White" />
-            </Border>
-            <StackPanel
-                Grid.Row="1"
-                Grid.Column="2"
-                Orientation="Vertical">
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Text="Layers" />
-                <Border
-                    Padding="10"
-                    Background="#2D2D30"
-                    BorderBrush="#3E3E42"
-                    BorderThickness="3">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Width="195"
-                            HorizontalAlignment="Center"
-                            FontSize="12"
-                            Text="Layers" />
-                        <Button Click="ToggleLayer">
-                            <material:MaterialIcon
-                                Width="20"
-                                Height="20"
-                                Foreground="White"
-                                Kind="Eye" />
-                        </Button>
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:material="using:Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="VectorEditor.UI.MainWindow"
+        Title="Vector Editor"
+        
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        TransparencyLevelHint="Mica, AcrylicBlur"
+        Background="Transparent"
+        Foreground="{DynamicResource ForegroundBrush}">
+
+    <Window.Resources>
+        <Color x:Key="SystemAccentColor">#007ACC</Color>
+        <Color x:Key="SystemAccentHoverColor">#1F8AD2</Color>
+        
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#1E1E1E" Opacity="0.95"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#252526"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="ForegroundBrush" Color="#F0F0F0"/>
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#999999"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource SystemAccentColor}"/>
+        <SolidColorBrush x:Key="HoverBrush" Color="#33FFFFFF"/>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="RadioButton.ToolItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="RootBorder" 
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderThickness="2,0,0,0"
+                            BorderBrush="Transparent">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                          Content="{TemplateBinding Content}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.ToolItem:pointerover /template/ Border#RootBorder">
+            <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+        </Style>
+        <Style Selector="RadioButton.ToolItem:checked /template/ Border#RootBorder">
+            <Setter Property="Background" Value="#22FFFFFF" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+        </Style>
+        <Style Selector="RadioButton.ToolItem:checked material|MaterialIcon">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+        </Style>
+
+        <Style Selector="Button.ColorSwatch">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#444"/>
+        </Style>
+        <Style Selector="Button.ColorSwatch:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.1)"/>
+        </Style>
+
+        <Style Selector="Button.SmallAction">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Width" Value="25"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.SmallAction:pointerover">
+            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+        </Style>
+
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="ToggleButton.LayerIcon">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+        </Style>
+        <Style Selector="ToggleButton.LayerIcon:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+        </Style>
+    </Window.Styles>
+
+    <Panel Background="{DynamicResource BackgroundBrush}">
+        <SplitView Name="MainSplitView"
+                   DisplayMode="CompactOverlay"
+                   CompactPaneLength="50"
+                   OpenPaneLength="250"
+                   IsPaneOpen="False"
+                   PaneBackground="{DynamicResource PanelBackgroundBrush}">
+
+            <SplitView.Pane>
+                <Grid RowDefinitions="40, *">
+                    <Button Grid.Row="0"
+                            Width="50" Height="40"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            HorizontalContentAlignment="Center"
+                            Click="ToggleMenu">
+                        <material:MaterialIcon Kind="Menu" Width="24" Foreground="{DynamicResource ForegroundBrush}"/>
+                    </Button>
+
+                    <StackPanel Grid.Row="1" Margin="10" Spacing="5" IsVisible="{Binding #MainSplitView.IsPaneOpen}">
+                        <TextBlock Text="PROJECT" FontWeight="Bold" Foreground="{DynamicResource MutedTextBrush}" Margin="5,10,0,5" FontSize="11"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Content="New Project" Padding="10"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Content="Open..." Padding="10"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Content="Save" Padding="10"/>
+                        <Separator Margin="0,10" Background="{DynamicResource BorderBrush}" Height="1"/>
+                        <TextBlock Text="EXPORT" FontWeight="Bold" Foreground="{DynamicResource MutedTextBrush}" Margin="5,10,0,5" FontSize="11"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Content="Export as SVG" Padding="10"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Content="Export as PNG" Padding="10"/>
                     </StackPanel>
+                </Grid>
+            </SplitView.Pane>
+
+            <Grid ColumnDefinitions="50, *, 280">
+                
+                <Border Grid.Column="0" Background="{DynamicResource PanelBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+                    <Grid RowDefinitions="40, *">
+                        <Panel Grid.Row="0"/> 
+                        
+                        <ScrollViewer Grid.Row="1">
+                            <StackPanel Spacing="2" Margin="0,10">
+                                <RadioButton Classes="ToolItem" GroupName="Tools" IsChecked="True" ToolTip.Tip="Selection (V)">
+                                    <material:MaterialIcon Kind="CursorDefault" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Direct Selection (A)">
+                                    <material:MaterialIcon Kind="CursorDefaultOutline" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="10,5"/>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Pen Tool (P)">
+                                    <material:MaterialIcon Kind="Pen" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Text">
+                                    <material:MaterialIcon Kind="FormatText" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="10,5"/>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Rectangle (R)">
+                                    <material:MaterialIcon Kind="VectorSquare" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Circle (C)">
+                                    <material:MaterialIcon Kind="CircleOutline" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Triangle">
+                                    <material:MaterialIcon Kind="TriangleOutline" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                                <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="10,5"/>
+                                <RadioButton Classes="ToolItem" GroupName="Tools" ToolTip.Tip="Eraser (E)">
+                                    <material:MaterialIcon Kind="Eraser" Width="20" Foreground="{DynamicResource ForegroundBrush}"/>
+                                </RadioButton>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </Border>
-            </StackPanel>
-        </Grid>
 
-        <Grid
-            x:Name="MenuOverlay"
-            Background="#AA000000"
-            ColumnDefinitions="320,*"
-            IsVisible="False"
-            RowDefinitions="50,*">
-            <Button
-                Grid.Row="0"
-                Grid.Column="0"
-                Click="ToggleMenu">
-                <material:MaterialIcon
-                    Width="20"
-                    Height="20"
-                    Foreground="White"
-                    Kind="Menu" />
-            </Button>
-            <Border
-                Grid.Row="1"
-                Grid.Column="0"
-                Width="300"
-                Height="400"
-                HorizontalAlignment="Center"
-                Background="#2D2D30"
-                BorderBrush="Gray"
-                BorderThickness="1"
-                CornerRadius="5">
+                <Grid Grid.Column="1" RowDefinitions="Auto, *">
+                    <Grid Grid.Row="0" Height="40" Background="Transparent" ColumnDefinitions="Auto, *, Auto">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,0">
+                            <Button Classes="ToolItem" ToolTip.Tip="Undo" Width="30" Height="30">
+                                <material:MaterialIcon Kind="Undo" Width="16" Foreground="{DynamicResource MutedTextBrush}"/>
+                            </Button>
+                            <Button Classes="ToolItem" ToolTip.Tip="Redo" Width="30" Height="30">
+                                <material:MaterialIcon Kind="Redo" Width="16" Foreground="{DynamicResource MutedTextBrush}"/>
+                            </Button>
+                        </StackPanel>
 
-                <StackPanel Spacing="10">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        Foreground="White"
-                        Text="Main Menu" />
-                    <Button HorizontalAlignment="Stretch" Content="Save Project" />
-                    <Button HorizontalAlignment="Stretch" Content="Load Project" />
-                    <Button HorizontalAlignment="Stretch" Content="Export (SVG)" />
-                    <Button HorizontalAlignment="Stretch" Content="Export (JPG)" />
-                    <Button HorizontalAlignment="Stretch" Content="Export (PNG)" />
-                </StackPanel>
-            </Border>
-        </Grid>
-    </Grid>
+                        <TextBlock Grid.Column="1" Text="Untitled_Vector.svg" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                   Foreground="{DynamicResource MutedTextBrush}" FontStyle="Italic"/>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" Background="#111" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <Grid Width="1000" Height="800" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.Effect>
+                                <DropShadowEffect BlurRadius="50" Color="Black" Opacity="0.5" OffsetX="0" OffsetY="0"/>
+                            </Grid.Effect>
+                            
+                            <Grid.Background>
+                                <VisualBrush TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
+                                    <VisualBrush.Visual>
+                                        <Canvas Width="20" Height="20" Background="#FFFFFF">
+                                            <Rectangle Width="10" Height="10" Fill="#F0F0F0"/>
+                                            <Rectangle Canvas.Top="10" Canvas.Left="10" Width="10" Height="10" Fill="#F0F0F0"/>
+                                        </Canvas>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Grid.Background>
+                            
+                            <Canvas Name="DrawingCanvas" Background="Transparent"/>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+
+                <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,0,0">
+                    <Grid RowDefinitions="40, Auto, *, Auto">
+                        <Panel Grid.Row="0"/>
+                        
+                        <StackPanel Grid.Row="1" Margin="15">
+                            <TextBlock Text="PROPERTIES" FontWeight="Bold" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,10"/>
+                            
+                            <Grid ColumnDefinitions="*, 10, *">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Fill" FontSize="12" Margin="0,5"/>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Height="30" Background="#FF5555"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Stroke" FontSize="12" Margin="0,5"/>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Height="30" Background="Transparent"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Stroke Width" FontSize="12" Margin="0,15,0,5"/>
+                            <Grid ColumnDefinitions="*, 10, 50">
+                                <Slider Grid.Column="0" Minimum="0" Maximum="20" Value="2" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBox Grid.Column="2" Text="2px" FontSize="12" Padding="2" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                            
+                            <TextBlock Text="Opacity" FontSize="12" Margin="0,10,0,5"/>
+                            <Grid ColumnDefinitions="*, 10, 50">
+                                <Slider Grid.Column="0" Minimum="0" Maximum="100" Value="100" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBox Grid.Column="2" Text="100%" FontSize="12" Padding="2" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <Separator Grid.Row="1" VerticalAlignment="Bottom" Background="{DynamicResource BorderBrush}" Height="1" Margin="15,0"/>
+
+                        <Grid Grid.Row="2" RowDefinitions="Auto, *">
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="15,15,15,5">
+                                <TextBlock Text="LAYERS" FontWeight="Bold" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                                    <Button Classes="SmallAction" ToolTip.Tip="New Layer">
+                                        <material:MaterialIcon Kind="Plus" Width="16"/>
+                                    </Button>
+                                    <Button Classes="SmallAction" ToolTip.Tip="Delete Layer">
+                                        <material:MaterialIcon Kind="TrashCanOutline" Width="16"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <ListBox Grid.Row="1" Background="Transparent" BorderThickness="0" SelectedIndex="0">
+                                <ListBoxItem IsSelected="True">
+                                    <Grid ColumnDefinitions="30, 30, *">
+                                        <ToggleButton Classes="LayerIcon" IsChecked="True">
+                                            <Panel>
+                                                <material:MaterialIcon Kind="Eye" Width="16" IsVisible="{Binding $parent[ToggleButton].IsChecked}"/>
+                                                <material:MaterialIcon Kind="EyeOff" Width="16" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding !$parent[ToggleButton].IsChecked}"/>
+                                            </Panel>
+                                        </ToggleButton>
+                                        <ToggleButton Grid.Column="1" Classes="LayerIcon">
+                                            <Panel>
+                                                <material:MaterialIcon Kind="Lock" Width="16" IsVisible="{Binding $parent[ToggleButton].IsChecked}"/>
+                                                <material:MaterialIcon Kind="LockOpenVariant" Width="16" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding !$parent[ToggleButton].IsChecked}"/>
+                                            </Panel>
+                                        </ToggleButton>
+                                        <TextBlock Grid.Column="2" Text="Main Path" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                    </Grid>
+                                </ListBoxItem>
+                                
+                                <ListBoxItem>
+                                    <Grid ColumnDefinitions="30, 30, *">
+                                        <ToggleButton Classes="LayerIcon" IsChecked="True">
+                                            <Panel>
+                                                <material:MaterialIcon Kind="Eye" Width="16" IsVisible="{Binding $parent[ToggleButton].IsChecked}"/>
+                                                <material:MaterialIcon Kind="EyeOff" Width="16" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding !$parent[ToggleButton].IsChecked}"/>
+                                            </Panel>
+                                        </ToggleButton>
+                                        <ToggleButton Grid.Column="1" Classes="LayerIcon" IsChecked="True">
+                                            <Panel>
+                                                <material:MaterialIcon Kind="Lock" Width="16" IsVisible="{Binding $parent[ToggleButton].IsChecked}"/>
+                                                <material:MaterialIcon Kind="LockOpenVariant" Width="16" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding !$parent[ToggleButton].IsChecked}"/>
+                                            </Panel>
+                                        </ToggleButton>
+                                        <TextBlock Grid.Column="2" Text="Reference Img" VerticalAlignment="Center" Foreground="{DynamicResource MutedTextBrush}"/>
+                                    </Grid>
+                                </ListBoxItem>
+                            </ListBox>
+                        </Grid>
+                        
+                        <Border Grid.Row="3" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="10">
+                            <DockPanel>
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Spacing="10">
+                                    <TextBlock Text="X: 102 Y: 405" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource MutedTextBrush}"/>
+                                    <TextBlock Text="100%" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </SplitView>
+    </Panel>
 </Window>
