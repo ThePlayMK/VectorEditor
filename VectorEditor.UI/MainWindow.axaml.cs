@@ -8,7 +8,7 @@ namespace VectorEditor.UI
     public partial class MainWindow : Window
     {
         private Button? _activeToolButton;
-        private string _selectedColor="#000000";
+        private IBrush _selectedColor =  new SolidColorBrush(Colors.Black);
         public MainWindow()
         {
             InitializeComponent();
@@ -38,15 +38,25 @@ namespace VectorEditor.UI
             _activeToolButton = clickedButton;
         }
 
-        void UpdateColor(string color)
+        void UpdateColor(IBrush color)
         {
             _selectedColor = color;
-            SelectedColor.Background = Brush.Parse(color);
+            SelectedColor.Background = color;
         }
         
         void ToggleMenu(object? sender, RoutedEventArgs? e)
         {
             MainSplitView.IsPaneOpen = !MainSplitView.IsPaneOpen;
+        }
+        
+        public void OnColorButtonClick(object? sender, RoutedEventArgs? e)
+        {
+            var button = sender as Button;
+
+            if (button?.Background != null)
+            {
+                UpdateColor(button.Background);
+            }
         }
     }
 }

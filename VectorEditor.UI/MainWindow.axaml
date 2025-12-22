@@ -136,44 +136,60 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
-                    <TextBlock Text="PROPERTIES" FontWeight="Bold" Margin="15,10" Opacity="0.6"></TextBlock>
-                    <WrapPanel Margin="15,0">
-                        <Button Background="Black" Classes="Colors"></Button>
-                        <Button Background="DarkGray" Classes="Colors"></Button>
-                        <Button Background="LightGray" Classes="Colors"></Button>
-                        <Button Background="White" Classes="Colors"></Button>
-                        <Button Background="DarkRed" Classes="Colors"></Button>
-                        <Button Background="Red" Classes="Colors"></Button>
-                        <Button Background="Tomato" Classes="Colors"></Button>
-                        <Button Background="OrangeRed" Classes="Colors"></Button>
-                        <Button Background="Orange" Classes="Colors"></Button>
-                        <Button Background="Gold" Classes="Colors"></Button>
-                        <Button Background="Yellow" Classes="Colors"></Button>
-                        <Button Background="YellowGreen" Classes="Colors"></Button>
-                        <Button Background="Lime" Classes="Colors"></Button>
-                        <Button Background="SeaGreen" Classes="Colors"></Button>
-                        <Button Background="Teal" Classes="Colors"></Button>
-                        <Button Background="Cyan" Classes="Colors"></Button>
-                        <Button Background="DeepSkyBlue" Classes="Colors"></Button>
-                        <Button Background="DodgerBlue" Classes="Colors"></Button>
-                        <Button Background="Blue" Classes="Colors"></Button>
-                        <Button Background="Navy" Classes="Colors"></Button>
-                        <Button Background="BlueViolet" Classes="Colors"></Button>
-                        <Button Background="Purple" Classes="Colors"></Button>
-                        <Button Background="Magenta" Classes="Colors"></Button>
-                        <Button Background="HotPink" Classes="Colors"></Button>
-                    </WrapPanel>
-                    <StackPanel Orientation="Horizontal" Margin="15,10">
-                        <TextBlock>R:</TextBlock>
-                        <TextBox Classes="Small" Margin="3,0,3,0" Name="InputColorR">0</TextBox>
-                        <TextBlock>G:</TextBlock>
-                        <TextBox Classes="Small" Margin="3,0,3,0" Name="InputColorG">0</TextBox>
-                        <TextBlock>B:</TextBlock>
-                        <TextBox Classes="Small" Margin="3,0,0,0" Name="InputColorB">0</TextBox>
-                        <Panel Classes="Colors" Margin="15,0,0,0" Width="17" Height="17" Background="Black" Name="SelectedColor"></Panel>
+                    <StackPanel Margin="15, 0">
+                        <TextBlock Text="PROPERTIES" FontWeight="Bold" Opacity="0.6"></TextBlock>
+                        <TextBlock Text="COLOR" FontWeight="Bold" Opacity="0.6"></TextBlock>
+                        <WrapPanel>
+                            <Button Background="Black" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="DarkGray" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="LightGray" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="White" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="DarkRed" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Red" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Tomato" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="OrangeRed" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Orange" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Gold" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Yellow" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="YellowGreen" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Lime" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="SeaGreen" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Teal" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Cyan" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="DeepSkyBlue" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="DodgerBlue" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Blue" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Navy" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="BlueViolet" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Purple" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="Magenta" Classes="Colors" Click="OnColorButtonClick"></Button>
+                            <Button Background="HotPink" Classes="Colors" Click="OnColorButtonClick"></Button>
+                        </WrapPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>R:</TextBlock>
+                            <TextBox Classes="Small" Margin="3,0,3,0" Name="InputColorR">0</TextBox>
+                            <TextBlock>G:</TextBlock>
+                            <TextBox Classes="Small" Margin="3,0,3,0" Name="InputColorG">0</TextBox>
+                            <TextBlock>B:</TextBlock>
+                            <TextBox Classes="Small" Margin="3,0,0,0" Name="InputColorB">0</TextBox>
+                            <Panel Classes="Colors" Margin="15,0,0,0" Width="17" Height="17" Background="Black"
+                                   Name="SelectedColor">
+                            </Panel>
+                        </StackPanel>
+                        <TextBlock Text="OPACITY" FontWeight="Bold" Opacity="0.6"></TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Slider Value="0" Minimum="0" Maximum="100" MinWidth="120" />
+                            <TextBox Classes="Small" Margin="3,0,3,0" Name="InputOpacity">0</TextBox>
+                        </StackPanel>
+                        <Grid RowDefinitions="*" ColumnDefinitions="*, auto, auto">
+                            <TextBlock Text="LAYERS" FontWeight="Bold" Opacity="0.6" Grid.Row="0"
+                                       VerticalAlignment="Center">
+                            </TextBlock>
+                            <Button Grid.Column="1" VerticalAlignment="Center">+</Button>
+                            <Button Grid.Column="2" VerticalAlignment="Center">-</Button>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
-                
             </Grid>
         </SplitView.Content>
     </SplitView>
