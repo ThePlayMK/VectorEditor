@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -124,7 +123,7 @@ namespace VectorEditor.UI
 
             byte a = (byte)(_opacity / 100.0 * 255);
             Color newColor = Color.FromArgb(a, (byte)r, (byte)g, (byte)b);
-    
+
             var newBrush = new SolidColorBrush(newColor);
             _selectedColor = newBrush;
             SelectedColor.Background = newBrush;
@@ -144,7 +143,39 @@ namespace VectorEditor.UI
             await using var stream = await files[0].OpenReadAsync();
             using var reader = new StreamReader(stream);
             var svgContent = await reader.ReadToEndAsync();
-            Debug.WriteLine(svgContent);
+            // This needs to be handled to do something with this
+        }
+
+        private async void SaveFile(object? sender, RoutedEventArgs e)
+        {
+            var topLevel = GetTopLevel(this);
+            if (topLevel == null) return;
+            var fileToSave = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Save as SVG",
+                DefaultExtension = ".svg",
+                SuggestedFileName = "project.svg",
+            });
+            if (fileToSave is null) return;
+            await using var writeStream = await fileToSave.OpenWriteAsync();
+            await using var writer = new StreamWriter(writeStream);
+            string projectData = "test";
+            await writer.WriteAsync(projectData);
+            // This needs to be handled to do something with this
+        }
+
+        private void NewProject(object? sender, RoutedEventArgs e)
+        {
+            _layerCount = 0;
+            _opacity = 100;
+            OpacityInput.Text = "100";
+            OpacitySlider.Value = 100;
+            UpdateColor(Brushes.Black, 0, 0, 0);
+            LayersStackPanel.Children.Clear();
+            _selectedLayer = null;
+            _activeToolButton?.Classes.Remove("Selected");
+            _activeToolButton = null;
+            CenterCanvas();
         }
 
         private void AddLayer(object? sender, RoutedEventArgs e)
@@ -158,12 +189,8 @@ namespace VectorEditor.UI
         private void SelectLayer(object? sender, RoutedEventArgs e)
         {
             if (e.Source is not Button button) return;
-            if (_selectedLayer != null)
-            {
-                var oldBtn = _selectedLayer.FindDescendantOfType<Button>();
-                if (oldBtn != null) oldBtn.Background = Brushes.Transparent;
-            }
-
+            var oldBtn = _selectedLayer?.FindDescendantOfType<Button>();
+            if (oldBtn != null) oldBtn.Background = Brushes.Transparent;
             _selectedLayer = button.FindAncestorOfType<LayerWidget>();
             if (_selectedLayer != null)
             {
@@ -187,6 +214,19 @@ namespace VectorEditor.UI
             matrix = MatrixHelper.ScaleAt(matrix, scaleFactor, scaleFactor, point.X, point.Y);
             transform.Matrix = matrix;
             e.Handled = true;
+        }
+
+        private void CenterCanvas()
+        {
+            if (_myCanvas?.RenderTransform is not MatrixTransform transform) return;
+            if (_myCanvas.Parent is not Control container) return;
+            var canvasBounds = _myCanvas.Bounds;
+            var containerBounds = container.Bounds;
+            var targetX = (containerBounds.Width - canvasBounds.Width) / 2;
+            var targetY = (containerBounds.Height - canvasBounds.Height) / 2;
+            var offsetX = targetX - canvasBounds.X;
+            var offsetY = targetY - canvasBounds.Y;
+            transform.Matrix = Matrix.CreateTranslation(offsetX, offsetY);
         }
 
         private void Canvas_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -249,22 +289,12 @@ namespace VectorEditor.UI
 
         private void Opacity_InputChange(object? sender, RoutedEventArgs e)
         {
-            if (int.TryParse(OpacityInput.Text, out int result))
-            {
-                _opacity = Math.Clamp(result, 0, 100);
-            }
-            else
-            {
-                _opacity = 0;
-            }
-
+            _opacity = int.TryParse(OpacityInput.Text, out int result) ? Math.Clamp(result, 0, 100) : 0;
             OpacitySlider.Value = _opacity;
             string newText = _opacity.ToString();
-            if (OpacityInput.Text != newText)
-            {
-                OpacityInput.Text = newText;
-                OpacityInput.CaretIndex = OpacityInput.Text.Length;
-            }
+            if (OpacityInput.Text == newText) return;
+            OpacityInput.Text = newText;
+            OpacityInput.CaretIndex = OpacityInput.Text.Length;
         }
     }
 

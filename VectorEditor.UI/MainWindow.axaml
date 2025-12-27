@@ -54,9 +54,9 @@
         <SplitView.Pane>
             <StackPanel Margin="0,50,0,0">
                 <TextBlock Text="PROJECT" FontWeight="Bold" Margin="15,10" Opacity="0.6" />
-                <Button Classes="MenuLink">New Project</Button>
+                <Button Classes="MenuLink" Click="NewProject">New Project</Button>
                 <Button Classes="MenuLink" Click="OpenFile">Open File</Button>
-                <Button Classes="MenuLink">Save</Button>
+                <Button Classes="MenuLink" Click="SaveFile">Save</Button>
                 <Separator Margin="10" Opacity="0.2" />
                 <TextBlock Text="EXPORT" FontWeight="Bold" Margin="15,10" Opacity="0.6" />
                 <Button Classes="MenuLink">Export PNG</Button>
@@ -126,7 +126,6 @@
                     <Button Classes="Round" ToolTip.Tip="Redo">
                         <material:MaterialIcon Kind="Redo" />
                     </Button>
-                    <TextBlock Name="Test">Test</TextBlock>
                 </StackPanel>
                 <Grid Grid.Column="1" Grid.Row="1">
                     <Border Name="CanvasBorder"
@@ -153,7 +152,7 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
-                    <StackPanel Margin="15">
+                    <StackPanel Margin="15 ,0">
                         <TextBlock Text="PROPERTIES" FontWeight="Bold" Opacity="0.6" FontSize="16" />
                         <TextBlock Text="COLOR" FontWeight="Bold" Opacity="0.6" />
                         <WrapPanel Button.Click="SelectColor">
@@ -182,7 +181,7 @@
                             <Button Background="Magenta" Classes="Colors" />
                             <Button Background="HotPink" Classes="Colors" />
                         </WrapPanel>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
                             <TextBlock>R:</TextBlock>
                             <TextBox Classes="Small" Margin="3,0,3,0" Name="InputColorR" TextChanged="Color_InputChange">0</TextBox>
                             <TextBlock>G:</TextBlock>
@@ -206,9 +205,11 @@
                                 -
                             </Button>
                         </Grid>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="0 5">
                         <ScrollViewer Height="250">
                             <StackPanel Button.Click="SelectLayer" Name="LayersStackPanel" Orientation="Vertical" />
                         </ScrollViewer>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
             </Grid>
