@@ -1,9 +1,21 @@
-﻿using VectorEditor.Core;
+﻿using VectorEditor.Core.Builder;
+using VectorEditor.Core.Command;
+using VectorEditor.Core.Composite;
+using VectorEditor.Core.Structures;
 
-var service = new CalculatorService();
+var canvas = new List<IShape>();
 
-Console.WriteLine("--- Console Application ---");
-Console.WriteLine(service.GetGreeting());
+var builder = new LineBuilder("black", 2)
+    .SetStart(new Point(0, 0))
+    .SetEnd(new Point(5, 5));
 
-int result = service.Add(10, 50);
-Console.WriteLine($"Result from Core Logic: {result}");
+var cmdManager = new CommandManager();
+
+cmdManager.Execute(new AddShapeCommand(builder, canvas));
+Console.WriteLine($"Canvas after add: {string.Join(", ", canvas.Select(s => s.ToString()))}");
+
+cmdManager.Undo();
+Console.WriteLine($"Canvas after undo: {string.Join(", ", canvas.Select(s => s.ToString()))}");
+
+cmdManager.Redo();
+Console.WriteLine($"Canvas after redo: {string.Join(", ", canvas.Select(s => s.ToString()))}");
