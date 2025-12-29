@@ -21,3 +21,4 @@ project.nuget.cache
 #python
 .venv/
 venv/
+global.json
