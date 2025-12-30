@@ -8,8 +8,8 @@ public class Rectangle : IShape
     private Point HelperPoint1 { get; set; }
     private Point OppositePoint { get; set; }
     private Point HelperPoint2 { get; set; }
-    private string ContentColor { get; set; }
-    private string ContourColor { get; set; }
+    public string ContentColor { get; set; }
+    public string ContourColor { get; set; }
     private int Width { get; set; }
     public string Name => "Rectangle";
 

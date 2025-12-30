@@ -7,7 +7,7 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     private Point CenterPoint { get; set; } = centerPoint;
     private double Radius { get; set; } = radius;
     private string ContentColor { get; set; } = contentColor;
-    private string ContourColor { get; set; } = contourColor;
+    public string ContourColor { get; set; } = contourColor;
     private int Width { get; set; } = width;
     public string Name => "Circle";
     

@@ -2,16 +2,16 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Structures;
 
-public class Line(Point startPoint, Point endPoint, string color, int width) : IShape
+public class Line(Point startPoint, Point endPoint, string contourColor, int width) : IShape
 {
     private Point StartPoint { get; set; } = startPoint;
     private Point EndPoint { get; set; } = endPoint;
-    private string Color { get; set; } = color;
+    public string ContourColor { get; set; } = contourColor;
     private int Width { get; set; } = width;
     public string Name => "Line";
     
     public override string ToString() => 
-        $"Line from {StartPoint} to {EndPoint}, Color: {Color}, Width: {Width}px";
+        $"Line from {StartPoint} to {EndPoint}, ContourColor: {ContourColor}, Width: {Width}px";
     public void ConsoleDisplay(int depth = 0)
     {
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());

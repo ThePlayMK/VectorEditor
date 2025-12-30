@@ -4,17 +4,17 @@ namespace VectorEditor.Core.Structures;
 
 public class CustomShape(List<Point> points, string contentColor, string contourColor, int width) : IShape
 {
-    private List<Point> _points = points;
-    private string _contentColor = contentColor;
-    private string _contourColor = contourColor;
-    private int _width = width;
+    private List<Point> Points { get; set; } = points;
+    private string ContentColor { get; set; } = contentColor;
+    public string ContourColor { get; set; } = contourColor;
+    private int Width { get; set; } = width;
     public string Name => "Custom";
 
     public override string ToString()
     {
-        var pointsStr = string.Join(",\n", _points.Select(p => p.ToString()));
+        var pointsStr = string.Join(",\n", Points.Select(p => p.ToString()));
         return
-            $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
+            $"Custom shape with points: [{pointsStr}], Content: {ContentColor}, Contour: {ContourColor}, Width: {Width}px";
     }
 
     public void ConsoleDisplay(int depth = 0)
@@ -24,17 +24,17 @@ public class CustomShape(List<Point> points, string contentColor, string contour
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
-        if (_points.Count < 2) return false;
+        if (Points.Count < 2) return false;
 
         // 1. Sprawdź, czy jakikolwiek punkt kształtu jest wewnątrz zaznaczenia
-        if (_points.Any(p => p.X >= startPoint.X && p.X <= oppositePoint.X && p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
+        if (Points.Any(p => p.X >= startPoint.X && p.X <= oppositePoint.X && p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
             return true;
 
         // 2. Sprawdź przecięcia krawędzi (w tym domykającej ostatni z pierwszym)
-        for (var i = 0; i < _points.Count; i++)
+        for (var i = 0; i < Points.Count; i++)
         {
-            var pStart = _points[i];
-            var pEnd = _points[(i + 1) % _points.Count]; // To zapewnia "niewidzialną krawędź" domykającą
+            var pStart = Points[i];
+            var pEnd = Points[(i + 1) % Points.Count]; // To zapewnia "niewidzialną krawędź" domykającą
 
             if (LineIntersectsRect(pStart, pEnd, startPoint, oppositePoint))
                 return true;
@@ -44,7 +44,7 @@ public class CustomShape(List<Point> points, string contentColor, string contour
         // (Obsługa przypadku, gdy zaznaczenie jest całkowicie w środku dużego kształtu)
         var center = new Point((startPoint.X + oppositePoint.X) / 2, (startPoint.Y + oppositePoint.Y) / 2);
 
-        return IsPointInPolygon(center, _points);
+        return IsPointInPolygon(center, Points);
 
     }
 

@@ -3,6 +3,7 @@ using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
+Console.WriteLine("Hello, World!");
 
 // test buildera
 /*var rootLayer = new Layer("Root Canvas");
@@ -90,8 +91,9 @@ Console.WriteLine("=== PEŁNA ZAWARTOŚĆ LAYERA (DLA PORÓWNANIA) ===");
 testLayer.ConsoleDisplay();
 */
 
+// test grupowania
+/*
 // --- PRZYGOTOWANIE STRUKTURY ---
-
 var rootLayer = new Layer("World");
 var headLayer = new Layer("Head Layer");
 var bodyLayer = new Layer("Body Layer");
@@ -133,3 +135,4 @@ cmdManager.Execute(selectAll);
 Console.WriteLine("\n>>> TEST 3: ZAZNACZENIE PRAWEJ RĘKI <<<");
 var selectHand = new GroupCommand(rootLayer, new Point(70, 75), new Point(100, 100));
 cmdManager.Execute(selectHand);
+*/
