@@ -7,6 +7,7 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
     private Point StartPoint { get; set; } = startPoint;
     private Point EndPoint { get; set; } = endPoint;
     public string ContourColor { get; set; } = contourColor;
+    public string ContentColor { get; set; } = string.Empty;
     private int Width { get; set; } = width;
     public string Name => "Line";
     
@@ -17,8 +18,12 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
     }
 
-    public bool IsWithinBounds(Point tl, Point br)
+    public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
+        // NORMALIZACJA ZAZNACZENIA
+        var tl = new Point(Math.Min(startPoint.X, oppositePoint.X), Math.Min(startPoint.Y, oppositePoint.Y));
+        var br = new Point(Math.Max(startPoint.X, oppositePoint.X), Math.Max(startPoint.Y, oppositePoint.Y));
+        
         // 1. Sprawdź czy którykolwiek z końców linii jest wewnątrz prostokąta
         if (IsPointInRect(StartPoint, tl, br) || IsPointInRect(EndPoint, tl, br))
             return true;

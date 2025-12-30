@@ -5,7 +5,7 @@ namespace VectorEditor.Core.Structures;
 public class CustomShape(List<Point> points, string contentColor, string contourColor, int width) : IShape
 {
     private List<Point> Points { get; set; } = points;
-    private string ContentColor { get; set; } = contentColor;
+    public string ContentColor { get; set; } = contentColor;
     public string ContourColor { get; set; } = contourColor;
     private int Width { get; set; } = width;
     public string Name => "Custom";
@@ -24,11 +24,23 @@ public class CustomShape(List<Point> points, string contentColor, string contour
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
-        if (Points.Count < 2) return false;
+        var h1 = new Point(Math.Min(startPoint.X, oppositePoint.X), Math.Min(startPoint.Y, oppositePoint.Y));
+        var h2 = new Point(Math.Max(startPoint.X, oppositePoint.X), Math.Max(startPoint.Y, oppositePoint.Y));
+        startPoint = h1;
+        oppositePoint = h2;
+
+        if (Points.Count < 2)
+        {
+            return false;
+        }
 
         // 1. Sprawdź, czy jakikolwiek punkt kształtu jest wewnątrz zaznaczenia
-        if (Points.Any(p => p.X >= startPoint.X && p.X <= oppositePoint.X && p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
+        if (Points.Any(p =>
+                p.X >= startPoint.X && p.X <= oppositePoint.X && 
+                p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
+        {
             return true;
+        }
 
         // 2. Sprawdź przecięcia krawędzi (w tym domykającej ostatni z pierwszym)
         for (var i = 0; i < Points.Count; i++)

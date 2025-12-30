@@ -35,13 +35,23 @@ public class Rectangle : IShape
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
-        // Sprawdzamy, czy prostokąty NIE są rozłączne.
-        // Dwa prostokąty nachodzą na siebie, jeśli:
-        // (Lewa krawędź A < Prawa krawędź B) ORAZ (Prawa krawędź A > Lewa krawędź B)
-        // ORAZ to samo dla osi Y.
+        // 1. Wyznaczamy krawędzie prostokąta obiektu
+        var rectLeft = Math.Min(StartPoint.X, OppositePoint.X);
+        var rectRight = Math.Max(StartPoint.X, OppositePoint.X);
+        var rectTop = Math.Min(StartPoint.Y, OppositePoint.Y);
+        var rectBottom = Math.Max(StartPoint.Y, OppositePoint.Y);
 
-        var overlapX = StartPoint.X <= oppositePoint.X && OppositePoint.X >= startPoint.X;
-        var overlapY = StartPoint.Y <= oppositePoint.Y && OppositePoint.Y >= startPoint.Y;
+        // 2. Wyznaczamy krawędzie prostokąta zaznaczenia
+        var selLeft = Math.Min(startPoint.X, oppositePoint.X);
+        var selRight = Math.Max(startPoint.X, oppositePoint.X);
+        var selTop = Math.Min(startPoint.Y, oppositePoint.Y);
+        var selBottom = Math.Max(startPoint.Y, oppositePoint.Y);
+
+        // 3. Test nachodzenia (AABB)
+        var overlapX = rectLeft <= selRight && 
+                       rectRight >= selLeft;
+        var overlapY = rectTop <= selBottom && 
+                       rectBottom >= selTop;
 
         return overlapX && overlapY;
     }

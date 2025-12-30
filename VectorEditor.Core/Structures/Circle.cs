@@ -6,7 +6,7 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
 {
     private Point CenterPoint { get; set; } = centerPoint;
     private double Radius { get; set; } = radius;
-    private string ContentColor { get; set; } = contentColor;
+    public string ContentColor { get; set; } = contentColor;
     public string ContourColor { get; set; } = contourColor;
     private int Width { get; set; } = width;
     public string Name => "Circle";
@@ -21,6 +21,11 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
+        
+        var h1 = new Point(Math.Min(startPoint.X, oppositePoint.X), Math.Min(startPoint.Y, oppositePoint.Y));
+        var h2 = new Point(Math.Max(startPoint.X, oppositePoint.X), Math.Max(startPoint.Y, oppositePoint.Y));
+        startPoint = h1;
+        oppositePoint = h2;
         // 1. Znajdź punkt na prostokącie (lub w jego środku), który jest najbliżej środka koła
         // Clampujemy współrzędne środka koła do zakresu prostokąta [tl, br]
         var closestX = Math.Clamp(CenterPoint.X, startPoint.X, oppositePoint.X);

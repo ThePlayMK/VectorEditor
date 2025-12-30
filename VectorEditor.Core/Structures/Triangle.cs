@@ -22,6 +22,10 @@ public class Triangle(Point firstPoint, Point secondPoint, Point thirdPoint, str
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
+        var h1 = new Point(Math.Min(startPoint.X, oppositePoint.X), Math.Min(startPoint.Y, oppositePoint.Y));
+        var h2 = new Point(Math.Max(startPoint.X, oppositePoint.X), Math.Max(startPoint.Y, oppositePoint.Y));
+        startPoint = h1;
+        oppositePoint = h2;
         List<Point> vertices = [FirstPoint, SecondPoint, ThirdPoint];
         // 1. Czy jakikolwiek wierzchołek trójkąta jest wewnątrz zaznaczenia?
         if (vertices.Any(p => p.X >= startPoint.X && p.X <= oppositePoint.X && p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))

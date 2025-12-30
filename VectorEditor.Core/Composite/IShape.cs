@@ -4,4 +4,5 @@ public interface IShape : ICanvas
 {
     string Name { get; }
     string ContourColor { get; set;}
+    string ContentColor { get; set;}
 }
