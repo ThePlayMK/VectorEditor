@@ -24,6 +24,12 @@ public class Rectangle : IShape
         HelperPoint2 = new Point(OppositePoint.X, StartPoint.Y);
     }
     
-    public override string ToString() => $"Rectangle from ({StartPoint}), ({HelperPoint1}), ({OppositePoint}), ({HelperPoint2})";
+    public override string ToString() => 
+        $"Rectangle from ({StartPoint}), ({HelperPoint1}), ({OppositePoint}), ({HelperPoint2})";
 
+    
+    public void ConsoleDisplay(int depth = 0)
+    {
+        Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
+    }
 }

@@ -12,5 +12,11 @@ public class Triangle(Point firstPoint, Point secondPoint, Point thirdPoint, str
     private int Width { get; set; } = width;
     public string Name => "Triangle";
     
-    public override string ToString() => $"Rectangle from ({FirstPoint}), ({SecondPoint}), ({ThirdPoint}); Color: {ContentColor} and {ContourColor}, Width: {Width}px";
+    public override string ToString() => 
+        $"Rectangle from ({FirstPoint}), ({SecondPoint}), ({ThirdPoint}); Color: {ContentColor} and {ContourColor}, Width: {Width}px";
+    
+    public void ConsoleDisplay(int depth = 0)
+    {
+        Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
+    }
 }

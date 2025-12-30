@@ -16,4 +16,8 @@ public class CustomShape(List<Point> points, string contentColor, string contour
         return $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
     }
     
+    public void ConsoleDisplay(int depth = 0)
+    {
+        Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
+    }
 }
