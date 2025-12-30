@@ -23,7 +23,7 @@ public class GroupCommand(Layer targetLayer, Point p1, Point p2) : ICommand
 
     public void Undo()
     {
-        // Komenda na ten moment nie zmienia stanu, więc Undo jest puste
+        _foundElements.Clear();
     }
     
     private static void DisplayResults(Layer layer, List<ICanvas> elements, Point tl, Point br)
