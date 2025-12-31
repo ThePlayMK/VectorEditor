@@ -22,7 +22,11 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
     public int GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetEndPoint() => _endPoint;
-    
+    public IEnumerable<Point> GetPoints()
+    {
+        throw new NotImplementedException();
+    }
+
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
     public void SetContentColor(string color)
     {
@@ -42,15 +46,19 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
         if (IsBlocked) return;
         _width = width;
     }
+    
+    public void SetPoints(List<Point> scaleMementoPoints)
+    {
+        throw new NotImplementedException();
+    }
 
     // --- GEOMETRIA ---
-    
     public void Move(int dx, int dy)
-        {
-            if (IsBlocked) return;
-            _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
-            _endPoint = new Point(_endPoint.X + dx, _endPoint.Y + dy);
-        }
+    {
+        if (IsBlocked) return;
+        _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
+        _endPoint = new Point(_endPoint.X + dx, _endPoint.Y + dy);
+    }
     
     public void Scale(ScaleHandle handle, Point newPos)
     {

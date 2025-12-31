@@ -23,6 +23,11 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     public Point GetCenterPoint() => _centerPoint;
     public double GetRadius() => _radius;
     
+    public IEnumerable<Point> GetPoints()
+    {
+        throw new NotImplementedException();
+    }
+    
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
     public void SetContentColor(string color)
     {
@@ -46,6 +51,11 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     {
         if (IsBlocked) return;
         _radius = radius;
+    }
+    
+    public void SetPoints(List<Point> scaleMementoPoints)
+    {
+        throw new NotImplementedException();
     }
     
     // --- GEOMETRIA ---

@@ -10,6 +10,8 @@ public interface ICanvas
     void Move(int dx, int dy);
     void Scale(ScaleHandle handle, Point newPos); 
     void ScaleTransform(Point pivot, double sx, double sy);
+    IEnumerable<Point> GetPoints();
+    void SetPoints(List<Point> scaleMementoPoints);
     double GetMinX();
     double GetMaxX();
     double GetMinY();

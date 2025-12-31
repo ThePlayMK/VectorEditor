@@ -34,7 +34,7 @@ public class ApplyStrategyCommand: ICommand
 
     public void Undo()
     {
-        for (int i = _targets.Count - 1; i >= 0; i--)
+        for (var i = _targets.Count - 1; i >= 0; i--)
         {
             _strategy.Undo(_targets[i], _mementos[i]);
         }

@@ -20,6 +20,7 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     public string GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public IEnumerable<Point> GetPoints() => _points;
+    
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
     public void SetContentColor(string color)
@@ -40,11 +41,9 @@ public class CustomShape(List<Point> points, string contentColor, string contour
         _width = width;
     }
     
-    public override string ToString()
+    public void SetPoints(List<Point> scaleMementoPoints)
     {
-        var pointsStr = string.Join(",\n", _points.Select(p => p.ToString()));
-        return
-            $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
+        throw new NotImplementedException();
     }
 
     // --- GEOMETRIA ---
@@ -166,5 +165,12 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     {
         if (!IsVisible) return;
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
+    }
+    
+    public override string ToString()
+    {
+        var pointsStr = string.Join(",\n", _points.Select(p => p.ToString()));
+        return
+            $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
     }
 }

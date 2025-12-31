@@ -28,13 +28,36 @@ public class Rectangle : IShape
         _width = width;
         UpdateHelperPoints();
     }
-    
+
     // --- GETTERY (Publiczne) ---
     public string GetContentColor() => _contentColor;
     public string GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetOppositePoint() => _oppositePoint;
+    
+    public IEnumerable<Point> GetPoints()
+    {
+        return new List<Point> {_startPoint, _oppositePoint};
+    }
+
+    // --- SETERY (Publiczne) ---
+    public void SetPoints(List<Point> points)
+    {
+        if (IsBlocked) return;
+
+        // Sprawdzamy, czy dostaliśmy odpowiednią liczbę punktów (dla prostokąta to 2)
+        if (points.Count < 2)
+        {
+            return;
+        }
+        _startPoint = points[0];
+        _oppositePoint = points[1];
+
+        // Bardzo ważne: po ręcznym ustawieniu punktów musimy 
+        // zaktualizować pomocnicze punkty (te od renderowania)
+        UpdateHelperPoints();
+    }
     
     public void SetContentColor(string color)
     {
@@ -53,18 +76,18 @@ public class Rectangle : IShape
         if (IsBlocked) return;
         _width = width;
     }
-    
+
     // --- GEOMETRIA (Również pilnuje blokady) ---
-    
+
     public void Move(int dx, int dy)
-        {
-            if (IsBlocked) return;
-            _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
-            _oppositePoint = new Point(_oppositePoint.X + dx, _oppositePoint.Y + dy);
-            // Aktualizujemy punkty pomocnicze, jeśli są używane w renderowaniu
-            _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
-            _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
-        }
+    {
+        if (IsBlocked) return;
+        _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
+        _oppositePoint = new Point(_oppositePoint.X + dx, _oppositePoint.Y + dy);
+        // Aktualizujemy punkty pomocnicze, jeśli są używane w renderowaniu
+        _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
+        _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
+    }
 
     // --- SKALOWANIE ---
     public void Scale(ScaleHandle handle, Point newPos)
@@ -80,14 +103,14 @@ public class Rectangle : IShape
         // 1. Wyznaczamy punkt Pivot (punkt stały) dla samego prostokąta
         var pivot = handle switch
         {
-            ScaleHandle.TopLeft     => new Point(right, bottom),
-            ScaleHandle.Top         => new Point(left, bottom),
-            ScaleHandle.TopRight    => new Point(left, bottom),
-            ScaleHandle.Right       => new Point(left, top),
+            ScaleHandle.TopLeft => new Point(right, bottom),
+            ScaleHandle.Top => new Point(left, bottom),
+            ScaleHandle.TopRight => new Point(left, bottom),
+            ScaleHandle.Right => new Point(left, top),
             ScaleHandle.BottomRight => new Point(left, top),
-            ScaleHandle.Bottom      => new Point(left, top),
-            ScaleHandle.BottomLeft  => new Point(right, top),
-            ScaleHandle.Left        => new Point(right, top),
+            ScaleHandle.Bottom => new Point(left, top),
+            ScaleHandle.BottomLeft => new Point(right, top),
+            ScaleHandle.Left => new Point(right, top),
             _ => new Point(left, top)
         };
 
@@ -99,14 +122,36 @@ public class Rectangle : IShape
 
         switch (handle)
         {
-            case ScaleHandle.TopLeft:     newW = right - newPos.X; newH = bottom - newPos.Y; break;
-            case ScaleHandle.Top:         newH = bottom - newPos.Y; break;
-            case ScaleHandle.TopRight:    newW = newPos.X - left; newH = bottom - newPos.Y; break;
-            case ScaleHandle.Right:       newW = newPos.X - left; break;
-            case ScaleHandle.BottomRight: newW = newPos.X - left; newH = newPos.Y - top; break;
-            case ScaleHandle.Bottom:      newH = newPos.Y - top; break;
-            case ScaleHandle.BottomLeft:  newW = right - newPos.X; newH = newPos.Y - top; break;
-            case ScaleHandle.Left:        newW = right - newPos.X; break;
+            case ScaleHandle.TopLeft:
+                newW = right - newPos.X;
+                newH = bottom - newPos.Y;
+                break;
+            case ScaleHandle.Top:
+                newH = bottom - newPos.Y;
+                break;
+            case ScaleHandle.TopRight:
+                newW = newPos.X - left;
+                newH = bottom - newPos.Y;
+                break;
+            case ScaleHandle.Right:
+                newW = newPos.X - left;
+                break;
+            case ScaleHandle.BottomRight:
+                newW = newPos.X - left;
+                newH = newPos.Y - top;
+                break;
+            case ScaleHandle.Bottom:
+                newH = newPos.Y - top;
+                break;
+            case ScaleHandle.BottomLeft:
+                newW = right - newPos.X;
+                newH = newPos.Y - top;
+                break;
+            case ScaleHandle.Left:
+                newW = right - newPos.X;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
         }
 
         var sx = newW / oldW;
@@ -123,7 +168,7 @@ public class Rectangle : IShape
         // Każdy punkt prostokąta transformujemy względem Pivotu
         _startPoint = TransformPoint(_startPoint, pivot, sx, sy);
         _oppositePoint = TransformPoint(_oppositePoint, pivot, sx, sy);
-        
+
         UpdateHelperPoints();
     }
 
@@ -148,36 +193,34 @@ public class Rectangle : IShape
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
-        {
-            // 1. Wyznaczamy krawędzie prostokąta obiektu
-            var rectLeft = Math.Min(_startPoint.X, _oppositePoint.X);
-            var rectRight = Math.Max(_startPoint.X, _oppositePoint.X);
-            var rectTop = Math.Min(_startPoint.Y, _oppositePoint.Y);
-            var rectBottom = Math.Max(_startPoint.Y, _oppositePoint.Y);
-    
-            // 2. Wyznaczamy krawędzie prostokąta zaznaczenia
-            var selLeft = Math.Min(startPoint.X, oppositePoint.X);
-            var selRight = Math.Max(startPoint.X, oppositePoint.X);
-            var selTop = Math.Min(startPoint.Y, oppositePoint.Y);
-            var selBottom = Math.Max(startPoint.Y, oppositePoint.Y);
-    
-            // 3. Test nachodzenia (AABB)
-            var overlapX = rectLeft <= selRight && 
-                           rectRight >= selLeft;
-            var overlapY = rectTop <= selBottom && 
-                           rectBottom >= selTop;
-    
-            return overlapX && overlapY;
-        }
-    
-    public override string ToString() => 
+    {
+        // 1. Wyznaczamy krawędzie prostokąta obiektu
+        var rectLeft = Math.Min(_startPoint.X, _oppositePoint.X);
+        var rectRight = Math.Max(_startPoint.X, _oppositePoint.X);
+        var rectTop = Math.Min(_startPoint.Y, _oppositePoint.Y);
+        var rectBottom = Math.Max(_startPoint.Y, _oppositePoint.Y);
+
+        // 2. Wyznaczamy krawędzie prostokąta zaznaczenia
+        var selLeft = Math.Min(startPoint.X, oppositePoint.X);
+        var selRight = Math.Max(startPoint.X, oppositePoint.X);
+        var selTop = Math.Min(startPoint.Y, oppositePoint.Y);
+        var selBottom = Math.Max(startPoint.Y, oppositePoint.Y);
+
+        // 3. Test nachodzenia (AABB)
+        var overlapX = rectLeft <= selRight &&
+                       rectRight >= selLeft;
+        var overlapY = rectTop <= selBottom &&
+                       rectBottom >= selTop;
+
+        return overlapX && overlapY;
+    }
+
+    public override string ToString() =>
         $"Rectangle from ({_startPoint}), ({_helperPoint1}), ({_oppositePoint}), ({_helperPoint2}) Color: {_contentColor} and {_contourColor}";
-    
+
     public void ConsoleDisplay(int depth = 0)
     {
         if (!IsVisible) return;
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
     }
-
-    
 }
