@@ -17,7 +17,11 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     public override string ToString() => 
         $"Circle Center: {CenterPoint}, Radius: {Radius}, Color: {ContentColor} and {ContourColor}, Width: {Width}px";
 
-    
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        CenterPoint = new Point(CenterPoint.X + dx, CenterPoint.Y + dy);
+    }
 
     public void ConsoleDisplay(int depth = 0)
     {

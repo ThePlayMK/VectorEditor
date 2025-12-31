@@ -30,6 +30,15 @@ public class Rectangle : IShape
     public override string ToString() => 
         $"Rectangle from ({StartPoint}), ({HelperPoint1}), ({OppositePoint}), ({HelperPoint2}) Color: {ContentColor} and {ContourColor}";
 
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        StartPoint = new Point(StartPoint.X + dx, StartPoint.Y + dy);
+        OppositePoint = new Point(OppositePoint.X + dx, OppositePoint.Y + dy);
+        // Aktualizujemy punkty pomocnicze, jeśli są używane w renderowaniu
+        HelperPoint1 = new Point(StartPoint.X, OppositePoint.Y);
+        HelperPoint2 = new Point(OppositePoint.X, StartPoint.Y);
+    }
     
     public void ConsoleDisplay(int depth = 0)
     {

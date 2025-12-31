@@ -1,0 +1,25 @@
+using VectorEditor.Core.Composite;
+
+namespace VectorEditor.Core.Strategy;
+
+public class MoveCanvasStrategy(int dx, int dy) : IModificationStrategy
+{
+    public object Apply(ICanvas target)
+    {
+        if (target.IsBlocked) return false;
+
+        target.Move(dx, dy);
+        return true;
+    }
+
+    public void Undo(ICanvas target, object? memento)
+    {
+        if (memento is List<ICanvas> affectedElements)
+        {
+            foreach (var element in affectedElements)
+            {
+                element.Move(-dx, -dy);
+            }
+        }
+    }
+}

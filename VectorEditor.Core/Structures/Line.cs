@@ -21,6 +21,13 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
         if (!IsVisible) return;
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
     }
+    
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        StartPoint = new Point(StartPoint.X + dx, StartPoint.Y + dy);
+        EndPoint = new Point(EndPoint.X + dx, EndPoint.Y + dy);
+    }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {

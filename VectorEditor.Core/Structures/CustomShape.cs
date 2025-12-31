@@ -20,6 +20,15 @@ public class CustomShape(List<Point> points, string contentColor, string contour
             $"Custom shape with points: [{pointsStr}], Content: {ContentColor}, Contour: {ContourColor}, Width: {Width}px";
     }
 
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        for (var i = 0; i < Points.Count; i++)
+        {
+            Points[i] = new Point(Points[i].X + dx, Points[i].Y + dy);
+        }
+    }
+    
     public void ConsoleDisplay(int depth = 0)
     {
         if (!IsVisible) return;

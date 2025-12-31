@@ -9,6 +9,11 @@ public class AddShapeCommand(IShapeBuilder builder, Layer targetLayer) : IComman
 
     public void Execute()
     {
+        if (targetLayer.IsBlocked)
+        {
+            return;
+        }
+        
         _createdShape = builder.Build();
         targetLayer.Add(_createdShape);
     }

@@ -1,8 +1,7 @@
-﻿using VectorEditor.Core.Builder;
-using VectorEditor.Core.Command;
+﻿using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
-using VectorEditor.Core.Structures;
 using VectorEditor.Core.Strategy;
+using VectorEditor.Core.Structures;
 
 Console.WriteLine("Hello, World!");
 
@@ -52,8 +51,6 @@ cmdManager.Redo();
 Console.WriteLine("Canvas after redo:");
 rootLayer.ConsoleDisplay();
 */
-
-
 
 // test prostego zaznaczania
 /*
@@ -667,6 +664,7 @@ Console.WriteLine("\n>>> KONIEC TESTÓW BLOKOWANIA/ODBLOKOWYWANIA PRZEZ STRATEGI
 */
 
 // --- TEST 21: UKRYWANIE POJEDYNCZEGO KSZTAŁTU ---
+/*
 var rootLayer = new Layer("World");
 var testLayer = new Layer("Test Layer");
 rootLayer.Add(testLayer);
@@ -735,3 +733,91 @@ hiddenLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTÓW UKRYWANIA/POKAZYWANIA <<<");
 
+*/
+
+// --- TEST 23: MÓJ TEST PRZESUWANIE
+/*
+Console.WriteLine("\n>>> TEST 23: PRZESUWANIE ELEMENTÓW <<<");
+
+var cmdManager = new CommandManager();
+var moveLayer = new Layer("Move Test Layer");
+var rectToMove = new Rectangle(new Point(0, 0), new Point(10, 10), "blue", "black", 1);
+var blockedRect = new Rectangle(new Point(100, 100), new Point(110, 110), "red", "black", 1)
+{
+    IsBlocked = true // Ten nie powinien się ruszyć
+};
+
+moveLayer.Add(rectToMove);
+moveLayer.Add(blockedRect);
+
+Console.WriteLine("Stan początkowy:");
+moveLayer.ConsoleDisplay();
+
+// 1. Przesuwamy całą warstwę o (5, 10)
+var moveStrategy = new MoveCanvasStrategy(5, 10);
+var moveCmd = new ApplyStrategyCommand(moveStrategy, moveLayer);
+    
+Console.WriteLine("\nPrzesuwam warstwę o dx=5, dy=10...");
+cmdManager.Execute(moveCmd);
+
+Console.WriteLine("Stan po przesunięciu (niebieski powinien się zmienić, czerwony zostać w miejscu):");
+moveLayer.ConsoleDisplay();
+
+// 2. Test UNDO
+Console.WriteLine("\nWykonuję UNDO...");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO (niebieski powinien wrócić na (0,0)):");
+moveLayer.ConsoleDisplay();
+
+// 3. Test przesuwania zaznaczenia (Selection)
+Console.WriteLine("\n>>> TEST 24: PRZESUWANIE ZAZNACZENIA <<<");
+// Tworzymy nową komendę przesunięcia tylko dla niebieskiego prostokąta (jako lista)
+var selectMoveCmd = new ApplyStrategyCommand(new MoveCanvasStrategy(50, 50), new List<ICanvas> { rectToMove });
+    
+cmdManager.Execute(selectMoveCmd);
+Console.WriteLine("Po przesunięciu samego niebieskiego o (50, 50):");
+moveLayer.ConsoleDisplay();*/
+
+// --- TEST 25: BLOKADA DODAWANIA DO ZABLOKOWANEJ WARSTWY ---
+/*
+Console.WriteLine("\n>>> TEST 25: BLOKADA DODAWANIA DO ZABLOKOWANEJ WARSTWY <<<");
+
+var cmdManager = new CommandManager();
+var lockedLayer = new Layer("Locked Layer")
+{
+    IsBlocked = true // Ręcznie blokujemy warstwę
+};
+
+var circleBuilder = new VectorEditor.Core.Builder.CircleBuilder("yellow", "black", 2)
+    .SetStart(new Point(50, 50))
+    .SetRadius(10);
+
+var addCmd = new AddShapeCommand(circleBuilder, lockedLayer);
+
+Console.WriteLine($"Próba dodania koła do warstwy '{lockedLayer.Name}' (IsBlocked: {lockedLayer.IsBlocked})...");
+cmdManager.Execute(addCmd);
+
+Console.WriteLine("\nStan warstwy po próbie dodania (powinna być pusta):");
+lockedLayer.ConsoleDisplay();
+
+// Sprawdźmy co się stanie przy Undo (nie powinno być błędów)
+Console.WriteLine("\nWykonuję UNDO (cofam próbę dodania):");
+cmdManager.Undo();
+    
+Console.WriteLine("Stan po UNDO:");
+lockedLayer.ConsoleDisplay();
+
+// --- TEST 26: DODAWANIE PO ODBLOKOWANIU ---
+Console.WriteLine("\n>>> TEST 26: DODAWANIE PO ODBLOKOWANIU <<<");
+    
+var unblockStrategy = new UnblockCanvasStrategy();
+cmdManager.Execute(new ApplyStrategyCommand(unblockStrategy, lockedLayer));
+    
+Console.WriteLine($"Warstwa odblokowana (IsBlocked: {lockedLayer.IsBlocked}). Ponowna próba dodania...");
+    
+var addSuccessCmd = new AddShapeCommand(circleBuilder, lockedLayer);
+cmdManager.Execute(addSuccessCmd);
+
+Console.WriteLine("\nStan warstwy po odblokowaniu i dodaniu:");
+lockedLayer.ConsoleDisplay();*/

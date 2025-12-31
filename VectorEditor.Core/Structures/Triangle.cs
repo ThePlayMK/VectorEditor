@@ -23,6 +23,14 @@ public class Triangle(Point firstPoint, Point secondPoint, Point thirdPoint, str
         if (!IsVisible) return;
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
     }
+    
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        FirstPoint = new Point(FirstPoint.X + dx, FirstPoint.Y + dy);
+        SecondPoint = new Point(SecondPoint.X + dx, SecondPoint.Y + dy);
+        ThirdPoint = new Point(ThirdPoint.X + dx, ThirdPoint.Y + dy);
+    }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
     {
