@@ -3,22 +3,40 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Command;
 
-public class ApplyStrategyCommand(IModificationStrategy strategy, ICanvas canvas) : ICommand
+public class ApplyStrategyCommand: ICommand
 {
-    private object? _memento;
+    private readonly List<ICanvas> _targets;
+    private readonly IModificationStrategy _strategy;
+    private readonly List<object?> _mementos = [];
+
+    // Konstruktor dla pojedynczego elementu (np. całej Canvy)
+    public ApplyStrategyCommand(IModificationStrategy strategy, ICanvas target)
+    {
+        _strategy = strategy;
+        _targets = [target];
+    }
+
+    // Konstruktor dla zaznaczenia (listy elementów)
+    public ApplyStrategyCommand(IModificationStrategy strategy, IEnumerable<ICanvas> targets)
+    {
+        _strategy = strategy;
+        _targets = targets.ToList();
+    }
 
     public void Execute()
     {
-        // Wykonujemy strategię i zapamiętujemy stan poprzedni
-        _memento = strategy.Apply(canvas);
+        _mementos.Clear();
+        foreach (var target in _targets)
+        {
+            _mementos.Add(_strategy.Apply(target));
+        }
     }
 
     public void Undo()
     {
-        // Przywracamy stan poprzedni przy użyciu zapamiętanej pamiątki
-        if (_memento != null)
+        for (var i = 0; i < _targets.Count; i++)
         {
-            strategy.Undo(canvas, _memento);
+            _strategy.Undo(_targets[i], _mementos[i]);
         }
     }
 }

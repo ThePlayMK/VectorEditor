@@ -6,6 +6,9 @@ namespace VectorEditor.Core.Command;
 public class GroupCommand(Layer targetLayer, Point p1, Point p2) : ICommand
 {
     private List<ICanvas> _foundElements = [];
+    
+    public IEnumerable<ICanvas> FoundElements => _foundElements;
+    
     public void Execute()
     {
         // 1. Normalizacja punktów zaznaczenia
@@ -18,7 +21,7 @@ public class GroupCommand(Layer targetLayer, Point p1, Point p2) : ICommand
             .ToList();
 
         // 3. Wypisanie wyników (tymczasowo, przed wprowadzeniem strategii)
-        DisplayResults(targetLayer, _foundElements, topLeft, bottomRight);
+        //DisplayResults(targetLayer, _foundElements, topLeft, bottomRight);
     }
 
     public void Undo()
@@ -26,19 +29,19 @@ public class GroupCommand(Layer targetLayer, Point p1, Point p2) : ICommand
         _foundElements.Clear();
     }
     
-    private static void DisplayResults(Layer layer, List<ICanvas> elements, Point tl, Point br)
+    public void DisplayResults()
     {
-        Console.WriteLine($"\n--- Grouping results in {layer.GetType().Name} ---");
-        Console.WriteLine($"Selection Area: {tl} to {br}");
+        Console.WriteLine($"\n--- Grouping results in {targetLayer.GetType().Name} ---");
+        Console.WriteLine($"Selection Area: {p1} to {p2}");
         
-        if (elements.Count == 0)
+        if (_foundElements.Count == 0)
         {
             Console.WriteLine("No objects found in the selected area.");
         }
         else
         {
-            Console.WriteLine($"Found {elements.Count} element(s):");
-            foreach (var element in elements)
+            Console.WriteLine($"Found {_foundElements.Count} element(s):");
+            foreach (var element in _foundElements)
             {
                 element.ConsoleDisplay(2);
             }

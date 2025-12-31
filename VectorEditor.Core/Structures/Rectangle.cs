@@ -25,7 +25,7 @@ public class Rectangle : IShape
     }
     
     public override string ToString() => 
-        $"Rectangle from ({StartPoint}), ({HelperPoint1}), ({OppositePoint}), ({HelperPoint2})";
+        $"Rectangle from ({StartPoint}), ({HelperPoint1}), ({OppositePoint}), ({HelperPoint2}) Color: {ContentColor} and {ContourColor}";
 
     
     public void ConsoleDisplay(int depth = 0)
