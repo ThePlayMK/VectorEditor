@@ -1,11 +1,10 @@
 using VectorEditor.Core.Composite;
-using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Strategy;
 
 public class ChangeContourColorStrategy(string newColor) : IModificationStrategy
 {
-    public object? Apply(ICanvas target)
+    public object Apply(ICanvas target)
     {
         var oldColors = new Dictionary<IShape, string>();
         ApplyRecursive(target, oldColors);
@@ -14,16 +13,20 @@ public class ChangeContourColorStrategy(string newColor) : IModificationStrategy
 
     private void ApplyRecursive(ICanvas target, Dictionary<IShape, string> memento)
     {
-        if (target is IShape shape)
+        switch (target)
         {
-            memento[shape] = shape.ContourColor;
-            shape.ContourColor = newColor;
-        }
-        else if (target is Layer layer)
-        {
-            foreach (var child in layer.GetChildren())
+            case IShape shape:
+                memento[shape] = shape.ContourColor;
+                shape.ContourColor = newColor;
+                break;
+            case Layer layer:
             {
-                ApplyRecursive(child, memento);
+                foreach (var child in layer.GetChildren())
+                {
+                    ApplyRecursive(child, memento);
+                }
+
+                break;
             }
         }
     }

@@ -5,7 +5,7 @@ namespace VectorEditor.Core.Strategy;
 
 public class ChangeContentColorStrategy(string newColor) : IModificationStrategy
 {
-    public object? Apply(ICanvas target)
+    public object Apply(ICanvas target)
     {
         var oldColors = new Dictionary<IShape, string>();
         ApplyRecursive(target, oldColors);

@@ -79,7 +79,8 @@ public class CustomShape(List<Point> points, string contentColor, string contour
         var u = ((b1.X - a1.X) * (b2.Y - b1.Y) - (b1.Y - a1.Y) * (b2.X - b1.X)) / d;
         var v = ((b1.X - a1.X) * (a2.Y - a1.Y) - (b1.Y - a1.Y) * (a2.X - a1.X)) / d;
 
-        return u >= 0 && u <= 1 && v >= 0 && v <= 1;
+        return u is >= 0 and <= 1 && 
+               v is >= 0 and <= 1;
     }
 
     private static bool IsPointInPolygon(Point p, List<Point> poly)
