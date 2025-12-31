@@ -15,8 +15,8 @@ public class BlockCanvasStrategy: IModificationStrategy
 
     private void ApplyRecursive(ICanvas target, Dictionary<ICanvas, bool> states)
     {
-        states[target] = target.IsLocked;
-        target.IsLocked = true;
+        states[target] = target.IsBlocked;
+        target.IsBlocked = true;
 
         if (target is Layer layer)
         {
@@ -32,7 +32,7 @@ public class BlockCanvasStrategy: IModificationStrategy
         if (memento is Dictionary<ICanvas, bool> oldStates)
         {
             foreach (var kvp in oldStates)
-                kvp.Key.IsLocked = kvp.Value;
+                kvp.Key.IsBlocked = kvp.Value;
         }
     }
 }

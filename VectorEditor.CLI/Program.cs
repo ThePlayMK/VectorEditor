@@ -428,3 +428,237 @@ multiLayer.ConsoleDisplay();
 
 
 */
+
+// --- TEST 16: BLOKOWANIE POJEDYNCZEGO KSZTAŁTU PRZEZ STRATEGIĘ ---
+var rootLayer = new Layer("World");
+var testLayer = new Layer("Test Layer");
+rootLayer.Add(testLayer);
+
+var blockedCircle = new Circle(new Point(10, 10), 5, "red", "black", 1);
+var unblockedCircle = new Circle(new Point(30, 30), 5, "blue", "black", 1);
+
+testLayer.Add(blockedCircle);
+testLayer.Add(unblockedCircle);
+
+var cmdManager = new CommandManager();
+
+Console.WriteLine(">>> TEST 16: BLOKOWANIE POJEDYNCZEGO KSZTAŁTU PRZEZ STRATEGIĘ <<<");
+Console.WriteLine("Stan początkowy:");
+testLayer.ConsoleDisplay();
+
+// Blokujemy pierwszy okrąg za pomocą strategii
+var blockStrategy = new VectorEditor.Core.Strategy.BlockCanvasStrategy();
+var blockCircleCmd = new ApplyStrategyCommand(blockStrategy, blockedCircle);
+cmdManager.Execute(blockCircleCmd);
+
+Console.WriteLine($"\nZablokowano blockedCircle za pomocą BlockCanvasStrategy (IsBlocked = {blockedCircle.IsBlocked})");
+
+// Próbujemy zmienić kolor konturu obu okręgów
+var redContour = new VectorEditor.Core.Strategy.ChangeContourColorStrategy("red");
+var applyRedCmd = new ApplyStrategyCommand(redContour, testLayer);
+cmdManager.Execute(applyRedCmd);
+
+Console.WriteLine("\nStan po próbie zmiany koloru konturu (zablokowany nie powinien się zmienić):");
+testLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam zmianę koloru):");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO zmiany koloru:");
+testLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam blokadę):");
+cmdManager.Undo();
+
+Console.WriteLine($"Stan po UNDO blokady (IsBlocked = {blockedCircle.IsBlocked}):");
+testLayer.ConsoleDisplay();
+
+// --- TEST 17: BLOKOWANIE CAŁEJ WARSTWY PRZEZ STRATEGIĘ ---
+Console.WriteLine("\n>>> TEST 17: BLOKOWANIE CAŁEJ WARSTWY PRZEZ STRATEGIĘ <<<");
+
+var blockedLayer = new Layer("Blocked Layer");
+blockedLayer.Add(new Rectangle(new Point(50, 50), new Point(70, 70), "green", "black", 2));
+blockedLayer.Add(new Triangle(new Point(80, 80), new Point(90, 80), new Point(85, 90), "yellow", "black", 1));
+
+rootLayer.Add(blockedLayer);
+
+Console.WriteLine("Stan przed zablokowaniem warstwy:");
+blockedLayer.ConsoleDisplay();
+
+// Blokujemy całą warstwę za pomocą strategii
+var blockLayerStrategy = new VectorEditor.Core.Strategy.BlockCanvasStrategy();
+var blockLayerCmd = new ApplyStrategyCommand(blockLayerStrategy, blockedLayer);
+cmdManager.Execute(blockLayerCmd);
+
+Console.WriteLine($"\nZablokowano blockedLayer za pomocą BlockCanvasStrategy (IsBlocked = {blockedLayer.IsBlocked})");
+
+// Próbujemy zmienić kolor zawartości
+var purpleContent = new VectorEditor.Core.Strategy.ChangeContentColorStrategy("purple");
+var applyPurpleCmd = new ApplyStrategyCommand(purpleContent, blockedLayer);
+cmdManager.Execute(applyPurpleCmd);
+
+Console.WriteLine("\nStan po próbie zmiany koloru zawartości (zablokowana warstwa nie powinna się zmienić):");
+blockedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam próbę zmiany koloru):");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO:");
+blockedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam blokadę warstwy):");
+cmdManager.Undo();
+
+Console.WriteLine($"Stan po UNDO blokady (IsBlocked = {blockedLayer.IsBlocked}):");
+blockedLayer.ConsoleDisplay();
+
+// --- TEST 18: CZĘŚCIOWE BLOKOWANIE W ZAZNACZENIU PRZEZ STRATEGIĘ ---
+Console.WriteLine("\n>>> TEST 18: CZĘŚCIOWE BLOKOWANIE W ZAZNACZENIU PRZEZ STRATEGIĘ <<<");
+
+var mixedLayer = new Layer("Mixed Layer");
+var shape1 = new Circle(new Point(100, 100), 10, "cyan", "black", 1);
+var shape2 = new Circle(new Point(120, 100), 10, "magenta", "black", 1);
+var shape3 = new Circle(new Point(140, 100), 10, "orange", "black", 1);
+
+mixedLayer.Add(shape1);
+mixedLayer.Add(shape2);
+mixedLayer.Add(shape3);
+
+rootLayer.Add(mixedLayer);
+
+Console.WriteLine("Stan początkowy mixedLayer:");
+mixedLayer.ConsoleDisplay();
+
+// Blokujemy środkowy okrąg za pomocą strategii
+var blockShape2Strategy = new VectorEditor.Core.Strategy.BlockCanvasStrategy();
+var blockShape2Cmd = new ApplyStrategyCommand(blockShape2Strategy, shape2);
+cmdManager.Execute(blockShape2Cmd);
+
+Console.WriteLine($"\nZablokowano shape2 za pomocą BlockCanvasStrategy (IsBlocked = {shape2.IsBlocked})");
+
+// Zaznaczamy wszystkie trzy okręgi
+var selectAllCmd = new GroupCommand(mixedLayer, new Point(90, 90), new Point(150, 110));
+cmdManager.Execute(selectAllCmd);
+
+Console.WriteLine("\nZnalezione elementy w zaznaczeniu:");
+selectAllCmd.DisplayResults();
+
+// Aplikujemy strategię zmiany konturu na zaznaczenie
+var whiteContour = new VectorEditor.Core.Strategy.ChangeContourColorStrategy("white");
+var applyWhiteCmd = new ApplyStrategyCommand(whiteContour, selectAllCmd.FoundElements);
+cmdManager.Execute(applyWhiteCmd);
+
+Console.WriteLine("\nStan po aplikacji strategii (shape2 nie powinien się zmienić):");
+mixedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam zmianę koloru):");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO:");
+mixedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam zaznaczenie):");
+cmdManager.Undo();
+
+Console.WriteLine("\nWykonuję UNDO (cofam blokadę shape2):");
+cmdManager.Undo();
+
+Console.WriteLine($"Stan po cofnięciu blokady (IsBlocked = {shape2.IsBlocked}):");
+mixedLayer.ConsoleDisplay();
+
+// --- TEST 19: ODBLOKOWYWANIE I PONOWNA MODYFIKACJA PRZEZ STRATEGIĘ ---
+Console.WriteLine("\n>>> TEST 19: ODBLOKOWYWANIE I PONOWNA MODYFIKACJA PRZEZ STRATEGIĘ <<<");
+
+var unblockTestLayer = new Layer("Unblock Test Layer");
+var testShape = new Rectangle(new Point(200, 200), new Point(220, 220), "brown", "black", 2);
+unblockTestLayer.Add(testShape);
+rootLayer.Add(unblockTestLayer);
+
+Console.WriteLine("Stan początkowy:");
+unblockTestLayer.ConsoleDisplay();
+
+// Blokujemy kształt za pomocą strategii
+var blockTestShapeStrategy = new VectorEditor.Core.Strategy.BlockCanvasStrategy();
+var blockTestShapeCmd = new ApplyStrategyCommand(blockTestShapeStrategy, testShape);
+cmdManager.Execute(blockTestShapeCmd);
+
+Console.WriteLine($"\nZablokowano testShape za pomocą BlockCanvasStrategy (IsBlocked = {testShape.IsBlocked})");
+
+// Próbujemy zmienić kolor
+var pinkContent = new VectorEditor.Core.Strategy.ChangeContentColorStrategy("pink");
+var applyPink1 = new ApplyStrategyCommand(pinkContent, testShape);
+cmdManager.Execute(applyPink1);
+
+Console.WriteLine("\nStan po próbie zmiany koloru (zablokowany - bez zmian):");
+unblockTestLayer.ConsoleDisplay();
+
+// Odblokowujemy kształt za pomocą strategii
+var unblockStrategy = new VectorEditor.Core.Strategy.UnblockCanvasStrategy();
+var unblockTestShapeCmd = new ApplyStrategyCommand(unblockStrategy, testShape);
+cmdManager.Execute(unblockTestShapeCmd);
+
+Console.WriteLine($"\nOdblokowano testShape za pomocą UnblockCanvasStrategy (IsBlocked = {testShape.IsBlocked})");
+
+// Ponownie próbujemy zmienić kolor
+var applyPink2 = new ApplyStrategyCommand(pinkContent, testShape);
+cmdManager.Execute(applyPink2);
+
+Console.WriteLine("\nStan po zmianie koloru (odblokowany - kolor zmieniony):");
+unblockTestLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam zmianę koloru):");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO:");
+unblockTestLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam odblokowanie):");
+cmdManager.Undo();
+
+Console.WriteLine($"Stan po cofnięciu odblokowania (IsBlocked = {testShape.IsBlocked}):");
+unblockTestLayer.ConsoleDisplay();
+
+// --- TEST 20: ZAGNIEŻDŻONE WARSTWY Z BLOKOWANIEM PRZEZ STRATEGIĘ ---
+Console.WriteLine("\n>>> TEST 20: ZAGNIEŻDŻONE WARSTWY Z BLOKOWANIEM PRZEZ STRATEGIĘ <<<");
+
+var parentBlockedLayer = new Layer("Parent Blocked");
+var childUnblockedLayer = new Layer("Child Unblocked");
+
+parentBlockedLayer.Add(childUnblockedLayer);
+rootLayer.Add(parentBlockedLayer);
+
+childUnblockedLayer.Add(new Line(new Point(300, 300), new Point(350, 350), "violet", 3));
+childUnblockedLayer.Add(new Line(new Point(300, 350), new Point(350, 300), "indigo", 3));
+
+Console.WriteLine("Stan początkowy:");
+parentBlockedLayer.ConsoleDisplay();
+
+// Blokujemy warstwę nadrzędną za pomocą strategii (dziecko pozostaje odblokowane)
+var blockParentStrategy = new VectorEditor.Core.Strategy.BlockCanvasStrategy();
+var blockParentCmd = new ApplyStrategyCommand(blockParentStrategy, parentBlockedLayer);
+cmdManager.Execute(blockParentCmd);
+
+Console.WriteLine($"\nZablokowano parentBlockedLayer za pomocą BlockCanvasStrategy (IsBlocked = {parentBlockedLayer.IsBlocked})");
+Console.WriteLine($"childUnblockedLayer.IsBlocked = {childUnblockedLayer.IsBlocked}");
+
+// Próbujemy zmienić kolor na warstwie nadrzędnej
+var grayContour = new VectorEditor.Core.Strategy.ChangeContourColorStrategy("gray");
+var applyGrayCmd = new ApplyStrategyCommand(grayContour, parentBlockedLayer);
+cmdManager.Execute(applyGrayCmd);
+
+Console.WriteLine("\nStan po próbie zmiany koloru (zablokowana warstwa nadrzędna blokuje dostęp do dzieci):");
+parentBlockedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam próbę zmiany koloru):");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO:");
+parentBlockedLayer.ConsoleDisplay();
+
+Console.WriteLine("\nWykonuję UNDO (cofam blokadę warstwy nadrzędnej):");
+cmdManager.Undo();
+
+Console.WriteLine($"Stan po cofnięciu blokady (IsBlocked = {parentBlockedLayer.IsBlocked}):");
+parentBlockedLayer.ConsoleDisplay();
+
+Console.WriteLine("\n>>> KONIEC TESTÓW BLOKOWANIA/ODBLOKOWYWANIA PRZEZ STRATEGIĘ <<<");

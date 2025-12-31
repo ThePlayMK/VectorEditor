@@ -14,7 +14,7 @@ public class ChangeContentColorStrategy(string newColor) : IModificationStrategy
 
     private void ApplyRecursive(ICanvas target, Dictionary<IShape, string> memento)
     {
-        if (target.IsLocked)
+        if (target.IsBlocked)
         {
             return;
         }

@@ -13,8 +13,8 @@ public class UnblockCanvasStrategy : IModificationStrategy
 
     private void ApplyRecursive(ICanvas target, Dictionary<ICanvas, bool> states)
     {
-        states[target] = target.IsLocked;
-        target.IsLocked = false;
+        states[target] = target.IsBlocked;
+        target.IsBlocked = false;
 
         if (target is Layer layer)
         {
@@ -31,7 +31,7 @@ public class UnblockCanvasStrategy : IModificationStrategy
         {
             foreach (var kvp in states)
             {
-                kvp.Key.IsLocked = kvp.Value;
+                kvp.Key.IsBlocked = kvp.Value;
             }
         }
     }

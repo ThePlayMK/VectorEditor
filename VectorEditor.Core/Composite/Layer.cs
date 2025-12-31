@@ -9,7 +9,7 @@ public class Layer(string name) : ICanvas
     public Layer? ParentLayer { get; set; }
     
     public IEnumerable<ICanvas> GetChildren() => _children;
-    public bool IsLocked { get; set; } 
+    public bool IsBlocked { get; set; } 
     
     public void Add(ICanvas canvas)
     {

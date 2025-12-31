@@ -11,7 +11,7 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     private int Width { get; set; } = width;
     public string Name => "Circle";
     public Layer? ParentLayer { get; set; }
-    public bool IsLocked { get; set; } 
+    public bool IsBlocked { get; set; } 
     
     public override string ToString() => 
         $"Circle Center: {CenterPoint}, Radius: {Radius}, Color: {ContentColor} and {ContourColor}, Width: {Width}px";

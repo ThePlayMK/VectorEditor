@@ -10,7 +10,7 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     private int Width { get; set; } = width;
     public string Name => "Custom";
     public Layer? ParentLayer { get; set; }
-    public bool IsLocked { get; set; } 
+    public bool IsBlocked { get; set; } 
 
     public override string ToString()
     {
