@@ -864,6 +864,7 @@ Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA <<<");
 */
 
 // --- TEST 28: PRZESKALOWANIE TRÓJKĄTA Z KRAWĘDZIAMI RÓWNOLEGŁYMI DO OSI ---
+/*
 Console.WriteLine("\n>>> TEST 28: PRZESKALOWANIE TRÓJKĄTA <<<");
 
 var cmdManager = new CommandManager();
@@ -904,5 +905,58 @@ Console.WriteLine("Stan po REDO (trójkąt powinien być znowu przeskalowany):")
 triangleLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA TRÓJKĄTA <<<");
+
+*/
+
+// --- TEST 29: PRZESKALOWANIE CUSTOMSHAPE (TRAPEZ PROSTOKĄTNY) ---
+Console.WriteLine("\n>>> TEST 29: PRZESKALOWANIE CUSTOMSHAPE (TRAPEZ PROSTOKĄTNY) <<<");
+
+var cmdManager = new CommandManager();
+var customShapeLayer = new Layer("CustomShape Scale Test Layer");
+// Trapez prostokątny: lewa krawędź pionowa, prawa skośna
+// Punkty: (10, 10), (50, 10), (60, 50), (10, 50)
+var trapezoidToScale = new CustomShape(
+    new List<Point>
+    {
+        new Point(10, 10),
+        new Point(50, 10),
+        new Point(60, 50),
+        new Point(10, 50)
+    },
+    "orange",
+    "black",
+    2
+);
+
+customShapeLayer.Add(trapezoidToScale);
+
+Console.WriteLine("Stan początkowy:");
+customShapeLayer.ConsoleDisplay();
+
+// Przeskalowujemy trapez - przesuwamy prawy dolny róg do (80, 60)
+var scaleTrapezoidStrategy = new ScaleStrategy(ScaleHandle.BottomRight, new Point(80, 60));
+var scaleTrapezoidCmd = new ApplyStrategyCommand(scaleTrapezoidStrategy, trapezoidToScale);
+
+Console.WriteLine("\nPrzeskaluję trapez (przesuwam BottomRight do (80, 60))...");
+cmdManager.Execute(scaleTrapezoidCmd);
+
+Console.WriteLine("Stan po przeskalowaniu:");
+customShapeLayer.ConsoleDisplay();
+
+// Test UNDO
+Console.WriteLine("\nWykonuję UNDO...");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO (trapez powinien wrócić do pierwotnych wymiarów):");
+customShapeLayer.ConsoleDisplay();
+
+// Test REDO
+Console.WriteLine("\nWykonuję REDO...");
+cmdManager.Redo();
+
+Console.WriteLine("Stan po REDO (trapez powinien być znowu przeskalowany):");
+customShapeLayer.ConsoleDisplay();
+
+Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA CUSTOMSHAPE <<<");
 
 

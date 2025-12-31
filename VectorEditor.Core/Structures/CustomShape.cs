@@ -20,6 +20,10 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     public string GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public IEnumerable<Point> GetPoints() => _points;
+    public double GetMinX() => _points.Count == 0 ? 0 : _points.Min(p => p.X);
+    public double GetMaxX() => _points.Count == 0 ? 0 : _points.Max(p => p.X);
+    public double GetMinY() => _points.Count == 0 ? 0 : _points.Min(p => p.Y);
+    public double GetMaxY() => _points.Count == 0 ? 0 : _points.Max(p => p.Y);
     
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
@@ -213,27 +217,15 @@ public class CustomShape(List<Point> points, string contentColor, string contour
 
     public void ScaleTransform(Point pivot, double sx, double sy)
     {
-        throw new NotImplementedException();
-    }
+        if (IsBlocked) return;
 
-    public double GetMinX()
-    {
-        throw new NotImplementedException();
-    }
-
-    public double GetMaxX()
-    {
-        throw new NotImplementedException();
-    }
-
-    public double GetMinY()
-    {
-        throw new NotImplementedException();
-    }
-
-    public double GetMaxY()
-    {
-        throw new NotImplementedException();
+        for (var i = 0; i < _points.Count; i++)
+        {
+            _points[i] = new Point(
+                pivot.X + (_points[i].X - pivot.X) * sx,
+                pivot.Y + (_points[i].Y - pivot.Y) * sy
+            );
+        }
     }
 
     public void ConsoleDisplay(int depth = 0)
@@ -244,7 +236,7 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     
     public override string ToString()
     {
-        var pointsStr = string.Join(",\n", _points.Select(p => p.ToString()));
+        var pointsStr = string.Join(",  ", _points.Select(p => p.ToString()));
         return
             $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
     }
