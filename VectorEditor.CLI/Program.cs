@@ -821,3 +821,42 @@ cmdManager.Execute(addSuccessCmd);
 
 Console.WriteLine("\nStan warstwy po odblokowaniu i dodaniu:");
 lockedLayer.ConsoleDisplay();*/
+
+// --- TEST 27: PRZESKALOWANIE PROSTOKĄTA ---
+Console.WriteLine("\n>>> TEST 27: PRZESKALOWANIE PROSTOKĄTA <<<");
+
+var cmdManager = new CommandManager();
+var scaleLayer = new Layer("Scale Test Layer");
+var rectToScale = new Rectangle(new Point(10, 10), new Point(30, 30), "green", "black", 2);
+
+scaleLayer.Add(rectToScale);
+
+Console.WriteLine("Stan początkowy:");
+scaleLayer.ConsoleDisplay();
+
+// Przeskalowujemy prostokąt - przesuwamy prawy dolny róg do (50, 50)
+var scaleStrategy = new ScaleStrategy(ScaleHandle.BottomRight, new Point(50, 50));
+var scaleCmd = new ApplyStrategyCommand(scaleStrategy, rectToScale);
+
+Console.WriteLine("\nPrzeskaluję prostokąt (przesuwam BottomRight do (50, 50))...");
+cmdManager.Execute(scaleCmd);
+
+Console.WriteLine("Stan po przeskalowaniu:");
+scaleLayer.ConsoleDisplay();
+
+// Test UNDO
+Console.WriteLine("\nWykonuję UNDO...");
+cmdManager.Undo();
+
+Console.WriteLine("Stan po UNDO (prostokąt powinien wrócić do (10,10)-(30,30)):");
+scaleLayer.ConsoleDisplay();
+
+// Test REDO
+Console.WriteLine("\nWykonuję REDO...");
+cmdManager.Redo();
+
+Console.WriteLine("Stan po REDO (prostokąt powinien być znowu przeskalowany):");
+scaleLayer.ConsoleDisplay();
+
+Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA <<<");
+

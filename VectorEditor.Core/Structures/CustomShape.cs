@@ -137,6 +137,31 @@ public class CustomShape(List<Point> points, string contentColor, string contour
         throw new NotImplementedException();
     }
 
+    public void ScaleTransform(Point pivot, double sx, double sy)
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinY()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxY()
+    {
+        throw new NotImplementedException();
+    }
+
     public void ConsoleDisplay(int depth = 0)
     {
         if (!IsVisible) return;

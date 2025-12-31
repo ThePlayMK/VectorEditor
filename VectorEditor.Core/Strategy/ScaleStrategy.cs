@@ -1,4 +1,4 @@
-/*using VectorEditor.Core.Composite;
+using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Strategy;
@@ -16,8 +16,8 @@ public class ScaleStrategy(ScaleHandle handle, Point newPos) : IModificationStra
         if (target is Rectangle rect)
         {
             var memento = new ScaleMemento(
-                new Point(rect.StartPoint.X, rect.StartPoint.Y), 
-                new Point(rect.OppositePoint.X, rect.OppositePoint.Y)
+                new Point(rect.GetStartPoint().X, rect.GetStartPoint().Y), 
+                new Point(rect.GetOppositePoint().X, rect.GetOppositePoint().Y)
             );
             
             target.Scale(handle, newPos);
@@ -38,4 +38,4 @@ public class ScaleStrategy(ScaleHandle handle, Point newPos) : IModificationStra
             rect.Scale(ScaleHandle.BottomRight, sm.Opposite); // To ustawi BR
         }
     }
-}*/
+}

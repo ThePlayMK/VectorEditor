@@ -58,7 +58,32 @@ public class Triangle(Point firstPoint, Point secondPoint, Point thirdPoint, str
         {
             throw new NotImplementedException();
         }
-    
+
+    public void ScaleTransform(Point pivot, double sx, double sy)
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinY()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxY()
+    {
+        throw new NotImplementedException();
+    }
+
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
         {
             var h1 = new Point(Math.Min(startPoint.X, oppositePoint.X), Math.Min(startPoint.Y, oppositePoint.Y));

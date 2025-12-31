@@ -56,7 +56,32 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
     {
         throw new NotImplementedException();
     }
-    
+
+    public void ScaleTransform(Point pivot, double sx, double sy)
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxX()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMinY()
+    {
+        throw new NotImplementedException();
+    }
+
+    public double GetMaxY()
+    {
+        throw new NotImplementedException();
+    }
+
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
         {
             // NORMALIZACJA ZAZNACZENIA
