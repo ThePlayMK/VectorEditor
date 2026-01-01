@@ -227,6 +227,14 @@ public class Triangle(
                wb is >= 0 and <= 1 &&
                wc is >= 0 and <= 1;
     }
+    
+    // --- KOPIOWANIE
+    public ICanvas Clone() => new Triangle(_firstPoint,_secondPoint, _thirdPoint, _contentColor, _contourColor, _width)
+    {
+        IsBlocked = IsBlocked,
+        IsVisible =  IsVisible,
+        _transparency =  _transparency
+    };
 
     public override string ToString() =>
         $"Triangle from ({_firstPoint}), ({_secondPoint}), ({_thirdPoint}); Color: {_contentColor} and {_contourColor}, Width: {_width}px";

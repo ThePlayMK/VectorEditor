@@ -964,7 +964,6 @@ Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA CUSTOMSHAPE <<<");
 */
 
 // --- TEST 30: PRZESKALOWANIE WARSTWY Z PROSTYMI WSPÓŁRZĘDNYMI ---
-
 /*
 Console.WriteLine("\n>>> TEST 30: PRZESKALOWANIE WARSTWY (PROSTE PUNKTY) <<<");
 
@@ -1016,7 +1015,6 @@ layerToScale.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA WARSTWY <<<");
 */
-
 
 // --- TEST 31: PRZESKALOWANIE GRUPY ---
 /*
@@ -1129,7 +1127,8 @@ circleLayer.ConsoleDisplay();
 Console.WriteLine("\n>>> KONIEC TESTU OKRĘGU <<<");*/
 
 // --- TEST 33: ZMIANA KOLEJNOŚCI (Z-ORDER) ---
-Console.WriteLine("\n>>> TEST 40: ZMIANA KOLEJNOŚCI OBIEKTÓW (Z-ORDER) <<<");
+/*
+Console.WriteLine("\n>>> TEST 33: ZMIANA KOLEJNOŚCI OBIEKTÓW (Z-ORDER) <<<");
 
 var cmdManager = new CommandManager();
 var scene = new Layer("Main Scene");
@@ -1169,4 +1168,62 @@ Console.WriteLine("\n--- Wykonuję: UNDO (Czerwony wraca na spód) ---");
 cmdManager.Undo();
 scene.ConsoleDisplay(); // Spodziewane: Red, Green, Blue
 
-Console.WriteLine("\n>>> KONIEC TESTU KOLEJNOŚCI <<<");
+Console.WriteLine("\n>>> KONIEC TESTU KOLEJNOŚCI <<<");*/
+
+// --- TEST 34: COPY-CUT-PASTE SYSTEM ---
+
+Console.WriteLine("\n>>> TEST 34: SYSTEM KOPIOWANIA, WYCINANIA I WKLEJANIA <<<");
+
+var cmdManager = new CommandManager();
+var sourceLayer = new Layer("Source Layer");
+var destinationLayer = new Layer("Destination Layer");
+
+// 1. Przygotowanie obiektów
+var rect = new Rectangle(new Point(0, 0), new Point(10, 10), "red", "black", 1);
+var circle = new Circle(new Point(50, 50), 10, "blue", "black", 1);
+sourceLayer.Add(rect);
+sourceLayer.Add(circle);
+
+Console.WriteLine("Stan początkowy Source Layer:");
+sourceLayer.ConsoleDisplay();
+
+// 2. Symulacja CUT (Wycinanie)
+Console.WriteLine("\n--- Wykonuję CUT (Wycinam oba obiekty z Source Layer) ---");
+// Zazwyczaj tu użyłbyś FoundElements z GroupCommand
+var elementsToCut = new List<ICanvas> { rect, circle };
+var cutCmd = new CutCommand(elementsToCut);
+cmdManager.Execute(cutCmd);
+
+Console.WriteLine("Source Layer po CUT (powinien być pusty):");
+sourceLayer.ConsoleDisplay();
+
+// 3. Symulacja PASTE (Wklejanie do nowej warstwy)
+Console.WriteLine("\n--- Wykonuję PASTE (Wklejam do Destination Layer) ---");
+var pasteCmd = new PasteCommand(destinationLayer);
+cmdManager.Execute(pasteCmd);
+
+Console.WriteLine("Destination Layer po PASTE (powinny być klony przesunięte o 10,10):");
+destinationLayer.ConsoleDisplay();
+
+// 4. Test UNDO PASTE
+Console.WriteLine("\n--- Wykonuję UNDO PASTE ---");
+cmdManager.Undo();
+Console.WriteLine("Destination Layer (powinien być pusty):");
+destinationLayer.ConsoleDisplay();
+
+// 5. Test UNDO CUT
+Console.WriteLine("\n--- Wykonuję UNDO CUT (obiekty powinny wrócić do Source Layer) ---");
+cmdManager.Undo();
+Console.WriteLine("Source Layer po UNDO CUT:");
+sourceLayer.ConsoleDisplay();
+
+// 6. Test REDO CUT + REDO PASTE
+Console.WriteLine("\n--- Wykonuję REDO CUT i REDO PASTE (powrót do stanu z wklejonymi obiektami) ---");
+cmdManager.Redo(); // Ponowne wycięcie
+cmdManager.Redo(); // Ponowne wklejenie
+Console.WriteLine("Source Layer (pusty):");
+sourceLayer.ConsoleDisplay();
+Console.WriteLine("Destination Layer (z klonami):");
+destinationLayer.ConsoleDisplay();
+
+Console.WriteLine("\n>>> KONIEC TESTU COPY-CUT-PASTE <<<");

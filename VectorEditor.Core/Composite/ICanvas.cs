@@ -18,6 +18,5 @@ public interface ICanvas
     double GetMaxY();
     void ConsoleDisplay(int depth = 0);
     bool IsWithinBounds(Point startPoint, Point oppositePoint);
-    
-
+    ICanvas Clone();
 }

@@ -176,6 +176,23 @@ public class Layer(string name) : ICanvas
     {
         return _children.IndexOf(element);
     }
+    
+    // --- KOPIOWANIE
+    public ICanvas Clone()
+    {
+        var clonedLayer = new Layer(GetName())
+        {
+            IsVisible = IsVisible,
+            IsBlocked = IsBlocked
+        };
+        
+        foreach (var child in _children)
+        {
+            clonedLayer.Add(child.Clone());
+        }
+
+        return clonedLayer;
+    }
 
     public void ConsoleDisplay(int depth = 0)
     {

@@ -76,18 +76,6 @@ public class Rectangle : IShape
         _transparency = transparency;
     }
 
-    // --- GEOMETRIA (Również pilnuje blokady) ---
-
-    public void Move(int dx, int dy)
-    {
-        if (IsBlocked) return;
-        _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
-        _oppositePoint = new Point(_oppositePoint.X + dx, _oppositePoint.Y + dy);
-        // Aktualizujemy punkty pomocnicze, jeśli są używane w renderowaniu
-        _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
-        _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
-    }
-
     // --- SKALOWANIE ---
     public void Scale(ScaleHandle handle, Point newPos)
     {
@@ -185,6 +173,17 @@ public class Rectangle : IShape
     public double GetMinY() => Math.Min(_startPoint.Y, _oppositePoint.Y);
     public double GetMaxY() => Math.Max(_startPoint.Y, _oppositePoint.Y);
 
+    // --- GEOMETRIA (Również pilnuje blokady) ---
+    public void Move(int dx, int dy)
+    {
+        if (IsBlocked) return;
+        _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);
+        _oppositePoint = new Point(_oppositePoint.X + dx, _oppositePoint.Y + dy);
+        // Aktualizujemy punkty pomocnicze, jeśli są używane w renderowaniu
+        _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
+        _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
+    }
+    
     private void UpdateHelperPoints()
     {
         _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
@@ -213,6 +212,14 @@ public class Rectangle : IShape
 
         return overlapX && overlapY;
     }
+    
+    // --- KOPIOWANIE
+    public ICanvas Clone() => new Rectangle(_startPoint, _oppositePoint, _contentColor, _contourColor, _width)
+    {
+        IsBlocked = IsBlocked,
+        IsVisible =  IsVisible,
+        _transparency =  _transparency
+    };
 
     public override string ToString() =>
         $"Rectangle from ({_startPoint}), ({_helperPoint1}), ({_oppositePoint}), ({_helperPoint2}) Color: {_contentColor} and {_contourColor}";

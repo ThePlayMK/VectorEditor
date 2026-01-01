@@ -234,6 +234,14 @@ public class CustomShape(List<Point> points, string contentColor, string contour
             );
         }
     }
+    
+    // --- KOPIOWANIE
+    public ICanvas Clone() => new CustomShape(_points.Select(p => new Point(p.X, p.Y)).ToList(), _contentColor, _contourColor, _width)
+    {
+        IsBlocked = IsBlocked,
+        IsVisible =  IsVisible,
+        _transparency =  _transparency
+    };
 
     public void ConsoleDisplay(int depth = 0)
     {

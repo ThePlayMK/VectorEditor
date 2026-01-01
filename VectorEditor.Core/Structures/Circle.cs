@@ -195,6 +195,14 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
         return dx * dx + dy * dy <= 1;
     }
     
+    public ICanvas Clone() => new Circle(_centerPoint, _radiusX, _contentColor, _contourColor, _width)
+    {
+        _radiusY =  _radiusY,
+        IsBlocked = IsBlocked,
+        IsVisible =  IsVisible,
+        _transparency =  _transparency
+    };
+    
     public override string ToString() => 
         $"Circle Center: {_centerPoint}, Radius: {_radiusX} x {_radiusY}, Color: {_contentColor} and {_contourColor}, Width: {_width}px";
     

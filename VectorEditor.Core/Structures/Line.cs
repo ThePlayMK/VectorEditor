@@ -200,6 +200,14 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
         return u is >= 0 and <= 1 &&
                v is >= 0 and <= 1;
     }
+    
+    // --- KOPIOWANIE
+    public ICanvas Clone() => new Line(_startPoint, _endPoint, _contourColor, _width)
+    {
+        IsBlocked = IsBlocked,
+        IsVisible =  IsVisible,
+        _transparency =  _transparency
+    };
 
     public override string ToString() =>
         $"Line from {_startPoint} to {_endPoint}, ContourColor: {_contourColor}, Width: {_width}px";
