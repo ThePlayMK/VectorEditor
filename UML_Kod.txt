@@ -1,0 +1,319 @@
+@startuml
+
+'====================================================
+'                SHAPES (COMPOSITE)
+'====================================================
+interface Shape
+{
+  +Execute()
+}
+
+class Rectangle
+{
+    - Point point1
+    - Point point2
+      +Execute()
+}
+class Circle
+{
+    - Point point
+    - Double radius
+      +Execute()
+}
+class Triangle
+{
+    - Point point1
+    - Point point2
+    - Point point3
+      +Execute()
+}
+class Line
+{
+    - Point point1
+    - Point point2
+      +Execute()
+}
+class CustomShape
+{
+    - List<Point> points;
+      +Execute()
+}
+
+class Layer
+{
+  -children: Shape[]
+  +AddShape(Shape)
+  +RemoveShape(Shpae)
+  +GetShape()
+  +Execute()
+}
+
+class Canvas
+{
+  -children: Layer[]
+  +AddLayer(Layer)
+  +RemoveLayer(Layer)
+  +GetLayer()
+  +Execute()
+}
+
+Shape <|-- Rectangle
+Shape <|-- Circle
+Shape <|-- Triangle
+Shape <|-- Line
+Shape <|-- CustomShape
+
+Layer  o-->  Shape
+Layer  o-->  Layer
+Canvas o-->  Shape
+Canvas o-->  Layer
+
+
+'====================================================
+'              SHAPE BUILDERS (BUILDER)
+'====================================================
+interface IShapeBuilder
+{
+  + Reset()
+  + BuildStart()
+  + BuildLine()
+}
+
+class RectangleBuilder
+{
+  + reset()
+  + BuildStart()
+  + BuildLine()
+  + GetResult()
+}
+
+class CircleBuilder
+{
+  + reset()
+  + BuildStart()
+  + BuildLine()
+  + GetResult()
+}
+
+class TriangleBuilder
+{
+  + reset()
+  + BuildStart()
+  + BuildLine()
+  + GetResult()
+}
+
+class LineBuilder
+{
+  + reset()
+  + BuildStart()
+  + BuildLine()
+  + GetResult()
+}
+
+class CustomShapeBuilder
+{
+  + reset()
+  + BuildStart()
+  + BuildLine()
+  + GetResult()
+}
+
+IShapeBuilder <|.. RectangleBuilder
+IShapeBuilder <|.. CircleBuilder
+IShapeBuilder <|.. TriangleBuilder
+IShapeBuilder <|.. LineBuilder
+IShapeBuilder <|.. CustomShapeBuilder
+
+RectangleBuilder ..> Rectangle 
+CircleBuilder    ..> Circle   
+TriangleBuilder  ..> Triangle 
+LineBuilder      ..> Line     
+CustomShapeBuilder ..> CustomShape 
+
+
+'====================================================
+'           MODIFICATION (STRATEGY)
+'====================================================
+interface IModificationStrategy
+{
++Execute()
+}
+
+class ChangeContentColorStrategy
+{
++Execute()
+}
+class ChangeContourColorStrategy
+{
++Execute()
+}
+class ScaleStrategy
+{
++Execute()
+}
+class AlignStrategy
+{
++Execute()
+}
+class RemoveStrategy
+{
++Execute()
+}
+class BlockLayerStategy
+{
++Execute()
+}
+class HideLayerStrategy
+{
++Execute()
+}
+
+IModificationStrategy <|.. ChangeContentColorStrategy
+IModificationStrategy <|.. ChangeContourColorStrategy
+IModificationStrategy <|.. ScaleStrategy
+IModificationStrategy <|.. AlignStrategy
+IModificationStrategy <|.. RemoveStrategy
+IModificationStrategy <|.. BlockLayerStategy
+IModificationStrategy <|.. HideLayerStrategy
+
+class ApplyStrategyCommand
+{
++Execute()
+}
+
+ApplyStrategyCommand --> IModificationStrategy 
+
+
+'====================================================
+'              EDITOR STATE (STATE)
+'====================================================
+interface IEditorState{
++DoThis()
++DoThat()
+}
+
+class SavedState
+{
+-context
++SetSaved(context)
++DoThis()
++DoThat()
+}
+class ModifiedState
+{
+-context
++SetModified(context)
++DoThis()
++DoThat()
+}
+class EmptyState
+{
+-context
++SetEmpty(context)
++DoThis()
++DoThat()
+}
+
+class EditorContext
+{
+-state
++EditorContext(initialState)
++ChangeState(state)
++DoThis
++DoThat
+}
+
+IEditorState <|.. SavedState
+IEditorState <|.. ModifiedState
+IEditorState <|.. EmptyState
+
+EditorContext o--> IEditorState
+SavedState    --> EditorContext
+ModifiedState --> EditorContext
+EmptyState --> EditorContext   
+
+
+'====================================================
+'                COMMANDS (COMMAND)
+'====================================================
+interface ICommand
+{
+  + Execute()
+}
+
+class AddShapeCommand
+{
+  + AddShapeCommand(IShapeBuilder)
+  + ChangeBuilder(IShapeBuilder)
+  + Execute (Type)
+}
+
+class GroupCommand
+{
+  -receiver
+  -params
+  +GroupCommand()
+  +Command1(receiver,params)
+  +Execute()
+}
+
+class ShowNetCommand
+{
+  -receiver
+  -params
+  +ShowNetCommand()
+  +Command1(receiver,params)
+  +Execute()
+}
+
+ICommand <|.. AddShapeCommand
+ICommand <|.. ApplyStrategyCommand
+ICommand <|.. GroupCommand
+ICommand <|.. ShowNetCommand
+
+
+AddShapeCommand --> IShapeBuilder 
+AddShapeCommand --> Canvas
+GroupCommand    --> Layer 
+
+
+'====================================================
+'            SYSTEM INTEGRATION
+'====================================================
+class CommandManager {
+    - undoStack
+    - redoStack
+    - editorContext : EditorContext
+    + Execute(ICommand)
+    + Undo()
+    + Redo()
+}
+
+CommandManager --> ICommand
+CommandManager --> EditorContext
+
+
+'====================================================
+'                  GEOMETRY
+'====================================================
+class Point 
+{
+    - int x
+    - int y
+}
+
+class Net
+{
+  -int densityX
+  -int densityY
+}
+
+Circle       o-->  Point
+Triangle     o-->  Point
+Rectangle    o-->  Point
+Line         o-->  Point
+CustomShape  o-->  Point
+ShowNetCommand <-- Net
+
+@enduml
