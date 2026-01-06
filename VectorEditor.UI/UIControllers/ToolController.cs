@@ -1,7 +1,7 @@
 using Avalonia.Input;
 using VectorEditor.UI.BuilderTools;
 
-namespace VectorEditor.UI.Render;
+namespace VectorEditor.UI.UIControllers;
 
 public class ToolController
 {

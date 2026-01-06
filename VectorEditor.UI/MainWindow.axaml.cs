@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -13,7 +12,7 @@ using VectorEditor.Core.Composite;
 using VectorEditor.UI.BuilderTools;
 using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
-using Point = Avalonia.Point;
+using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI
 {
@@ -29,12 +28,9 @@ namespace VectorEditor.UI
         };
 
         private Button? _activeToolButton;
-        private Control? _capturedControl;
-        private Point _initialMousePosition;
-        private bool _isDragging;
-        //private int _layerCount;
-
         private readonly LayerController _layerController;
+        private readonly CanvasController _canvasController;
+
         private LayerManager Layers { get; } = new();
         private ToolController Tools { get; } = new();
         public DrawingSettings Settings { get; } = new();
@@ -52,6 +48,8 @@ namespace VectorEditor.UI
             _myCanvas = this.FindControl<Canvas>("MyCanvas");
             var renderer = new CanvasRenderer(CanvasCanvas);
             _layerController = new LayerController(Layers);
+            _canvasController = new CanvasController();
+
 
             CommandManager.OnChanged += () =>
                 renderer.Render(Layers.RootLayer, Layers.Layers);
@@ -96,8 +94,7 @@ namespace VectorEditor.UI
 
             UpdateColor(brush, selectedColor.R, selectedColor.G, selectedColor.B);
         }
-
-
+        
         private void UpdateColor(IBrush color, int r, int g, int b)
         {
             SelectedColor.Background = color;
@@ -249,71 +246,37 @@ namespace VectorEditor.UI
         {
             _layerController.RemoveSelectedLayer(LayersStackPanel);
         }
-
+        
         private void Canvas_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            if (_myCanvas?.RenderTransform is not MatrixTransform transform) return;
-            var matrix = transform.Matrix;
-            var scaleFactor = e.Delta.Y > 0 ? 1.1 : 0.9;
-            var point = e.GetPosition(_myCanvas);
-            matrix = MatrixHelper.ScaleAt(matrix, scaleFactor, scaleFactor, point.X, point.Y);
-            transform.Matrix = matrix;
-            e.Handled = true;
+            CanvasController.Zoom(_myCanvas!, e);
         }
-
+        
         private void CenterCanvas()
         {
-            if (_myCanvas?.RenderTransform is not MatrixTransform transform) return;
-            if (_myCanvas.Parent is not Control container) return;
-            var canvasBounds = _myCanvas.Bounds;
-            var containerBounds = container.Bounds;
-            var targetX = (containerBounds.Width - canvasBounds.Width) / 2;
-            var targetY = (containerBounds.Height - canvasBounds.Height) / 2;
-            var offsetX = targetX - canvasBounds.X;
-            var offsetY = targetY - canvasBounds.Y;
-            transform.Matrix = Matrix.CreateTranslation(offsetX, offsetY);
+            CanvasController.CenterCanvas(_myCanvas!);
         }
-
+        
         private void Canvas_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
             Tools.PointerPressed(this, e);
-            
-            var properties = e.GetCurrentPoint(this).Properties;
-            if (properties.IsLeftButtonPressed && sender is Border border)
-            {
-                _isDragging = true;
-                _initialMousePosition = e.GetPosition(border);
-                e.Pointer.Capture(border);
-                _capturedControl = border;
-            }
-        }
 
+            if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
+                _canvasController.PanStart(border, e);
+        }
+        
         private void Canvas_PointerMoved(object? sender, PointerEventArgs e)
         {
             Tools.PointerMoved(this, e);
 
-            if (_isDragging && sender is Border border && _myCanvas?.RenderTransform is MatrixTransform transform &&
-                _activeToolButton?.Tag as string == "Hand")
-            {
-                var currentPosition = e.GetPosition(border);
-                var offset = currentPosition - _initialMousePosition;
-
-                var matrix = transform.Matrix;
-                matrix = MatrixHelper.Translate(matrix, offset.X, offset.Y);
-
-                transform.Matrix = matrix;
-                _initialMousePosition = currentPosition;
-            }
+            if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
+                _canvasController.PanMove(_myCanvas!, border, e);
         }
-
+        
         private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             Tools.PointerReleased(this, e);
-
-            _isDragging = false;
-            if (_capturedControl == null) return;
-            e.Pointer.Capture(null);
-            _capturedControl = null;
+            _canvasController.PanEnd(e);
         }
 
         private void Opacity_SliderChanged(object? sender, RoutedEventArgs e)
@@ -374,7 +337,5 @@ namespace VectorEditor.UI
         {
             CommandManager.Redo();
         }
-
-
     }
 }

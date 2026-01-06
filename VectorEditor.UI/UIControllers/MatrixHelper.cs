@@ -1,6 +1,6 @@
 using Avalonia;
 
-namespace VectorEditor.UI.Render;
+namespace VectorEditor.UI.UIControllers;
 
 public static class MatrixHelper
 {
