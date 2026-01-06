@@ -71,6 +71,7 @@ namespace VectorEditor.UI
             Tools.SetTool(button.Tag switch
             {
                 "Line" => new LineTool(),
+                "Rectangle" => new RectangleTool(),
                 _ => null
             });
 
@@ -87,7 +88,7 @@ namespace VectorEditor.UI
 
             Color selectedColor = brush.Color;
 
-            Settings.Color = selectedColor;              // ← NOWE
+            Settings.ContourColor = selectedColor;              // ← NOWE
 
             UpdateColor(brush, selectedColor.R, selectedColor.G, selectedColor.B);
         }
@@ -151,7 +152,7 @@ namespace VectorEditor.UI
             var newColor = Color.FromRgb((byte)r, (byte)g, (byte)b);
 
 
-            Settings.Color = newColor;                      // ← NOWE
+            Settings.ContourColor = newColor;                      // ← NOWE
 
             SelectedColor.Background = new SolidColorBrush(newColor);
 

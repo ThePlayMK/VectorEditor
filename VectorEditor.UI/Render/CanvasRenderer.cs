@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -33,6 +34,10 @@ public class CanvasRenderer(Canvas canvas)
             case Line line:
                 RenderLine(line);
                 break;
+            
+            case Rectangle rect:
+                RenderRect(rect);
+                break;
 
             case Layer layer:
                 RenderLayer(layer);
@@ -52,6 +57,31 @@ public class CanvasRenderer(Canvas canvas)
             Stroke = new SolidColorBrush(line.GetContourColor(), line.GetOpacity()),
             StrokeThickness = line.GetWidth()
         };
+
+        canvas.Children.Add(ui);
+    }
+
+    private void RenderRect(Rectangle rect)
+    {
+        var start = rect.GetStartPoint();
+        var end = rect.GetOppositePoint();
+
+        var x = Math.Min(start.X, end.X);
+        var y = Math.Min(start.Y, end.Y);
+        var w = Math.Abs(end.X - start.X);
+        var h = Math.Abs(end.Y - start.Y);
+
+        var ui = new Avalonia.Controls.Shapes.Rectangle
+        {
+            Width = w,
+            Height = h,
+            Stroke = new SolidColorBrush(rect.GetContourColor(), rect.GetOpacity()),
+            Fill = new SolidColorBrush(rect.GetContentColor(), rect.GetOpacity()),
+            StrokeThickness = rect.GetWidth()
+        };
+
+        Canvas.SetLeft(ui, x);
+        Canvas.SetTop(ui, y);
 
         canvas.Children.Add(ui);
     }

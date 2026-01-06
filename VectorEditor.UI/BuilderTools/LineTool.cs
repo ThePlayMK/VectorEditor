@@ -30,7 +30,7 @@ public class LineTool : ITool
         {
             _previewLine = new Avalonia.Controls.Shapes.Line
             {
-                Stroke = new SolidColorBrush(window.Settings.Color, window.Settings.Opacity * PreviewOpacity / 100),
+                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth
             };
 
@@ -46,9 +46,8 @@ public class LineTool : ITool
         if (_start is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas); // ✔ poprawione
-
-        // ✔ usuń preview z Canvas
+        var end = e.GetPosition(window.CanvasCanvas); 
+        
         if (_previewLine != null)
         {
             window.CanvasCanvas.Children.Remove(_previewLine);
@@ -57,7 +56,7 @@ public class LineTool : ITool
 
         var builder = new LineBuilder()
             .SetStart(_start)
-            .SetContourColor(window.Settings.Color)
+            .SetContourColor(window.Settings.ContourColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100)
             .SetEnd(new Point(end.X, end.Y));
