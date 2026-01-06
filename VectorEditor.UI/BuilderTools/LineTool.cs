@@ -55,8 +55,11 @@ public class LineTool : ITool
             _previewLine = null;
         }
 
-        var builder = new LineBuilder(window.Settings.Color, window.Settings.StrokeWidth, window.Settings.Opacity / 100)
+        var builder = new LineBuilder()
             .SetStart(_start)
+            .SetContourColor(window.Settings.Color)
+            .SetWidth(window.Settings.StrokeWidth)
+            .SetOpacity(window.Settings.Opacity / 100)
             .SetEnd(new Point(end.X, end.Y));
 
         var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
