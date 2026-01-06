@@ -1,9 +1,10 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class LineBuilder(string color, int width) : IShapeBuilder
+public class LineBuilder(Color color, int width) : IShapeBuilder
 {
     private Point _start = new(0, 0);
     private Point _end = new(0, 0);

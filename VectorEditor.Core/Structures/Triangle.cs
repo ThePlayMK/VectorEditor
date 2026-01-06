@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 
@@ -7,15 +8,15 @@ public class Triangle(
     Point firstPoint,
     Point secondPoint,
     Point thirdPoint,
-    string contentColor,
-    string contourColor,
+    Color contentColor,
+    Color contourColor,
     int width) : IShape
 {
     private Point _firstPoint = firstPoint;
     private Point _secondPoint = secondPoint;
     private Point _thirdPoint = thirdPoint;
-    private string _contentColor = contentColor;
-    private string _contourColor = contourColor;
+    private Color _contentColor = contentColor;
+    private Color _contourColor = contourColor;
     private int _width = width;
     private double _transparency = 0;
 
@@ -25,8 +26,8 @@ public class Triangle(
     public string Name => "Triangle";
 
     // --- GETTERY ---
-    public string GetContentColor() => _contentColor;
-    public string GetContourColor() => _contourColor;
+    public Color GetContentColor() => _contentColor;
+    public Color GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public Point GetFirstPoint() => _firstPoint;
     public Point GetSecondPoint() => _secondPoint;
@@ -40,13 +41,13 @@ public class Triangle(
     public double GetMaxY() => Math.Max(_firstPoint.Y, Math.Max(_secondPoint.Y, _thirdPoint.Y));
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
-    public void SetContentColor(string color)
+    public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
         _contentColor = color;
     }
 
-    public void SetContourColor(string color)
+    public void SetContourColor(Color color)
     {
         if (IsBlocked) return;
         _contourColor = color;

@@ -1,9 +1,10 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class CircleBuilder(string contourColor, string contentColor, int width) : IShapeBuilder 
+public class CircleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
 {
     private Point _centerPoint = new(0, 0);
     private double _radius;

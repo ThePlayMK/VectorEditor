@@ -1,13 +1,14 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class CustomShape(List<Point> points, string contentColor, string contourColor, int width) : IShape
+public class CustomShape(List<Point> points, Color contentColor, Color contourColor, int width) : IShape
 {
     private readonly List<Point> _points = points;
-    private string _contentColor = contentColor;
-    private string _contourColor = contourColor;
+    private Color _contentColor = contentColor;
+    private Color _contourColor = contourColor;
     private int _width = width;
     private double _transparency = 0;
 
@@ -17,8 +18,8 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     public string Name => "CustomShape";
     
     // --- GETTERY ---
-    public string GetContentColor() => _contentColor;
-    public string GetContourColor() => _contourColor;
+    public Color GetContentColor() => _contentColor;
+    public Color GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public double GetTransparency() => _transparency;
     public IEnumerable<Point> GetPoints() => _points;
@@ -29,13 +30,13 @@ public class CustomShape(List<Point> points, string contentColor, string contour
     
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
-    public void SetContentColor(string color)
+    public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
         _contentColor = color;
     }
 
-    public void SetContourColor(string color)
+    public void SetContourColor(Color color)
     {
         if (IsBlocked) return;
         _contourColor = color;

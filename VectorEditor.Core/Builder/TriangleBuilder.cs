@@ -1,9 +1,10 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class TriangleBuilder(string contourColor, string contentColor, int width) : IShapeBuilder 
+public class TriangleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
 {
     private Point _firstPoint = new(0, 0);
     private Point _secondPoint = new(0, 0);

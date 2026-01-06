@@ -1,4 +1,5 @@
-﻿using VectorEditor.Core.Command;
+﻿using Avalonia.Media;
+using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
@@ -1179,8 +1180,8 @@ var sourceLayer = new Layer("Source Layer");
 var destinationLayer = new Layer("Destination Layer");
 
 // 1. Przygotowanie obiektów
-var rect = new Rectangle(new Point(0, 0), new Point(10, 10), "red", "black", 1);
-var circle = new Circle(new Point(50, 50), 10, "blue", "black", 1);
+var rect = new Rectangle(new Point(0, 0), new Point(10, 10), Color.FromRgb(255, 255, 255), Color.FromRgb(255, 255, 255), 1);
+var circle = new Circle(new Point(50, 50), 10, Color.FromRgb(255, 255, 255), Color.FromRgb(255, 255, 255), 1);
 sourceLayer.Add(rect);
 sourceLayer.Add(circle);
 

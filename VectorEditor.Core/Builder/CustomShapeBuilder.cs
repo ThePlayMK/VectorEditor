@@ -1,9 +1,10 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class CustomShapeBuilder(string contentColor, string contourColor, int width) : IShapeBuilder
+public class CustomShapeBuilder(Color contentColor, Color contourColor, int width) : IShapeBuilder
 {
     private readonly List<Point> _points = [];
     private bool _isClosed;

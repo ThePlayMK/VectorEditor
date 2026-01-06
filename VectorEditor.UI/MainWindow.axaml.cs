@@ -8,6 +8,7 @@ using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using VectorEditor.UI.BuilderTools;
 
 namespace VectorEditor.UI
 {
@@ -31,6 +32,7 @@ namespace VectorEditor.UI
         private IBrush _selectedColor = new SolidColorBrush(Colors.Black);
 
         private LayerWidget? _selectedLayer;
+        private ITool? _activeTool;
 
         public MainWindow()
         {
@@ -51,6 +53,14 @@ namespace VectorEditor.UI
             _activeToolButton?.Classes.Remove("Selected");
             _activeToolButton = button;
             _activeToolButton.Classes.Add("Selected");
+            
+            /*_activeTool = button.Tag as string switch
+            {
+                "Line" => new LineTool(),
+                // "Rectangle" => new RectangleTool(),
+                // inne narzędzia...
+                _ => null
+            };*/
         }
 
         private void ToggleMenu(object? sender, RoutedEventArgs e)

@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 
@@ -6,8 +7,8 @@ namespace VectorEditor.Core.Structures;
 public class Rectangle : IShape
 {
     // Pola prywatne - brak bezpośredniego dostępu z zewnątrz
-    private string _contentColor;
-    private string _contourColor;
+    private Color _contentColor;
+    private Color _contourColor;
     private int _width;
     private Point _startPoint;
     private Point _oppositePoint;
@@ -20,7 +21,7 @@ public class Rectangle : IShape
     public bool IsVisible { get; set; } = true;
     public string Name => "Rectangle";
 
-    public Rectangle(Point startPoint, Point oppositePoint, string contentColor, string contourColor, int width)
+    public Rectangle(Point startPoint, Point oppositePoint, Color contentColor, Color contourColor, int width)
     {
         _startPoint = startPoint;
         _oppositePoint = oppositePoint;
@@ -31,8 +32,8 @@ public class Rectangle : IShape
     }
 
     // --- GETTERY (Publiczne) ---
-    public string GetContentColor() => _contentColor;
-    public string GetContourColor() => _contourColor;
+    public Color GetContentColor() => _contentColor;
+    public Color GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetOppositePoint() => _oppositePoint;
@@ -53,13 +54,13 @@ public class Rectangle : IShape
         UpdateHelperPoints();
     }
     
-    public void SetContentColor(string color)
+    public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
         _contentColor = color;
     }
 
-    public void SetContourColor(string color)
+    public void SetContourColor(Color color)
     {
         if (IsBlocked) return;
         _contourColor = color;

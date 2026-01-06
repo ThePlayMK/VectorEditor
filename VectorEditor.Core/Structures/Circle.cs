@@ -1,15 +1,16 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class Circle(Point centerPoint, double radius, string contentColor, string contourColor, int width) : IShape
+public class Circle(Point centerPoint, double radius, Color contentColor, Color contourColor, int width) : IShape
 {
     private Point _centerPoint = centerPoint;
     private double _radiusX = radius;
     private double _radiusY = radius;
-    private string _contentColor = contentColor;
-    private string _contourColor = contourColor;
+    private Color _contentColor = contentColor;
+    private Color _contourColor = contourColor;
     private int _width = width;
     private double _transparency = 0;
 
@@ -19,8 +20,8 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     public bool IsVisible { get; set; } = true;
     
     // --- GETTERY ---
-    public string GetContentColor() => _contentColor;
-    public string GetContourColor() => _contourColor;
+    public Color GetContentColor() => _contentColor;
+    public Color GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public Point GetCenterPoint() => _centerPoint;
     public double GetTransparency() => _transparency;
@@ -35,13 +36,13 @@ public class Circle(Point centerPoint, double radius, string contentColor, strin
     public double GetMaxY() => _centerPoint.Y + _radiusY;
     
     // --- SETERY (Z LOGIKĄ BLOKADY) ---
-    public void SetContentColor(string color)
+    public void SetContentColor(Color  color)
     {
         if (IsBlocked) return;
         _contentColor = color;
     }
 
-    public void SetContourColor(string color)
+    public void SetContourColor(Color  color)
     {
         if (IsBlocked) return;
         _contourColor = color;

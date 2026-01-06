@@ -1,13 +1,14 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class Line(Point startPoint, Point endPoint, string contourColor, int width) : IShape
+public class Line(Point startPoint, Point endPoint, Color contourColor, int width) : IShape
 {
     private Point _startPoint = startPoint;
     private Point _endPoint = endPoint;
-    private string _contourColor = contourColor;
+    private Color _contourColor = contourColor;
     private int _width = width;
     private double _transparency = 0;
 
@@ -18,8 +19,8 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
 
     // --- GETTERY ---
     // Linia nie ma ContentColor, ale zwracamy ContourColor, by nie psuć generycznych operacji
-    public string GetContentColor() => _contourColor;
-    public string GetContourColor() => _contourColor;
+    public Color GetContentColor() => _contourColor;
+    public Color GetContourColor() => _contourColor;
     public int GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetEndPoint() => _endPoint;
@@ -31,14 +32,14 @@ public class Line(Point startPoint, Point endPoint, string contourColor, int wid
     public double GetMaxY() => Math.Max(_startPoint.Y, _endPoint.Y);
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
-    public void SetContentColor(string color)
+    public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
         // Zgodnie z logiką: zmiana contentu linii zmienia jej kontur
         _contourColor = color;
     }
 
-    public void SetContourColor(string color)
+    public void SetContourColor(Color color)
     {
         if (IsBlocked) return;
         _contourColor = color;

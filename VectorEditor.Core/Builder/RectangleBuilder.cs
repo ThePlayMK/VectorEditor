@@ -1,9 +1,10 @@
+using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class RectangleBuilder(string contourColor, string contentColor, int width) : IShapeBuilder 
+public class RectangleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
 {
     private Point _startPoint = new(0, 0);
     private Point _endPoint = new(0, 0);

@@ -101,7 +101,7 @@
                     <Button Classes="Round" ToolTip.Tip="Eraser" Tag="Eraser">
                         <material:MaterialIcon Kind="Eraser" />
                     </Button>
-                    <Button Classes="Round" ToolTip.Tip="Line" Tag="Line">
+                    <Button Classes="Round" ToolTip.Tip="Line" Tag="Line" Click="SelectTool">
                         <material:MaterialIcon Kind="VectorLine" />
                     </Button>
                     <Button Classes="Round" ToolTip.Tip="Rectangle" Tag="Rectangle">
