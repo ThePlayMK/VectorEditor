@@ -123,10 +123,10 @@
                     Orientation="Horizontal"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Left">
-                    <Button Classes="Round" ToolTip.Tip="Undo">
+                    <Button Classes="Round" ToolTip.Tip="Undo" Click="Undo_Click">
                         <material:MaterialIcon Kind="Undo" />
                     </Button>
-                    <Button Classes="Round" ToolTip.Tip="Redo">
+                    <Button Classes="Round" ToolTip.Tip="Redo" Click="Redo_Click">
                         <material:MaterialIcon Kind="Redo" />
                     </Button>
                 </StackPanel>

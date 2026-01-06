@@ -332,6 +332,35 @@ namespace VectorEditor.UI
             OpacityInput.Text = newText;
             OpacityInput.CaretIndex = OpacityInput.Text.Length;
         }
+        
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            switch (e.KeyModifiers)
+            {
+                case KeyModifiers.Control when e.Key == Key.Z:
+                    CommandManager.Undo();
+                    return;
+                case KeyModifiers.Control when e.Key == Key.Y:
+                    CommandManager.Redo();
+                    return;
+                default:
+                    return;
+            }
+        }
+        
+        private void Undo_Click(object? sender, RoutedEventArgs e)
+        {
+            CommandManager.Undo();
+        }
+
+        private void Redo_Click(object? sender, RoutedEventArgs e)
+        {
+            CommandManager.Redo();
+        }
+
+
     }
 
     public static class MatrixHelper

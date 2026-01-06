@@ -26,6 +26,8 @@ public class CommandManager
         var command = _undoStack.Pop();
         command.Undo();
         _redoStack.Push(command);
+        
+        OnChanged?.Invoke();
     }
     
     public void Redo()
@@ -38,5 +40,7 @@ public class CommandManager
         var command = _redoStack.Pop();
         command.Execute();
         _undoStack.Push(command);
+        
+        OnChanged?.Invoke();
     }
 }
