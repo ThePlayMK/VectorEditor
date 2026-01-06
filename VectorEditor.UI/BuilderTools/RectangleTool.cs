@@ -17,6 +17,13 @@ public class RectangleTool : ITool
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas); 
+        
+        if (_startPoint != null)
+        {
+            FinishLine(window, p);
+            return;
+        }
+        
         _startPoint = new Point(p.X, p.Y);
     }
 
@@ -32,6 +39,7 @@ public class RectangleTool : ITool
             _previewRectangle = new Avalonia.Controls.Shapes.Rectangle
             {
                 Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth
             };
 
@@ -55,8 +63,15 @@ public class RectangleTool : ITool
         if (_startPoint is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas); 
-        
+        var end = e.GetPosition(window.CanvasCanvas);
+
+        if (_previewRectangle != null)
+        {
+            FinishLine(window, end);
+        }
+    }
+    private void FinishLine(MainWindow window, Avalonia.Point end)
+    {
         if (_previewRectangle != null)
         {
             window.CanvasCanvas.Children.Remove(_previewRectangle);
@@ -64,7 +79,7 @@ public class RectangleTool : ITool
         }
 
         var builder = new RectangleBuilder()
-            .SetStart(_startPoint)
+            .SetStart(_startPoint!)
             .SetEnd(new Point(end.X, end.Y))
             .SetContourColor(window.Settings.ContourColor)
             .SetContentColor(window.Settings.ContentColor)

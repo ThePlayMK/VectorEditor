@@ -38,6 +38,10 @@ public class CanvasRenderer(Canvas canvas)
             case Rectangle rect:
                 RenderRect(rect);
                 break;
+            
+            case Triangle triangle:
+                RenderTriangle(triangle);
+                break;
 
             case Layer layer:
                 RenderLayer(layer);
@@ -84,5 +88,24 @@ public class CanvasRenderer(Canvas canvas)
         Canvas.SetTop(ui, y);
 
         canvas.Children.Add(ui);
+    }
+
+    private void RenderTriangle(Triangle triangle)
+    {
+        var ui = new Avalonia.Controls.Shapes.Polygon
+        {
+            Points =
+            {
+                new Avalonia.Point(triangle.GetFirstPoint().X, triangle.GetFirstPoint().Y),
+                new Avalonia.Point(triangle.GetSecondPoint().X, triangle.GetSecondPoint().Y),
+                new Avalonia.Point(triangle.GetThirdPoint().X, triangle.GetThirdPoint().Y)
+            },
+            Stroke = new SolidColorBrush(triangle.GetContourColor(), triangle.GetOpacity()),
+            Fill = new SolidColorBrush(triangle.GetContentColor(), triangle.GetOpacity()),
+            StrokeThickness = triangle.GetWidth()
+        };
+
+        canvas.Children.Add(ui);
+
     }
 }

@@ -15,7 +15,14 @@ public class LineTool : ITool
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
-        var p = e.GetPosition(window.CanvasCanvas); // ✔ poprawione
+        var p = e.GetPosition(window.CanvasCanvas);
+        
+        if (_start != null)
+        {
+            FinishLine(window, p);
+            return;
+        }
+        
         _start = new Point(p.X, p.Y);
     }
 
@@ -46,8 +53,15 @@ public class LineTool : ITool
         if (_start is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas); 
-        
+        var end = e.GetPosition(window.CanvasCanvas);
+
+        if (_previewLine != null)
+        {
+            FinishLine(window, end);
+        }
+    }
+    public void FinishLine(MainWindow window, Avalonia.Point end)
+    {
         if (_previewLine != null)
         {
             window.CanvasCanvas.Children.Remove(_previewLine);
@@ -55,7 +69,7 @@ public class LineTool : ITool
         }
 
         var builder = new LineBuilder()
-            .SetStart(_start)
+            .SetStart(_start!)
             .SetContourColor(window.Settings.ContourColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100)

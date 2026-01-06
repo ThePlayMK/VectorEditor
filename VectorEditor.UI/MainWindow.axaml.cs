@@ -72,6 +72,7 @@ namespace VectorEditor.UI
             {
                 "Line" => new LineTool(),
                 "Rectangle" => new RectangleTool(),
+                "Triangle" => new TriangleTool(),
                 _ => null
             });
 

@@ -107,6 +107,9 @@
                     <Button Classes="Round" ToolTip.Tip="Rectangle" Tag="Rectangle">
                         <material:MaterialIcon Kind="VectorSquare" />
                     </Button>
+                    <Button Classes="Round" ToolTip.Tip="Triangle" Tag="Triangle">
+                        <material:MaterialIcon Kind="VectorTriangle" />
+                    </Button>
                     <Button Classes="Round" ToolTip.Tip="Ellipse" Tag="Ellipse">
                         <material:MaterialIcon Kind="VectorEllipse" />
                     </Button>
