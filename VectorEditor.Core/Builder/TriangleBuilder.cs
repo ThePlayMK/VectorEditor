@@ -4,7 +4,7 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class TriangleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
+public class TriangleBuilder(Color contourColor, Color contentColor, double width, double opacity = 1.0) : IShapeBuilder 
 {
     private Point _firstPoint = new(0, 0);
     private Point _secondPoint = new(0, 0);
@@ -33,6 +33,6 @@ public class TriangleBuilder(Color contourColor, Color contentColor, int width) 
         if (_firstPoint == null || _thirdPoint == null || _secondPoint == null)
             throw new InvalidOperationException("Triangle requires 3 points.");
 
-        return new Triangle(_firstPoint, _secondPoint, _thirdPoint, contentColor, contourColor, width);
+        return new Triangle(_firstPoint, _secondPoint, _thirdPoint, contentColor, contourColor, width, opacity);
     }
 }

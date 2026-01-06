@@ -10,15 +10,16 @@ public class Triangle(
     Point thirdPoint,
     Color contentColor,
     Color contourColor,
-    int width) : IShape
+    double width,
+    double opacity = 1.0) : IShape
 {
     private Point _firstPoint = firstPoint;
     private Point _secondPoint = secondPoint;
     private Point _thirdPoint = thirdPoint;
     private Color _contentColor = contentColor;
     private Color _contourColor = contourColor;
-    private int _width = width;
-    private double _transparency = 0;
+    private double _width = width;
+    private double _opacity = opacity;
 
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
@@ -28,11 +29,11 @@ public class Triangle(
     // --- GETTERY ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
-    public int GetWidth() => _width;
+    public double GetWidth() => _width;
     public Point GetFirstPoint() => _firstPoint;
     public Point GetSecondPoint() => _secondPoint;
     public Point GetThirdPoint() => _thirdPoint;
-    public double GetTransparency() => _transparency;
+    public double GetOpacity() => _opacity;
     public IEnumerable<Point> GetPoints() => new List<Point> {_firstPoint, _secondPoint, _thirdPoint};
     
     public double GetMinX() => Math.Min(_firstPoint.X, Math.Min(_secondPoint.X, _thirdPoint.X));
@@ -74,7 +75,7 @@ public class Triangle(
     
     public void SetTransparency(double transparency)
     {
-        _transparency = transparency;
+        _opacity = transparency;
     }
     
     // --- GEOMETRIA ---
@@ -234,7 +235,7 @@ public class Triangle(
     {
         IsBlocked = IsBlocked,
         IsVisible =  IsVisible,
-        _transparency =  _transparency
+        _opacity =  _opacity
     };
 
     public override string ToString() =>

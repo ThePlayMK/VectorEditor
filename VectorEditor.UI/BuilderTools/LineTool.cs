@@ -1,45 +1,67 @@
+using System;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
+using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
-
 
 namespace VectorEditor.UI.BuilderTools;
 
 public class LineTool : ITool
 {
-    private Point _start = null!;
+    private Point? _start;
+    private Avalonia.Controls.Shapes.Line? _previewLine;
+    private const double PreviewOpacity = 0.2;
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
-        var point = e.GetPosition(window.MyCanvas);
-        _start = new Point(point.X, point.Y);
+        var p = e.GetPosition(window.CanvasCanvas); // ✔ poprawione
+        _start = new Point(p.X, p.Y);
     }
 
     public void PointerMoved(MainWindow window, PointerEventArgs e)
     {
-        // opcjonalnie: rysowanie podglądu dynamicznego (preview)
+        if (_start == null)
+            return;
+
+        var current = e.GetPosition(window.CanvasCanvas);
+
+        if (_previewLine == null)
+        {
+            _previewLine = new Avalonia.Controls.Shapes.Line
+            {
+                Stroke = new SolidColorBrush(window.Settings.Color, window.Settings.Opacity * PreviewOpacity / 100),
+                StrokeThickness = window.Settings.StrokeWidth
+            };
+
+            window.CanvasCanvas.Children.Add(_previewLine);
+        }
+
+        _previewLine.StartPoint = new Avalonia.Point(_start.X, _start.Y);
+        _previewLine.EndPoint = current;
     }
 
     public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
     {
-        /*if (_start == null) return;
+        if (_start is null)
+            return;
 
-        var end = e.GetPosition(window.MyCanvas);
-        var line = new LineBuilder(window.SelectedColor, (int)window.StrokeWidth)
-            .SetStart(_start)
-            .SetEnd(end)
-            .Build();
+        var end = e.GetPosition(window.CanvasCanvas); // ✔ poprawione
 
-        var avaloniaLine = new Avalonia.Controls.Shapes.Line
+        // ✔ usuń preview z Canvas
+        if (_previewLine != null)
         {
-            StartPoint = line.Start,
-            EndPoint = line.End,
-            Stroke = new SolidColorBrush(line.Color),
-            StrokeThickness = line.Width
-        };
+            window.CanvasCanvas.Children.Remove(_previewLine);
+            _previewLine = null;
+        }
 
-        window.MyCanvas.Children.Add(avaloniaLine);
-        _start = null;*/
+        var builder = new LineBuilder(window.Settings.Color, window.Settings.StrokeWidth, window.Settings.Opacity / 100)
+            .SetStart(_start)
+            .SetEnd(new Point(end.X, end.Y));
+
+        var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
+        window.CommandManager.Execute(cmd);
+
+        _start = null;
     }
 }

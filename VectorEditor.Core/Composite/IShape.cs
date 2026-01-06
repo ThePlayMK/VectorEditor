@@ -11,7 +11,7 @@ public interface IShape : ICanvas
     public void SetWidth(int width);
     public Color GetContentColor();
     public Color GetContourColor();
-    public double GetTransparency();
-    public int GetWidth();
+    public double GetOpacity();
+    public double GetWidth();
     
 }

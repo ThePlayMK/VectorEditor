@@ -4,12 +4,16 @@ public class CommandManager
 {
     private readonly Stack<ICommand> _undoStack = [];
     private readonly Stack<ICommand> _redoStack = [];
+    public event Action? OnChanged;
+
     
     public void Execute(ICommand command)
     {
         command.Execute();
         _undoStack.Push(command);
         _redoStack.Clear();
+        
+        OnChanged?.Invoke();
     }
     
     public void Undo()

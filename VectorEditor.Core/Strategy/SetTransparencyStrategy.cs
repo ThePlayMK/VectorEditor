@@ -22,7 +22,7 @@ public class SetTransparencyStrategy(double transparency) : IModificationStrateg
         switch (target)
         {
             case IShape shape:
-                memento[shape] = shape.GetTransparency();
+                memento[shape] = shape.GetOpacity();
                 shape.SetTransparency(_transparency);
                 break;
             case Layer layer:

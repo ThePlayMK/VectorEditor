@@ -4,7 +4,7 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class CircleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
+public class CircleBuilder(Color contourColor, Color contentColor, double width, double opacity = 1.0) : IShapeBuilder 
 {
     private Point _centerPoint = new(0, 0);
     private double _radius;
@@ -32,6 +32,6 @@ public class CircleBuilder(Color contourColor, Color contentColor, int width) : 
         if (_centerPoint == null || _radius == 0)
             throw new InvalidOperationException("Circle requires center point and radius.");
 
-        return new Circle(_centerPoint, _radius, contentColor, contourColor, width);
+        return new Circle(_centerPoint, _radius, contentColor, contourColor, width, opacity);
     }
 }

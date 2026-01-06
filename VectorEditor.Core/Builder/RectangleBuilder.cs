@@ -4,7 +4,7 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class RectangleBuilder(Color contourColor, Color contentColor, int width) : IShapeBuilder 
+public class RectangleBuilder(Color contourColor, Color contentColor, double width, double opacity = 1.0) : IShapeBuilder 
 {
     private Point _startPoint = new(0, 0);
     private Point _endPoint = new(0, 0);
@@ -26,6 +26,6 @@ public class RectangleBuilder(Color contourColor, Color contentColor, int width)
         if (_startPoint == null || _endPoint == null)
             throw new InvalidOperationException("Rectangle requires start and end point.");
 
-        return new Rectangle(_startPoint, _endPoint, contentColor, contourColor, width);
+        return new Rectangle(_startPoint, _endPoint, contentColor, contourColor, width, opacity);
     }
 }

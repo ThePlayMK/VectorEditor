@@ -4,13 +4,12 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class CustomShape(List<Point> points, Color contentColor, Color contourColor, int width) : IShape
+public class CustomShape(List<Point> points, Color contentColor, Color contourColor, double width, double opacity = 1.0) : IShape
 {
-    private readonly List<Point> _points = points;
     private Color _contentColor = contentColor;
     private Color _contourColor = contourColor;
-    private int _width = width;
-    private double _transparency = 0;
+    private double _width = width;
+    private double _opacity = opacity;
 
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
@@ -20,13 +19,13 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     // --- GETTERY ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
-    public int GetWidth() => _width;
-    public double GetTransparency() => _transparency;
-    public IEnumerable<Point> GetPoints() => _points;
-    public double GetMinX() => _points.Count == 0 ? 0 : _points.Min(p => p.X);
-    public double GetMaxX() => _points.Count == 0 ? 0 : _points.Max(p => p.X);
-    public double GetMinY() => _points.Count == 0 ? 0 : _points.Min(p => p.Y);
-    public double GetMaxY() => _points.Count == 0 ? 0 : _points.Max(p => p.Y);
+    public double GetWidth() => _width;
+    public double GetOpacity() => _opacity;
+    public IEnumerable<Point> GetPoints() => points;
+    public double GetMinX() => points.Count == 0 ? 0 : points.Min(p => p.X);
+    public double GetMaxX() => points.Count == 0 ? 0 : points.Max(p => p.X);
+    public double GetMinY() => points.Count == 0 ? 0 : points.Min(p => p.Y);
+    public double GetMaxY() => points.Count == 0 ? 0 : points.Max(p => p.Y);
     
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
@@ -48,33 +47,33 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         _width = width;
     }
     
-    public void SetPoints(List<Point> points)
+    public void SetPoints(List<Point> points1)
     {
         if (IsBlocked) return;
 
-        if (points.Count != _points.Count)
+        if (points1.Count != points.Count)
         {
             return;
         }
 
-        for (var i = 0; i < points.Count; i++)
+        for (var i = 0; i < points1.Count; i++)
         {
-            _points[i] = points[i];
+            points[i] = points1[i];
         }
     }
     
     public void SetTransparency(double transparency)
     {
-        _transparency = transparency;
+        _opacity = transparency;
     }
 
     // --- GEOMETRIA ---
     public void Move(int dx, int dy)
     {
         if (IsBlocked) return;
-        for (var i = 0; i < _points.Count; i++)
+        for (var i = 0; i < points.Count; i++)
         {
-            _points[i] = new Point(_points[i].X + dx, _points[i].Y + dy);
+            points[i] = new Point(points[i].X + dx, points[i].Y + dy);
         }
     }
 
@@ -85,13 +84,13 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         startPoint = h1;
         oppositePoint = h2;
 
-        if (_points.Count < 2)
+        if (points.Count < 2)
         {
             return false;
         }
 
         // 1. Sprawdź, czy jakikolwiek punkt kształtu jest wewnątrz zaznaczenia
-        if (_points.Any(p =>
+        if (points.Any(p =>
                 p.X >= startPoint.X && p.X <= oppositePoint.X && 
                 p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
         {
@@ -99,10 +98,10 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         }
 
         // 2. Sprawdź przecięcia krawędzi (w tym domykającej ostatni z pierwszym)
-        for (var i = 0; i < _points.Count; i++)
+        for (var i = 0; i < points.Count; i++)
         {
-            var pStart = _points[i];
-            var pEnd = _points[(i + 1) % _points.Count]; // To zapewnia "niewidzialną krawędź" domykającą
+            var pStart = points[i];
+            var pEnd = points[(i + 1) % points.Count]; // To zapewnia "niewidzialną krawędź" domykającą
 
             if (LineIntersectsRect(pStart, pEnd, startPoint, oppositePoint))
                 return true;
@@ -112,7 +111,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         // (Obsługa przypadku, gdy zaznaczenie jest całkowicie w środku dużego kształtu)
         var center = new Point((startPoint.X + oppositePoint.X) / 2, (startPoint.Y + oppositePoint.Y) / 2);
 
-        return IsPointInPolygon(center, _points);
+        return IsPointInPolygon(center, points);
 
     }
 
@@ -227,21 +226,21 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     {
         if (IsBlocked) return;
 
-        for (var i = 0; i < _points.Count; i++)
+        for (var i = 0; i < points.Count; i++)
         {
-            _points[i] = new Point(
-                pivot.X + (_points[i].X - pivot.X) * sx,
-                pivot.Y + (_points[i].Y - pivot.Y) * sy
+            points[i] = new Point(
+                pivot.X + (points[i].X - pivot.X) * sx,
+                pivot.Y + (points[i].Y - pivot.Y) * sy
             );
         }
     }
     
     // --- KOPIOWANIE
-    public ICanvas Clone() => new CustomShape(_points.Select(p => new Point(p.X, p.Y)).ToList(), _contentColor, _contourColor, _width)
+    public ICanvas Clone() => new CustomShape(points.Select(p => new Point(p.X, p.Y)).ToList(), _contentColor, _contourColor, _width)
     {
         IsBlocked = IsBlocked,
         IsVisible =  IsVisible,
-        _transparency =  _transparency
+        _opacity =  _opacity
     };
 
     public void ConsoleDisplay(int depth = 0)
@@ -252,7 +251,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     
     public override string ToString()
     {
-        var pointsStr = string.Join(",  ", _points.Select(p => p.ToString()));
+        var pointsStr = string.Join(",  ", points.Select(p => p.ToString()));
         return
             $"Custom shape with points: [{pointsStr}], Content: {_contentColor}, Contour: {_contourColor}, Width: {_width}px";
     }

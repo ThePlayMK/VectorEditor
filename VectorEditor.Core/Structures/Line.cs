@@ -4,13 +4,13 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class Line(Point startPoint, Point endPoint, Color contourColor, int width) : IShape
+public class Line(Point startPoint, Point endPoint, Color contourColor, double width, double opacity = 1.0) : IShape
 {
     private Point _startPoint = startPoint;
     private Point _endPoint = endPoint;
     private Color _contourColor = contourColor;
-    private int _width = width;
-    private double _transparency = 0;
+    private double _width = width;
+    private double _opacity = opacity;
 
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
@@ -21,10 +21,10 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, int widt
     // Linia nie ma ContentColor, ale zwracamy ContourColor, by nie psuć generycznych operacji
     public Color GetContentColor() => _contourColor;
     public Color GetContourColor() => _contourColor;
-    public int GetWidth() => _width;
+    public double GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetEndPoint() => _endPoint;
-    public double GetTransparency() => _transparency;
+    public double GetOpacity() => _opacity;
     public IEnumerable<Point> GetPoints() => new List<Point> { _startPoint, _endPoint };
     public double GetMinX() => Math.Min(_startPoint.X, _endPoint.X);
     public double GetMaxX() => Math.Max(_startPoint.X, _endPoint.X);
@@ -66,7 +66,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, int widt
     
     public void SetTransparency(double transparency)
     {
-        _transparency = transparency;
+        _opacity = transparency;
     }
 
     // --- GEOMETRIA ---
@@ -207,7 +207,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, int widt
     {
         IsBlocked = IsBlocked,
         IsVisible =  IsVisible,
-        _transparency =  _transparency
+        _opacity =  _opacity
     };
 
     public override string ToString() =>

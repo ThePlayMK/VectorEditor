@@ -9,35 +9,36 @@ public class Rectangle : IShape
     // Pola prywatne - brak bezpośredniego dostępu z zewnątrz
     private Color _contentColor;
     private Color _contourColor;
-    private int _width;
+    private double _width;
     private Point _startPoint;
     private Point _oppositePoint;
     private Point? _helperPoint1;
     private Point? _helperPoint2;
-    private double _transparency = 0;
+    private double _opacity;
 
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
     public bool IsVisible { get; set; } = true;
     public string Name => "Rectangle";
 
-    public Rectangle(Point startPoint, Point oppositePoint, Color contentColor, Color contourColor, int width)
+    public Rectangle(Point startPoint, Point oppositePoint, Color contentColor, Color contourColor, double width, double opacity = 1.0)
     {
         _startPoint = startPoint;
         _oppositePoint = oppositePoint;
         _contentColor = contentColor;
         _contourColor = contourColor;
         _width = width;
+        _opacity = opacity;
         UpdateHelperPoints();
     }
 
     // --- GETTERY (Publiczne) ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
-    public int GetWidth() => _width;
+    public double GetWidth() => _width;
     public Point GetStartPoint() => _startPoint;
     public Point GetOppositePoint() => _oppositePoint;
-    public double GetTransparency() => _transparency;
+    public double GetOpacity() => _opacity;
     public IEnumerable<Point> GetPoints() => new List<Point> {_startPoint, _oppositePoint};
 
     // --- SETERY (Publiczne) ---
@@ -74,7 +75,7 @@ public class Rectangle : IShape
     
     public void SetTransparency(double transparency)
     {
-        _transparency = transparency;
+        _opacity = transparency;
     }
 
     // --- SKALOWANIE ---
@@ -219,7 +220,7 @@ public class Rectangle : IShape
     {
         IsBlocked = IsBlocked,
         IsVisible =  IsVisible,
-        _transparency =  _transparency
+        _opacity =  _opacity
     };
 
     public override string ToString() =>

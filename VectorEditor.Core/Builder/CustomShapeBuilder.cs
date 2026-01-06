@@ -4,7 +4,7 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class CustomShapeBuilder(Color contentColor, Color contourColor, int width) : IShapeBuilder
+public class CustomShapeBuilder(Color contentColor, Color contourColor, double width, double opacity = 1.0) : IShapeBuilder
 {
     private readonly List<Point> _points = [];
     private bool _isClosed;
@@ -41,7 +41,7 @@ public class CustomShapeBuilder(Color contentColor, Color contourColor, int widt
     {
         return _points.Count < 2 ? 
             throw new InvalidOperationException("Custom shape requires at least two points.") : 
-            new CustomShape(_points, contentColor, contourColor, width);
+            new CustomShape(_points, contentColor, contourColor, width, opacity);
     }
 
 

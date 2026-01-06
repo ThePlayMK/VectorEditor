@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,7 +9,11 @@ using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using VectorEditor.Core.Command;
+using VectorEditor.Core.Composite;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Render;
+using Point = Avalonia.Point;
 
 namespace VectorEditor.UI
 {
@@ -28,16 +33,25 @@ namespace VectorEditor.UI
         private Point _initialMousePosition;
         private bool _isDragging;
         private int _layerCount;
-        private int _opacity = 100;
-        private IBrush _selectedColor = new SolidColorBrush(Colors.Black);
 
         private LayerWidget? _selectedLayer;
-        private ITool? _activeTool;
+        public CommandManager CommandManager { get; } = new();
+        private LayerManager Layers { get; } = new();
+        private ToolController Tools { get; } = new();
+        public DrawingSettings Settings { get; } = new();
+
+        public Canvas CanvasCanvas => _myCanvas!;
+        public Layer SelectedLayerModel => _selectedLayer?.LayerModel ?? Layers.RootLayer;
+        
 
         public MainWindow()
         {
             InitializeComponent();
             _myCanvas = this.FindControl<Canvas>("MyCanvas");
+            var renderer = new CanvasRenderer(CanvasCanvas);
+
+            CommandManager.OnChanged += () =>
+                renderer.Render(Layers.RootLayer, Layers.Layers);
         }
 
         private void ToggleThemeChange(object? sender, RoutedEventArgs e)
@@ -54,13 +68,12 @@ namespace VectorEditor.UI
             _activeToolButton = button;
             _activeToolButton.Classes.Add("Selected");
             
-            /*_activeTool = button.Tag as string switch
+            Tools.SetTool(button.Tag switch
             {
                 "Line" => new LineTool(),
-                // "Rectangle" => new RectangleTool(),
-                // inne narzędzia...
                 _ => null
-            };*/
+            });
+
         }
 
         private void ToggleMenu(object? sender, RoutedEventArgs e)
@@ -71,13 +84,17 @@ namespace VectorEditor.UI
         private void SelectColor(object? sender, RoutedEventArgs e)
         {
             if (e.Source is not Button { Background: ISolidColorBrush brush }) return;
+
             Color selectedColor = brush.Color;
+
+            Settings.Color = selectedColor;              // ← NOWE
+
             UpdateColor(brush, selectedColor.R, selectedColor.G, selectedColor.B);
         }
 
+
         private void UpdateColor(IBrush color, int r, int g, int b)
         {
-            _selectedColor = color;
             SelectedColor.Background = color;
             InputColorR.Text = r.ToString();
             InputColorG.Text = g.ToString();
@@ -130,13 +147,14 @@ namespace VectorEditor.UI
                 InputColorB.Text = b.ToString();
                 InputColorB.CaretIndex = InputColorB.Text.Length;
             }
+            
+            var newColor = Color.FromRgb((byte)r, (byte)g, (byte)b);
 
-            byte a = (byte)(_opacity / 100.0 * 255);
-            Color newColor = Color.FromArgb(a, (byte)r, (byte)g, (byte)b);
 
-            var newBrush = new SolidColorBrush(newColor);
-            _selectedColor = newBrush;
-            SelectedColor.Background = newBrush;
+            Settings.Color = newColor;                      // ← NOWE
+
+            SelectedColor.Background = new SolidColorBrush(newColor);
+
         }
 
         private async void OpenFile(object? sender, RoutedEventArgs e)
@@ -152,7 +170,7 @@ namespace VectorEditor.UI
             if (files.Count < 1) return;
             await using var stream = await files[0].OpenReadAsync();
             using var reader = new StreamReader(stream);
-            var svgContent = await reader.ReadToEndAsync();
+            //var svgContent = await reader.ReadToEndAsync();
             // This needs to be handled to do something with this
         }
 
@@ -177,7 +195,7 @@ namespace VectorEditor.UI
         private void NewProject(object? sender, RoutedEventArgs e)
         {
             _layerCount = 0;
-            _opacity = 100;
+            Settings.Opacity = 100;
             OpacityInput.Text = "100";
             OpacitySlider.Value = 100;
             UpdateColor(Brushes.Black, 0, 0, 0);
@@ -241,6 +259,8 @@ namespace VectorEditor.UI
 
         private void Canvas_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
+            Tools.PointerPressed(this, e);
+            
             var properties = e.GetCurrentPoint(this).Properties;
             if (properties.IsLeftButtonPressed && sender is Border border)
             {
@@ -253,6 +273,8 @@ namespace VectorEditor.UI
 
         private void Canvas_PointerMoved(object? sender, PointerEventArgs e)
         {
+            Tools.PointerMoved(this, e);
+
             if (_isDragging && sender is Border border && _myCanvas?.RenderTransform is MatrixTransform transform &&
                 _activeToolButton?.Tag as string == "Hand")
             {
@@ -269,6 +291,8 @@ namespace VectorEditor.UI
 
         private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
+            Tools.PointerReleased(this, e);
+
             _isDragging = false;
             if (_capturedControl == null) return;
             e.Pointer.Capture(null);
@@ -277,31 +301,31 @@ namespace VectorEditor.UI
 
         private void Opacity_SliderChanged(object? sender, RoutedEventArgs e)
         {
-            _opacity = (int)OpacitySlider.Value;
-            OpacityInput.Text = _opacity.ToString();
+            Settings.Opacity = (int)OpacitySlider.Value;
+            OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
         }
 
         private void Opacity_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            if (e.Delta.Y > 0 && _opacity < 100)
+            if (e.Delta.Y > 0 && Settings.Opacity < 100)
             {
-                _opacity++;
-                OpacitySlider.Value = _opacity;
-                OpacityInput.Text = _opacity.ToString();
+                Settings.Opacity++;
+                OpacitySlider.Value = Settings.Opacity;
+                OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
             }
-            else if (e.Delta.Y < 0 && _opacity > 0)
+            else if (e.Delta.Y < 0 && Settings.Opacity > 0)
             {
-                _opacity--;
-                OpacitySlider.Value = _opacity;
-                OpacityInput.Text = _opacity.ToString();
+                Settings.Opacity--;
+                OpacitySlider.Value = Settings.Opacity;
+                OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
             }
         }
 
         private void Opacity_InputChange(object? sender, RoutedEventArgs e)
         {
-            _opacity = int.TryParse(OpacityInput.Text, out int result) ? Math.Clamp(result, 0, 100) : 0;
-            OpacitySlider.Value = _opacity;
-            string newText = _opacity.ToString();
+            Settings.Opacity = int.TryParse(OpacityInput.Text, out int result) ? Math.Clamp(result, 0, 100) : 0;
+            OpacitySlider.Value = Settings.Opacity;
+            var newText = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
             if (OpacityInput.Text == newText) return;
             OpacityInput.Text = newText;
             OpacityInput.CaretIndex = OpacityInput.Text.Length;

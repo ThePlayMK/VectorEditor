@@ -4,15 +4,15 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class Circle(Point centerPoint, double radius, Color contentColor, Color contourColor, int width) : IShape
+public class Circle(Point centerPoint, double radius, Color contentColor, Color contourColor, double width, double opacity = 1.0) : IShape
 {
     private Point _centerPoint = centerPoint;
     private double _radiusX = radius;
     private double _radiusY = radius;
     private Color _contentColor = contentColor;
     private Color _contourColor = contourColor;
-    private int _width = width;
-    private double _transparency = 0;
+    private double _width = width;
+    private double _opacity = opacity;
 
     public string Name => Math.Abs(_radiusX - _radiusY) < 0.001 ? "Circle" : "Ellipse";
     public Layer? ParentLayer { get; set; }
@@ -22,9 +22,9 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     // --- GETTERY ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
-    public int GetWidth() => _width;
+    public double GetWidth() => _width;
     public Point GetCenterPoint() => _centerPoint;
-    public double GetTransparency() => _transparency;
+    public double GetOpacity() => _opacity;
     public IEnumerable<Point> GetPoints() => 
     [
         _centerPoint, 
@@ -82,7 +82,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
 
     public void SetTransparency(double transparency)
     {
-        _transparency = transparency;
+        _opacity = transparency;
     }
     
     // --- GEOMETRIA ---
@@ -201,7 +201,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         _radiusY =  _radiusY,
         IsBlocked = IsBlocked,
         IsVisible =  IsVisible,
-        _transparency =  _transparency
+        _opacity =  _opacity
     };
     
     public override string ToString() => 
