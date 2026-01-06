@@ -8,10 +8,10 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
 using Point = Avalonia.Point;
 
@@ -32,23 +32,26 @@ namespace VectorEditor.UI
         private Control? _capturedControl;
         private Point _initialMousePosition;
         private bool _isDragging;
-        private int _layerCount;
+        //private int _layerCount;
 
-        private LayerWidget? _selectedLayer;
-        public CommandManager CommandManager { get; } = new();
+        private readonly LayerController _layerController;
         private LayerManager Layers { get; } = new();
         private ToolController Tools { get; } = new();
         public DrawingSettings Settings { get; } = new();
+        public CommandManager CommandManager { get; } = new();
 
         public Canvas CanvasCanvas => _myCanvas!;
-        public Layer SelectedLayerModel => _selectedLayer?.LayerModel ?? Layers.RootLayer;
-        
+        //public Layer SelectedLayerModel => _selectedLayer?.LayerModel ?? Layers.RootLayer;
+        public Layer SelectedLayerModel =>
+            _layerController.SelectedLayer?.LayerModel ?? Layers.RootLayer;
+
 
         public MainWindow()
         {
             InitializeComponent();
             _myCanvas = this.FindControl<Canvas>("MyCanvas");
             var renderer = new CanvasRenderer(CanvasCanvas);
+            _layerController = new LayerController(Layers);
 
             CommandManager.OnChanged += () =>
                 renderer.Render(Layers.RootLayer, Layers.Layers);
@@ -196,27 +199,30 @@ namespace VectorEditor.UI
 
         private void NewProject(object? sender, RoutedEventArgs e)
         {
-            _layerCount = 0;
+            _layerController.Reset();
             Settings.Opacity = 100;
             OpacityInput.Text = "100";
             OpacitySlider.Value = 100;
             UpdateColor(Brushes.Black, 0, 0, 0);
             LayersStackPanel.Children.Clear();
-            _selectedLayer = null;
             _activeToolButton?.Classes.Remove("Selected");
             _activeToolButton = null;
             CenterCanvas();
         }
 
-        private void AddLayer(object? sender, RoutedEventArgs e)
+        /*private void AddLayer(object? sender, RoutedEventArgs e)
         {
             _layerCount++;
             var newLayer = new LayerWidget();
             newLayer.SetLayerName($"Layer{_layerCount}");
             LayersStackPanel.Children.Insert(0, newLayer);
+        }*/
+        private void AddLayer(object? sender, RoutedEventArgs e)
+        {
+            _layerController.AddLayer(LayersStackPanel);
         }
 
-        private void SelectLayer(object? sender, RoutedEventArgs e)
+        /*private void SelectLayer(object? sender, RoutedEventArgs e)
         {
             if (e.Source is not Button button) return;
             var oldBtn = _selectedLayer?.FindDescendantOfType<Button>();
@@ -226,13 +232,22 @@ namespace VectorEditor.UI
             {
                 button.Background = Brushes.Gray;
             }
+        }*/
+        private void SelectLayer(object? sender, RoutedEventArgs e)
+        {
+            if (e.Source is not Button button) return;
+            _layerController.SelectLayer(button);
         }
 
-        private void RemoveLayer(object? sender, RoutedEventArgs e)
+        /*private void RemoveLayer(object? sender, RoutedEventArgs e)
         {
             if (_selectedLayer == null) return;
             LayersStackPanel.Children.Remove(_selectedLayer);
             _selectedLayer = null;
+        }*/
+        private void RemoveLayer(object? sender, RoutedEventArgs e)
+        {
+            _layerController.RemoveSelectedLayer(LayersStackPanel);
         }
 
         private void Canvas_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
@@ -361,20 +376,5 @@ namespace VectorEditor.UI
         }
 
 
-    }
-
-    public static class MatrixHelper
-    {
-        public static Matrix ScaleAt(Matrix matrix, double scaleX, double scaleY, double centerX, double centerY)
-        {
-            return matrix * Matrix.CreateTranslation(-centerX, -centerY)
-                          * Matrix.CreateScale(scaleX, scaleY)
-                          * Matrix.CreateTranslation(centerX, centerY);
-        }
-
-        public static Matrix Translate(Matrix matrix, double offsetX, double offsetY)
-        {
-            return matrix * Matrix.CreateTranslation(offsetX, offsetY);
-        }
     }
 }

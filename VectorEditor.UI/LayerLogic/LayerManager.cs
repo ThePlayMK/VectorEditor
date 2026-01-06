@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using VectorEditor.Core.Composite;
 
-namespace VectorEditor.UI.Render;
+namespace VectorEditor.UI.LayerLogic;
 
 public class LayerManager
 {
@@ -23,5 +23,15 @@ public class LayerManager
     public void SelectLayer(Layer layer)
     {
         _selectedLayer = layer;
+    }
+
+    public void RemoveLayer(Layer layer)
+    {
+        _layers.Remove(layer);
+    }
+
+    public void Clear()
+    {
+        _layers.Clear();
     }
 }
