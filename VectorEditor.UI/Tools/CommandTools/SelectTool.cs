@@ -1,5 +1,4 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -20,13 +19,6 @@ public class SelectTool(SelectionManager selection) : ITool
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas);
-        
-        if (_startPoint != null)
-        {
-            Finish(window, p);
-            return;
-        }
-        
         _startPoint = new Point(p.X, p.Y);
     }
 
@@ -41,7 +33,7 @@ public class SelectTool(SelectionManager selection) : ITool
         {
             _previewRectangle = new Avalonia.Controls.Shapes.Rectangle()
             {
-                Stroke = new SolidColorBrush(Colors.Blue, PreviewOpacity),
+                Fill = new SolidColorBrush(Colors.DeepSkyBlue, PreviewOpacity),
                 StrokeThickness = PreviewWidth
             };
 
@@ -66,11 +58,24 @@ public class SelectTool(SelectionManager selection) : ITool
 
         var end = e.GetPosition(window.CanvasCanvas);
 
-        if (_previewRectangle != null)
+        // Jeśli nie było ruchu — klik punktowy
+        if (_previewRectangle == null)
         {
-            Finish(window, end);
+            var p = _startPoint;
+
+            var endPoint = new Point(p.X + 1, p.Y + 1);
+
+            selection.SelectArea(window.SelectedLayerModel, p, endPoint);
+
+            _startPoint = null;
+            return;
         }
+
+
+        Finish(window, end);
     }
+
+
 
     private void Finish(MainWindow window, Avalonia.Point end)
     {
@@ -79,13 +84,14 @@ public class SelectTool(SelectionManager selection) : ITool
             window.CanvasCanvas.Children.Remove(_previewRectangle);
             _previewRectangle = null;
         }
+
         var endPoint = new Point(end.X, end.Y);
-        
+
         selection.SelectArea(window.SelectedLayerModel, _startPoint!, endPoint);
 
-
         _startPoint = null;
-        _previewRectangle = null;
+        _previewRectangle =  null;
     }
+
 
 }
