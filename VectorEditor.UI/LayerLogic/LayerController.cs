@@ -26,7 +26,7 @@ public class LayerController(LayerManager layerManager)
         // Tworzymy model warstwy i dodajemy do layer manager
         var model = new Layer(widgetName);
         widget.LayerModel = model;
-        LayerManager.AddLayer(widgetName);
+        LayerManager.AddLayer(model);
 
         // Dodajemy do UI (na górę)
         panel.Children.Insert(0, widget);

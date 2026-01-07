@@ -13,12 +13,11 @@ public class LayerManager
     public Layer SelectedLayer => _selectedLayer ?? RootLayer;
     private Layer? _selectedLayer;
 
-    public Layer AddLayer(string name)
+    public void AddLayer(Layer layer)
     {
-        var layer = new Layer(name);
         _layers.Add(layer);
-        return layer;
     }
+
 
     public void SelectLayer(Layer layer)
     {

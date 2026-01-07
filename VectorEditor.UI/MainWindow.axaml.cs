@@ -33,9 +33,10 @@ namespace VectorEditor.UI
         private readonly LayerController _layerController;
         private readonly CanvasController _canvasController;
         private readonly SelectionManager _selectionManager;
-
-        private LayerManager Layers { get; } = new();
+        private readonly CommandController _commandController;
         private readonly ToolController _tools;
+        
+        private LayerManager Layers { get; } = new();
         public DrawingSettings Settings { get; } = new();
         public CommandManager CommandManager { get; } = new();
 
@@ -54,6 +55,11 @@ namespace VectorEditor.UI
             _canvasController = new CanvasController();
             _selectionManager = new SelectionManager(CommandManager);
             _tools = new ToolController(_selectionManager);
+            _commandController = new CommandController(
+                CommandManager,
+                _selectionManager,
+                () => SelectedLayerModel
+            );
 
 
 
@@ -310,50 +316,12 @@ namespace VectorEditor.UI
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-
-            switch (e.KeyModifiers)
-            {
-                case KeyModifiers.Control when e.Key == Key.Z:
-                    CommandManager.Undo();
-                    return;
-                
-                case KeyModifiers.Control when e.Key == Key.Y:
-                    CommandManager.Redo();
-                    return;
-                
-                case KeyModifiers.Control when e.Key == Key.C:
-                    if (_selectionManager.Selected.Count <= 0) return;
-                    var copy = new CopyCommand(_selectionManager.Selected);
-                    copy.Execute();
-                    return;
-                
-                case KeyModifiers.Control when e.Key == Key.V:
-                {
-                    var cmd = new PasteCommand(SelectedLayerModel, _selectionManager);
-                    CommandManager.Execute(cmd);
-                    return;
-                }
-                
-                /*case KeyModifiers.Control when e.Key == Key.V:
-                    var cmd = new PasteCommand(SelectedLayerModel);
-                    CommandManager.Execute(cmd);
-                    _selectionManager.Clear();
-                    _selectionManager.AddRange(cmd.PastedElements);
-                    return;*/
-
-                default:
-                    return;
-            }
+            _commandController.OnKeyDown(e);
         }
+
         
-        private void Undo_Click(object? sender, RoutedEventArgs e)
-        {
-            CommandManager.Undo();
-        }
+        private void Undo_Click(object? sender, RoutedEventArgs e) => _commandController.Undo();
 
-        private void Redo_Click(object? sender, RoutedEventArgs e)
-        {
-            CommandManager.Redo();
-        }
+        private void Redo_Click(object? sender, RoutedEventArgs e) => _commandController.Redo();
     }
 }
