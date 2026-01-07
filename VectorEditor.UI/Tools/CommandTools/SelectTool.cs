@@ -5,6 +5,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Command.Select;
 using Point = VectorEditor.Core.Structures.Point;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI.Tools.CommandTools;
 
@@ -16,13 +17,13 @@ public class SelectTool(SelectionManager selection) : ITool
     private const double PreviewWidth = 3;
     
     
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas);
         _startPoint = new Point(p.X, p.Y);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         if (_startPoint == null)
             return;
@@ -51,7 +52,7 @@ public class SelectTool(SelectionManager selection) : ITool
         _previewRectangle.Height = h;
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         if (_startPoint is null)
             return;

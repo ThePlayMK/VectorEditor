@@ -5,6 +5,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
+using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI.BuilderTools;
 
@@ -15,14 +16,14 @@ public class TriangleTool : ITool
     private Polygon? _previewTriangle;
     private const double PreviewOpacity = 0.2;
 
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         // Tryb press-release-release:
         // Press NIC nie robi.
     }
 
     
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller,PointerEventArgs e)
     {
         if (_firstPoint == null)
         {
@@ -64,7 +65,7 @@ public class TriangleTool : ITool
         }
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         var pos = e.GetPosition(window.CanvasCanvas);
         var point = new Point(pos.X, pos.Y);

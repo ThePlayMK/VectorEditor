@@ -6,6 +6,7 @@ using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
@@ -15,7 +16,7 @@ public class CircleTool : ITool
     private Avalonia.Controls.Shapes.Ellipse? _previewCircle;
     private const double PreviewOpacity = 0.2;
 
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas);
         
@@ -28,7 +29,7 @@ public class CircleTool : ITool
         _start = new Point(p.X, p.Y);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         if (_start == null)
             return;
@@ -57,7 +58,7 @@ public class CircleTool : ITool
         _previewCircle.Height = radius * 2;
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         if (_start is null)
             return;

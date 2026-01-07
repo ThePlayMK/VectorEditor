@@ -6,6 +6,7 @@ using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
@@ -15,7 +16,7 @@ public class RectangleTool : ITool
     private Avalonia.Controls.Shapes.Rectangle? _previewRectangle;
     private const double PreviewOpacity = 0.2;
 
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas); 
         
@@ -28,7 +29,7 @@ public class RectangleTool : ITool
         _startPoint = new Point(p.X, p.Y);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         if (_startPoint == null)
             return;
@@ -59,7 +60,7 @@ public class RectangleTool : ITool
 
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         if (_startPoint is null)
             return;

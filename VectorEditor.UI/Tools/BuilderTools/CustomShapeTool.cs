@@ -7,6 +7,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.UIControllers;
 using Point = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
@@ -22,7 +23,7 @@ public class CustomShapeTool : ITool
 
     
 
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var pos = e.GetPosition(window.CanvasCanvas);
         var p = new Point(pos.X, pos.Y);
@@ -65,7 +66,7 @@ public class CustomShapeTool : ITool
             Finish(window);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         if (!_isDrawing || _preview == null)
             return;
@@ -124,7 +125,7 @@ public class CustomShapeTool : ITool
         _builder = new CustomShapeBuilder();
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         
     }

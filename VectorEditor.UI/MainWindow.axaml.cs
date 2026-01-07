@@ -16,6 +16,7 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.Tools.CommandTools;
 using VectorEditor.UI.UIControllers;
+using VectorEditor.Core.Net;
 
 namespace VectorEditor.UI
 {
@@ -55,6 +56,12 @@ namespace VectorEditor.UI
             _canvasController = new CanvasController();
             _selectionManager = new SelectionManager(CommandManager);
 
+            //Siatka
+            Tools.Grid.IsVisible = true;
+            Tools.Grid.SnapEnabled = true;
+
+            // Rysujemy siatkę na płótnie
+            GridRenderer.Render(CanvasCanvas, Tools.Grid);
 
 
             CommandManager.OnChanged += () =>
@@ -368,6 +375,14 @@ namespace VectorEditor.UI
         private void Redo_Click(object? sender, RoutedEventArgs e)
         {
             CommandManager.Redo();
+        }
+        public void ToggleGrid(object? sender, RoutedEventArgs e)
+        {
+            // Zmieniamy stan widoczności na przeciwny
+            Tools.Grid.IsVisible = !Tools.Grid.IsVisible;
+            
+            // Odświeżamy widok siatki
+            GridRenderer.Render(CanvasCanvas, Tools.Grid);
         }
     }
 }
