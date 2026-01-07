@@ -4,34 +4,55 @@ using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Structures;
 using VectorEditor.UI.UIControllers;
+using VectorEditor.UI.BuilderTools;
 
-namespace VectorEditor.UI.BuilderTools;
+// Alias dla Twojego punktu z Core (żeby nie mylić z Avalonia.Point)
+using CorePoint = VectorEditor.Core.Structures.Point;
+
+namespace VectorEditor.UI.Tools.BuilderTools;
 
 public class TriangleTool : ITool
 {
-    private Point? _firstPoint;
-    private Point? _secondPoint;
+    // Przechowujemy dwa pierwsze punkty jako obiekty CorePoint
+    private CorePoint? _firstPoint;
+    private CorePoint? _secondPoint;
+    
     private Polygon? _previewTriangle;
-    private const double PreviewOpacity = 0.2;
+    private const double PreviewOpacity = 0.5; // Zwiększyłem trochę widoczność
 
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
-        // Tryb press-release-release:
-        // Press NIC nie robi.
-    }
+        // 1. Pobieramy punkt przyciągnięty do siatki
+        var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
-    
-    public void PointerMoved(MainWindow window, ToolController controller,PointerEventArgs e)
-    {
+        // 2. Logika maszyny stanów:
+        
+        // ETAP 1: Nie mamy jeszcze nic -> Ustawiamy pierwszy punkt
         if (_firstPoint == null)
         {
+            // Tworzymy NOWĄ instancję punktu (bezpieczne podejście)
+            _firstPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
             return;
         }
 
-        var current = e.GetPosition(window.CanvasCanvas);
-        var point = new Point(current.X, current.Y);
+        // ETAP 2: Mamy pierwszy, brakuje drugiego -> Ustawiamy drugi punkt
+        if (_secondPoint == null)
+        {
+            _secondPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
+            return;
+        }
+
+        // ETAP 3: Mamy oba punkty -> To kliknięcie jest trzecim punktem -> KONIEC
+        Finish(window, snappedPoint);
+    }
+
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
+    {
+        // Jeśli nie zaczęliśmy rysować (brak pierwszego punktu), nic nie robimy
+        if (_firstPoint == null) return;
+
+        var snappedCurrent = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         if (_previewTriangle == null)
         {
@@ -39,56 +60,37 @@ public class TriangleTool : ITool
             {
                 Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
                 Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
-                StrokeThickness = window.Settings.StrokeWidth
+                StrokeThickness = window.Settings.StrokeWidth,
+                IsHitTestVisible = false
             };
-
             window.CanvasCanvas.Children.Add(_previewTriangle);
         }
 
+        // RYSOWANIE PODGLĄDU
+        var p1 = new Avalonia.Point(_firstPoint.X, _firstPoint.Y);
+        var current = new Avalonia.Point(snappedCurrent.X, snappedCurrent.Y);
+
         if (_secondPoint == null)
         {
-            _previewTriangle.Points = new List<Avalonia.Point>()
-            {
-                new(_firstPoint.X, _firstPoint.Y),
-                new(point.X, point.Y)
-            };
+            // STAN: Mamy 1 punkt, szukamy 2.
+            // Rysujemy "linię" (trójkąt spłaszczony), żeby użytkownik wiedział, gdzie stawia 2 punkt.
+            _previewTriangle.Points = new List<Avalonia.Point> { p1, current, current };
         }
-        
         else
         {
-            _previewTriangle.Points = new List<Avalonia.Point>()
-            {
-                new(_firstPoint.X, _firstPoint.Y),
-                new(_secondPoint.X, _secondPoint.Y),
-                new(point.X, point.Y)
-            };
+            // STAN: Mamy 1 i 2 punkt, szukamy 3.
+            // Rysujemy pełny trójkąt dynamicznie.
+            var p2 = new Avalonia.Point(_secondPoint.X, _secondPoint.Y);
+            _previewTriangle.Points = new List<Avalonia.Point> { p1, p2, current };
         }
     }
 
     public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
-        var pos = e.GetPosition(window.CanvasCanvas);
-        var point = new Point(pos.X, pos.Y);
-
-        // 1. pierwszy release → ustaw pierwszy punkt
-        if (_firstPoint == null)
-        {
-            _firstPoint = point;
-            return;
-        }
-
-        // 2. drugi release → ustaw drugi punkt
-        if (_secondPoint == null)
-        {
-            _secondPoint = point;
-            return;
-        }
-
-        // 3. trzeci release → kończymy trójkąt
-        Finish(window, point);
+        // Puste - w tym narzędziu wygodniej używać PointerPressed
     }
 
-    private void Finish(MainWindow window, Point end)
+    private void Finish(MainWindow window, CorePoint endPoint)
     {
         if (_previewTriangle != null)
         {
@@ -96,19 +98,21 @@ public class TriangleTool : ITool
             _previewTriangle = null;
         }
 
+        // Budujemy trójkąt. Zakładam, że Twój TriangleBuilder ma metody SetStart, SetSecond, SetEnd.
         var builder = new TriangleBuilder()
             .SetStart(_firstPoint!)
             .SetSecond(_secondPoint!)
-            .SetEnd(end)
+            .SetEnd(endPoint)
             .SetContourColor(window.Settings.ContourColor)
-            .SetContentColor(window.Settings.ContentColor)
+            .SetContentColor(window.Settings.ContentColor) // Jeśli masz wypełnienie
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
 
+        // Wykonujemy komendę
         window.CommandManager.Execute(new AddShapeCommand(builder, window.SelectedLayerModel));
 
+        // Resetujemy stan
         _firstPoint = null;
         _secondPoint = null;
     }
-
 }
