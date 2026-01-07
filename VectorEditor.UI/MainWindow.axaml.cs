@@ -83,6 +83,7 @@ namespace VectorEditor.UI
                 "Ellipse" => new CircleTool(),
                 "Selector" => new SelectTool(_selectionManager),
                 "Move" => new MoveTool(_selectionManager),
+                "CustomShape" => new CustomShapeTool(),
                 _ => null
             });
 

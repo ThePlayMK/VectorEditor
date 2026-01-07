@@ -7,15 +7,19 @@ namespace VectorEditor.Core.Builder;
 public class CustomShapeBuilder: IShapeBuilder
 {
     private readonly List<Point> _points = [];
-    private bool _isClosed;
     private Color _contourColor = Colors.Black;
     private Color _contentColor  = Colors.White;
     private double _width = 2.0;
     private double _opacity = 1.0;
+    
+    public bool IsClosed { get; private set; }
+
+    public IEnumerable<Point> GetPoints() => _points;
+
 
     public CustomShapeBuilder AddPoint(Point point)
     {
-        if (_isClosed)
+        if (IsClosed)
         {
             throw new InvalidOperationException("Cannot add points to a closed shape.");
         }
@@ -24,7 +28,7 @@ public class CustomShapeBuilder: IShapeBuilder
         
         if (_points.Count >= 3 && DoesNewSegmentCloseShape())
         {
-            _isClosed = true;
+            IsClosed = true;
         }
 
         return this;
@@ -61,8 +65,18 @@ public class CustomShapeBuilder: IShapeBuilder
             throw new InvalidOperationException("Cannot close a shape with fewer than 3 points.");
         }
 
-        _isClosed = true;
+        IsClosed = true;
         return this;
+    }
+
+    public void Reset()
+    {
+        _points.Clear();
+        IsClosed = false;
+        _contourColor = Colors.Black;
+        _contentColor  = Colors.White;
+        _width = 2.0;
+        _opacity = 1.0;
     }
 
     public IShape Build()

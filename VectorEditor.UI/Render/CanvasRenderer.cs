@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
+using Point = Avalonia.Point;
 
 namespace VectorEditor.UI.Render;
 
@@ -48,6 +49,10 @@ public class CanvasRenderer(Canvas canvas)
                 RenderCircle(circle);
                 break;
             
+            case CustomShape customShape:
+                RenderCustom(customShape);
+                break;
+            
             case Layer layer:
                 RenderLayer(layer, selected);
                 break;
@@ -65,8 +70,8 @@ public class CanvasRenderer(Canvas canvas)
 
         var ui = new Avalonia.Controls.Shapes.Line
         {
-            StartPoint = new Avalonia.Point(start.X, start.Y),
-            EndPoint = new Avalonia.Point(end.X, end.Y),
+            StartPoint = new Point(start.X, start.Y),
+            EndPoint = new Point(end.X, end.Y),
             Stroke = new SolidColorBrush(line.GetContourColor(), line.GetOpacity()),
             StrokeThickness = line.GetWidth()
         };
@@ -105,9 +110,9 @@ public class CanvasRenderer(Canvas canvas)
         {
             Points =
             {
-                new Avalonia.Point(triangle.GetFirstPoint().X, triangle.GetFirstPoint().Y),
-                new Avalonia.Point(triangle.GetSecondPoint().X, triangle.GetSecondPoint().Y),
-                new Avalonia.Point(triangle.GetThirdPoint().X, triangle.GetThirdPoint().Y)
+                new Point(triangle.GetFirstPoint().X, triangle.GetFirstPoint().Y),
+                new Point(triangle.GetSecondPoint().X, triangle.GetSecondPoint().Y),
+                new Point(triangle.GetThirdPoint().X, triangle.GetThirdPoint().Y)
             },
             Stroke = new SolidColorBrush(triangle.GetContourColor(), triangle.GetOpacity()),
             Fill = new SolidColorBrush(triangle.GetContentColor(), triangle.GetOpacity()),
@@ -162,6 +167,23 @@ public class CanvasRenderer(Canvas canvas)
 
         Canvas.SetLeft(ui, start.X - radiusX);
         Canvas.SetTop(ui, start.Y - radiusY);
+        canvas.Children.Add(ui);
+    }
+
+    private void RenderCustom(CustomShape customShape)
+    {
+        var list = customShape.GetPoints();
+        var avaloniaList = list.Select(p => new Point(p.X, p.Y)).ToList();
+        avaloniaList.Add(avaloniaList[0]);
+
+        var ui = new Avalonia.Controls.Shapes.Polygon
+        {
+            Points = new List<Point>(avaloniaList),
+            Stroke = new SolidColorBrush(customShape.GetContourColor(), customShape.GetOpacity()),
+            Fill = new SolidColorBrush(customShape.GetContentColor(), customShape.GetOpacity()),
+            StrokeThickness = customShape.GetWidth()
+        };
+
         canvas.Children.Add(ui);
     }
 }
