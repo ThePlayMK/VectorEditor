@@ -25,6 +25,8 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     public double GetWidth() => _width;
     public Point GetCenterPoint() => _centerPoint;
     public double GetOpacity() => _opacity;
+    public double GetRadiusX() => _radiusX;
+    public double GetRadiusY() => _radiusY;
     public IEnumerable<Point> GetPoints() => 
     [
         _centerPoint, 

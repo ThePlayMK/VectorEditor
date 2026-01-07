@@ -44,6 +44,10 @@ public class CanvasRenderer(Canvas canvas)
                 RenderTriangle(triangle);
                 break;
 
+            case Circle circle:
+                RenderCircle(circle);
+                break;
+            
             case Layer layer:
                 RenderLayer(layer, selected);
                 break;
@@ -138,6 +142,26 @@ public class CanvasRenderer(Canvas canvas)
         Canvas.SetLeft(ui, x);
         Canvas.SetTop(ui, y);
 
+        canvas.Children.Add(ui);
+    }
+
+    private void RenderCircle(Circle circle)
+    {
+        var start = circle.GetCenterPoint();
+        var radiusX = circle.GetRadiusX();
+        var radiusY = circle.GetRadiusY();
+
+        var ui = new Avalonia.Controls.Shapes.Ellipse
+        {
+            Width = radiusX * 2,
+            Height = radiusY * 2,
+            Stroke = new SolidColorBrush(circle.GetContourColor(), circle.GetOpacity()),
+            Fill = new SolidColorBrush(circle.GetContentColor(), circle.GetOpacity()),
+            StrokeThickness = circle.GetWidth()
+        };
+
+        Canvas.SetLeft(ui, start.X - radiusX);
+        Canvas.SetTop(ui, start.Y - radiusY);
         canvas.Children.Add(ui);
     }
 }

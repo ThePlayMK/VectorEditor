@@ -80,6 +80,7 @@ namespace VectorEditor.UI
                 "Line" => new LineTool(),
                 "Rectangle" => new RectangleTool(),
                 "Triangle" => new TriangleTool(),
+                "Ellipse" => new CircleTool(),
                 "Selector" => new SelectTool(_selectionManager),
                 "Move" => new MoveTool(_selectionManager),
                 _ => null
