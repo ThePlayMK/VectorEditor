@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls.Shapes;
@@ -24,6 +23,13 @@ public class CustomShapeTool : ITool
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
+        if (e.GetCurrentPoint(window.CanvasCanvas).Properties.IsRightButtonPressed)
+        {
+            if (_isDrawing)
+                Finish(window);   // kończymy kształt
+            return;               // nie dodajemy punktu
+        }
+        
         var pos = e.GetPosition(window.CanvasCanvas);
         var p = new Point(pos.X, pos.Y);
         
@@ -48,21 +54,14 @@ public class CustomShapeTool : ITool
             _previewPoints.Add(p);
         }
         
-        try
-        {
-            _builder.AddPoint(p);
-        }
-        catch (InvalidOperationException)
-        {
-            Finish(window);
-            return;
-        }
+        _builder.AddPoint(p);
 
-
+        if (e.GetCurrentPoint(window.CanvasCanvas).Properties.IsMiddleButtonPressed)
+        {
+            if (_isDrawing)
+                Finish(window); 
+        }
         UpdatePreview();
-        
-        if (_builder.IsClosed)
-            Finish(window);
     }
 
     public void PointerMoved(MainWindow window, PointerEventArgs e)
@@ -86,7 +85,7 @@ public class CustomShapeTool : ITool
         foreach (var p in _previewPoints)
             pts.Add(new Avalonia.Point(p.X, p.Y));
 
-        if (hover != null && !_builder.IsClosed)
+        if (hover != null)
             pts.Add(new Avalonia.Point(hover.X, hover.Y));
 
         _preview.Points = pts;

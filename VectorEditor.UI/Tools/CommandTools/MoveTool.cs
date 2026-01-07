@@ -84,6 +84,8 @@ public class MoveTool(SelectionManager selection) : ITool
                 Line line => CreateLinePreview(line),
                 Rectangle rect => CreateRectPreview(rect),
                 Triangle tri => CreateTrianglePreview(tri),
+                Circle circle => CreateCirclePreview(circle),
+                CustomShape customShape => CreateCustomShapePreview(customShape),
                 _ => null!
             };
 
@@ -110,11 +112,17 @@ public class MoveTool(SelectionManager selection) : ITool
                     poly.Points = newPoints;
                     break;
 
+                case Avalonia.Controls.Shapes.Ellipse ellipse:   // ⭐ NOWE
+                    Canvas.SetLeft(ellipse, Canvas.GetLeft(ellipse) + dx);
+                    Canvas.SetTop(ellipse, Canvas.GetTop(ellipse) + dy);
+                    break;
+
                 default:
                     Canvas.SetLeft(ui, Canvas.GetLeft(ui) + dx);
                     Canvas.SetTop(ui, Canvas.GetTop(ui) + dy);
                     break;
             }
+
         }
 
     }
@@ -141,8 +149,7 @@ public class MoveTool(SelectionManager selection) : ITool
             StrokeDashArray = [4, 4]
         };
     }
-
-
+    
     private Control CreateRectPreview(Rectangle rect)
     {
         var s = rect.GetStartPoint();
@@ -168,7 +175,6 @@ public class MoveTool(SelectionManager selection) : ITool
         return ui;
     }
 
-
     private Control CreateTrianglePreview(Triangle tri)
     {
         return new Avalonia.Controls.Shapes.Polygon
@@ -184,5 +190,41 @@ public class MoveTool(SelectionManager selection) : ITool
             StrokeDashArray = [4, 4]
         };
     }
+    
+    private Control CreateCirclePreview(Circle circle)
+    {
+        var center = circle.GetCenterPoint();
+        var rx = circle.GetRadiusX();
+        var ry = circle.GetRadiusY();
 
+        var ui = new Avalonia.Controls.Shapes.Ellipse
+        {
+            Width = rx * 2,
+            Height = ry * 2,
+            Stroke = Brushes.Gray,
+            StrokeThickness = circle.GetWidth(),
+            StrokeDashArray = [4, 4]
+        };
+
+        Canvas.SetLeft(ui, center.X - rx);
+        Canvas.SetTop(ui, center.Y - ry);
+
+        return ui;
+    }
+    
+    private Control CreateCustomShapePreview(CustomShape shape)
+    {
+        var poly = new Avalonia.Controls.Shapes.Polygon
+        {
+            Stroke = Brushes.Gray,
+            StrokeThickness = shape.GetWidth(),
+            StrokeDashArray = [4, 4]
+        };
+
+        foreach (var p in shape.GetPoints())
+            poly.Points.Add(new Avalonia.Point(p.X, p.Y));
+
+        return poly;
+    }
+    
 }

@@ -1,4 +1,5 @@
 using System;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -14,8 +15,9 @@ public class SelectTool(SelectionManager selection) : ITool
     private Avalonia.Controls.Shapes.Rectangle? _previewRectangle;
     private const double PreviewOpacity = 0.2;
     private const double PreviewWidth = 3;
-    
-    
+    private static readonly AvaloniaList<double>? PreviewDashArray = [4, 4];
+
+
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas);
@@ -34,7 +36,8 @@ public class SelectTool(SelectionManager selection) : ITool
             _previewRectangle = new Avalonia.Controls.Shapes.Rectangle()
             {
                 Fill = new SolidColorBrush(Colors.DeepSkyBlue, PreviewOpacity),
-                StrokeThickness = PreviewWidth
+                StrokeThickness = PreviewWidth,
+                StrokeDashArray = PreviewDashArray
             };
 
             window.CanvasCanvas.Children.Add(_previewRectangle);
