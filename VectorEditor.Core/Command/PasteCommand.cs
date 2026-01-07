@@ -8,21 +8,28 @@ public class PasteCommand(Layer targetLayer, SelectionManager selection) : IComm
     private List<ICanvas> _pastedElements = [];
     private const int Dx = 10;
     private const int Dy = 10;
+    private bool _executedOnce;
 
     public void Execute()
     {
-        _pastedElements.Clear();
-        // 1. Pobieramy klony ze schowka
-        var clones = Clipboard.Paste().ToList();
-
-        // 2. Dodajemy je do warstwy i opcjonalnie przesuwamy
-        foreach (var element in clones)
+        if (!_executedOnce)
         {
-            // Przesunięcie, aby użytkownik widział, że wkleił obiekt
-            element.Move(Dx, Dy); 
-            targetLayer.Add(element);
-            _pastedElements.Add(element);
+            var clones = Clipboard.Paste().ToList();
+
+            foreach (var c in clones)
+            {
+                c.Move(Dx, Dy);
+                c.ParentLayer = targetLayer;
+                _pastedElements.Add(c);
+            }
+
+            _executedOnce = true;
         }
+
+        // dodaj TE SAME instancje do warstwy
+        foreach (var obj in _pastedElements)
+            targetLayer.Add(obj);
+
         selection.Clear();
         selection.AddRange(_pastedElements);
     }
