@@ -5,7 +5,6 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
-using VectorEditor.UI.BuilderTools;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
@@ -37,7 +36,7 @@ public class CircleTool : ITool
 
         if (_previewCircle == null)
         {
-            _previewCircle = new Avalonia.Controls.Shapes.Ellipse()
+            _previewCircle = new Avalonia.Controls.Shapes.Ellipse
             {
                 Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth

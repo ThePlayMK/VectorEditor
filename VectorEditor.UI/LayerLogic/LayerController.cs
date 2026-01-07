@@ -5,17 +5,12 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.UI.LayerLogic;
 
-public class LayerController
+public class LayerController(LayerManager layerManager)
 {
     private int _layerCount;
 
     public LayerWidget? SelectedLayer { get; private set; }
-    public LayerManager LayerManager { get; }
-
-    public LayerController(LayerManager layerManager)
-    {
-        LayerManager = layerManager;
-    }
+    private LayerManager LayerManager { get; } = layerManager;
 
     // -------------------------
     // ADD LAYER
@@ -28,7 +23,7 @@ public class LayerController
         var widgetName = $"Layer{_layerCount}";
         widget.SetLayerName(widgetName);
 
-        // Tworzymy model warstwy i dodajemy do LayerManager
+        // Tworzymy model warstwy i dodajemy do layer manager
         var model = new Layer(widgetName);
         widget.LayerModel = model;
         LayerManager.AddLayer(widgetName);

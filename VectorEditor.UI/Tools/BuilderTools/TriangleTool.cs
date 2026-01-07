@@ -6,7 +6,7 @@ using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
 
-namespace VectorEditor.UI.BuilderTools;
+namespace VectorEditor.UI.Tools.BuilderTools;
 
 public class TriangleTool : ITool
 {

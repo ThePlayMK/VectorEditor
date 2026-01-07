@@ -3,7 +3,6 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
-using VectorEditor.UI.BuilderTools;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
@@ -60,7 +59,8 @@ public class LineTool : ITool
             FinishLine(window, end);
         }
     }
-    public void FinishLine(MainWindow window, Avalonia.Point end)
+
+    private void FinishLine(MainWindow window, Avalonia.Point end)
     {
         if (_previewLine != null)
         {

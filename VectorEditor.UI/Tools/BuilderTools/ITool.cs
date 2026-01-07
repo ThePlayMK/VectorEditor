@@ -1,6 +1,6 @@
 using Avalonia.Input;
 
-namespace VectorEditor.UI.BuilderTools;
+namespace VectorEditor.UI.Tools.BuilderTools;
 
 public interface ITool
 {

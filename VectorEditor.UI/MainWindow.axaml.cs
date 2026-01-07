@@ -10,7 +10,6 @@ using Avalonia.Styling;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
-using VectorEditor.UI.BuilderTools;
 using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
 using VectorEditor.UI.Tools.BuilderTools;
@@ -36,7 +35,7 @@ namespace VectorEditor.UI
         private readonly SelectionManager _selectionManager;
 
         private LayerManager Layers { get; } = new();
-        private ToolController Tools { get; } = new();
+        private readonly ToolController _tools;
         public DrawingSettings Settings { get; } = new();
         public CommandManager CommandManager { get; } = new();
 
@@ -54,6 +53,7 @@ namespace VectorEditor.UI
             _layerController = new LayerController(Layers);
             _canvasController = new CanvasController();
             _selectionManager = new SelectionManager(CommandManager);
+            _tools = new ToolController(_selectionManager);
 
 
 
@@ -70,24 +70,10 @@ namespace VectorEditor.UI
 
         private void SelectTool(object? sender, RoutedEventArgs e)
         {
-            if (e.Source is not Button button) return;
-            _activeToolButton?.Classes.Remove("Selected");
-            _activeToolButton = button;
-            _activeToolButton.Classes.Add("Selected");
-            
-            Tools.SetTool(button.Tag switch
-            {
-                "Line" => new LineTool(),
-                "Rectangle" => new RectangleTool(),
-                "Triangle" => new TriangleTool(),
-                "Ellipse" => new CircleTool(),
-                "Selector" => new SelectTool(_selectionManager),
-                "Move" => new MoveTool(_selectionManager),
-                "CustomShape" => new CustomShapeTool(),
-                _ => null
-            });
-
+            if (e.Source is Button button)
+                _tools.SelectTool(button);
         }
+
 
         private void ToggleMenu(object? sender, RoutedEventArgs e)
         {
@@ -269,7 +255,7 @@ namespace VectorEditor.UI
         
         private void Canvas_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            Tools.PointerPressed(this, e);
+            _tools.PointerPressed(this, e);
 
             if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
                 _canvasController.PanStart(border, e);
@@ -277,7 +263,7 @@ namespace VectorEditor.UI
         
         private void Canvas_PointerMoved(object? sender, PointerEventArgs e)
         {
-            Tools.PointerMoved(this, e);
+            _tools.PointerMoved(this, e);
 
             if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
                 _canvasController.PanMove(_myCanvas!, border, e);
@@ -285,7 +271,7 @@ namespace VectorEditor.UI
         
         private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            Tools.PointerReleased(this, e);
+            _tools.PointerReleased(this, e);
             _canvasController.PanEnd(e);
         }
 

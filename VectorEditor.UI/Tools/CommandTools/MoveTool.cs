@@ -7,7 +7,7 @@ using VectorEditor.Core.Command;
 using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
-using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Tools.BuilderTools;
 
 namespace VectorEditor.UI.Tools.CommandTools;
 
