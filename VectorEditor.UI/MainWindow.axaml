@@ -132,7 +132,7 @@
                 </StackPanel>
                 <Grid Grid.Column="1" Grid.Row="1">
                     <Border Name="CanvasBorder"
-                            Background="White"
+                            Background="Gray"
                             ClipToBounds="True"
                             PointerWheelChanged="Canvas_PointerWheelChanged"
                             PointerPressed="Canvas_PointerPressed"

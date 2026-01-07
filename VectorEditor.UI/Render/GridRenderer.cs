@@ -12,7 +12,7 @@ public static class GridRenderer
         // Jeśli siatka wyłączona -> tło Canvasa jest przezroczyste (widać biały Border pod spodem)
         if (!grid.IsVisible)
         {
-            canvas.Background = Brushes.Transparent;
+            canvas.Background = Brushes.White;
             return;
         }
 
@@ -21,7 +21,7 @@ public static class GridRenderer
         var geometryDrawing = new GeometryDrawing
         {
 
-            Brush = Brushes.Transparent, 
+            Brush = Brushes.White, 
 
             
             Pen = new Pen(Brushes.LightGray, 1),
