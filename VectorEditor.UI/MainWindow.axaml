@@ -210,9 +210,7 @@
                                     Background="Black"
                                     Margin="15,0,0,0"
                                     />
-
-                            <Panel Classes="Colors" Margin="15,0,0,0" Width="17" Height="17" Background="Black"
-                                   Name="SelectedColor" />
+                            
                         </StackPanel>
                         <TextBlock Text="OPACITY" FontWeight="Bold" Opacity="0.6" Margin="0, 15,0,0" />
                         <StackPanel Orientation="Horizontal">
@@ -220,18 +218,37 @@
                             <TextBox Classes="Small" Margin="3,0,3,0" Name="OpacityInput" TextChanged="Opacity_InputChange">100</TextBox>
                         </StackPanel>
                         <Grid RowDefinitions="*" ColumnDefinitions="*, auto, auto">
-                            <TextBlock Text="LAYERS" FontWeight="Bold" Opacity="0.6" Grid.Row="0"
+                            <TextBlock Text="LAYERS"
+                                       FontWeight="Bold"
+                                       Opacity="0.6"
                                        VerticalAlignment="Center" />
-                            <Button Grid.Column="1" VerticalAlignment="Center" Click="AddLayer" ToolTip.Tip="Add Layer">+</Button>
-                            <Button Grid.Column="2" VerticalAlignment="Center" Click="RemoveLayer"
-                                    ToolTip.Tip="Remove Layer">
-                                -
-                            </Button>
+
+                            <Button Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Click="AddLayer"
+                                    ToolTip.Tip="Add Layer">+</Button>
+
+                            <Button Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    Click="RemoveLayer"
+                                    ToolTip.Tip="Remove Layer">-</Button>
                         </Grid>
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="0 5">
-                        <ScrollViewer Height="250">
-                            <StackPanel Button.Click="SelectLayer" Name="LayersStackPanel" Orientation="Vertical" />
+
+                        <!-- BREADCRUMB -->
+                        <StackPanel x:Name="LayerBreadcrumb"
+                                    Orientation="Horizontal"
+                                    Spacing="6"
+                                    Margin="0 8 0 8"/>
+
+                        <!-- LAYER LIST -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Height="300">
+                            <StackPanel x:Name="LayersStackPanel"
+                                        Orientation="Vertical"
+                                        Spacing="4"/>
                         </ScrollViewer>
+
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="0 5">
                         </Border>
                     </StackPanel>
                 </StackPanel>

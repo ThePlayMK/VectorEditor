@@ -1,86 +1,187 @@
+using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 
 namespace VectorEditor.UI.LayerLogic;
 
-public class LayerController(LayerManager layerManager)
+public class LayerController(LayerManager layerManager, CommandManager commands)
 {
-    private int _layerCount;
+    private StackPanel? _layerListPanel;
+    private StackPanel? _breadcrumbPanel;
 
-    public LayerWidget? SelectedLayer { get; private set; }
-    private LayerManager LayerManager { get; } = layerManager;
+    public LayerWidget? SelectedLayerWidget { get; set; }
 
-    // -------------------------
-    // ADD LAYER
-    // -------------------------
-    public void AddLayer(StackPanel panel)
+    // -----------------------------------------
+    // INITIALIZE UI REFERENCES
+    // -----------------------------------------
+    public void BindUi(StackPanel? layerList, StackPanel? breadcrumb)
     {
-        _layerCount++;
+        _layerListPanel = layerList;
+        _breadcrumbPanel = breadcrumb;
 
-        var widget = new LayerWidget();
-        var widgetName = $"Layer{_layerCount}";
-        widget.SetLayerName(widgetName);
-
-        // Tworzymy model warstwy i dodajemy do layer manager
-        var model = new Layer(widgetName);
-        widget.LayerModel = model;
-        LayerManager.AddLayer(model);
-
-        // Dodajemy do UI (na górę)
-        panel.Children.Insert(0, widget);
+        RefreshUi();
     }
 
-    // -------------------------
-    // REMOVE SELECTED LAYER
-    // -------------------------
-    public void RemoveSelectedLayer(StackPanel panel)
+    // -----------------------------------------
+    // REFRESH UI (list + breadcrumb)
+    // -----------------------------------------
+    public void RefreshUi()
     {
-        if (SelectedLayer == null)
+        if (_layerListPanel == null || _breadcrumbPanel == null)
             return;
 
-        // Usuwamy model
-        LayerManager.RemoveLayer(SelectedLayer.LayerModel);
-
-        // Usuwamy widget
-        panel.Children.Remove(SelectedLayer);
-
-        SelectedLayer = null;
+        BuildBreadcrumb();
+        BuildLayerList();
     }
 
-    // -------------------------
+    // -----------------------------------------
+    // BUILD BREADCRUMB
+    // -----------------------------------------
+    private void BuildBreadcrumb()
+    {
+        _breadcrumbPanel!.Children.Clear();
+
+        var chain = new List<Layer>();
+        var node = layerManager.CurrentContext;
+
+        while (node != null)
+        {
+            chain.Insert(0, node);
+            node = node.ParentLayer;
+        }
+
+        for (int i = 0; i < chain.Count; i++)
+        {
+            var layer = chain[i];
+
+            var btn = new Button
+            {
+                Content = layer.GetName(),
+                Tag = layer,
+                Padding = new Thickness(4, 2)
+            };
+
+            btn.Click += (_, _) =>
+            {
+                layerManager.EnterLayer(layer);
+
+                // zaznaczamy tę warstwę, bo jest przodkiem kontekstu
+                SelectedLayerWidget = null;
+                layerManager.SelectLayer(layer);
+
+                RefreshUi();
+            };
+
+
+
+            _breadcrumbPanel.Children.Add(btn);
+
+            if (i < chain.Count - 1)
+                _breadcrumbPanel.Children.Add(new TextBlock { Text = ">" });
+        }
+    }
+
+    // -----------------------------------------
+    // BUILD LAYER LIST (children of current context)
+    // -----------------------------------------
+    private void BuildLayerList()
+    {
+        _layerListPanel!.Children.Clear();
+
+        foreach (var child in layerManager.CurrentContext.GetChildren())
+        {
+            if (child is not Layer layer) continue;
+            var widget = new LayerWidget
+            {
+                LayerModel = layer
+            };
+            widget.SetLayerName(layer.GetName());
+
+            widget.PointerPressed += (_, _) => SelectLayerWidget(widget);
+            widget.DoubleTapped += (_, _) => EnterLayer(layer);
+
+            _layerListPanel.Children.Add(widget);
+        }
+    }
+
+    // -----------------------------------------
     // SELECT LAYER
-    // -------------------------
-    public void SelectLayer(Button clickedButton)
+    // -----------------------------------------
+    private void SelectLayerWidget(LayerWidget widget)
     {
-        // Odznacz poprzednią
-        var oldBtn = SelectedLayer?.FindDescendantOfType<Button>();
-        if (oldBtn != null)
-            oldBtn.Background = Brushes.Transparent;
+        if (widget.LayerModel.ParentLayer != layerManager.CurrentContext)
+            return;
+        // Unhighlight old
+        if (SelectedLayerWidget != null)
+        {
+            var oldBtn = SelectedLayerWidget.FindDescendantOfType<Button>();
+            if (oldBtn != null)
+                oldBtn.Background = Brushes.Transparent;
+        }
 
-        // Znajdź widget
-        var widget = clickedButton.FindAncestorOfType<LayerWidget>();
-        if (widget == null)
+        SelectedLayerWidget = widget;
+
+        // Highlight new
+        var btn = widget.FindDescendantOfType<Button>();
+        if (btn != null)
+            btn.Background = Brushes.Gray;
+
+        layerManager.SelectLayer(widget.LayerModel);
+    }
+
+    // -----------------------------------------
+    // ENTER LAYER (double-click)
+    // -----------------------------------------
+    private void EnterLayer(Layer layer)
+    {
+        layerManager.EnterLayer(layer);
+        SelectedLayerWidget = null;
+        layerManager.SelectLayer(layerManager.CurrentContext); // albo null, jeśli dopuszczasz
+        RefreshUi();
+    }
+
+
+
+    // -----------------------------------------
+    // ADD LAYER (as child of current context)
+    // -----------------------------------------
+    public void AddLayer()
+    {
+        var cmd = new AddLayerCommand(layerManager.CurrentContext);
+        commands.Execute(cmd);
+        RefreshUi();
+    }
+
+
+    // -----------------------------------------
+    // REMOVE SELECTED LAYER
+    // -----------------------------------------
+    public void RemoveSelectedLayer()
+    {
+        if (SelectedLayerWidget == null)
             return;
 
-        SelectedLayer = widget;
+        var layer = SelectedLayerWidget.LayerModel;
 
-        // Zaznacz nową
-        clickedButton.Background = Brushes.Gray;
+        var cmd = new RemoveLayerCommand(layer);
+        commands.Execute(cmd);
+
+        SelectedLayerWidget = null;
+        RefreshUi();
     }
 
-    public void Reset()
+
+    // -----------------------------------------
+    // RESET
+    // -----------------------------------------
+    public void ResetUi()
     {
-        _layerCount = 0;
-        SelectedLayer = null;
-        LayerManager.Clear();
+        layerManager.Reset();
+        SelectedLayerWidget = null;
+        RefreshUi();
     }
-    
-    public void ResetUi(StackPanel panel)
-    {
-        panel.Children.Clear();
-        Reset();
-    }
-
 }

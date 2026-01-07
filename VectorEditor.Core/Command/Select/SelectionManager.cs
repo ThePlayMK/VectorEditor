@@ -50,5 +50,5 @@ public class SelectionManager(CommandManager commandManager)
         // wykonujemy komendę przez CommandManager
         commandManager.Execute(command);
     }
-
+    
 }

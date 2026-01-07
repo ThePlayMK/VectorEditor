@@ -65,4 +65,12 @@ public class ColorController(
         g.Text = c.G.ToString();
         b.Text = c.B.ToString();
     }
+    
+    public void OnPaletteClick(Button button)
+    {
+        if (button.Background is ISolidColorBrush brush)
+            OnColorButtonClick(brush);
+    }
+
+
 }

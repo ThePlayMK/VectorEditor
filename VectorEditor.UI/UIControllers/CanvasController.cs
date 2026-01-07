@@ -14,7 +14,7 @@ public class CanvasController
     // -------------------------
     // ZOOM (scroll wheel)
     // -------------------------
-    public void Zoom(Canvas canvas, PointerWheelEventArgs e)
+    public void OnPointerWheel(Canvas canvas, PointerWheelEventArgs e)
     {
         if (canvas.RenderTransform is not MatrixTransform transform)
             return;
@@ -32,7 +32,7 @@ public class CanvasController
     // -------------------------
     // PAN START (Hand tool)
     // -------------------------
-    public void PanStart(Control sender, PointerPressedEventArgs e)
+    public void OnPointerPressed(Control sender, PointerPressedEventArgs e)
     {
         var properties = e.GetCurrentPoint(sender).Properties;
 
@@ -48,7 +48,7 @@ public class CanvasController
     // -------------------------
     // PAN MOVE
     // -------------------------
-    public void PanMove(Canvas canvas, Control sender, PointerEventArgs e)
+    public void OnPointerMoved(Canvas canvas, Control sender, PointerEventArgs e)
     {
         if (!_isPanning)
             return;
@@ -69,7 +69,7 @@ public class CanvasController
     // -------------------------
     // PAN END
     // -------------------------
-    public void PanEnd(PointerReleasedEventArgs e)
+    public void OnPointerReleased(PointerReleasedEventArgs e)
     {
         _isPanning = false;
 
@@ -83,7 +83,7 @@ public class CanvasController
     // -------------------------
     // CENTER CANVAS
     // -------------------------
-    public void CenterCanvas(Canvas canvas)
+    public static void CenterCanvas(Canvas canvas)
     {
         if (canvas.RenderTransform is not MatrixTransform transform)
             return;

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using VectorEditor.Core.Composite;
 
 namespace VectorEditor.UI.LayerLogic;
@@ -6,31 +5,34 @@ namespace VectorEditor.UI.LayerLogic;
 public class LayerManager
 {
     public Layer RootLayer { get; } = new("RootLayer");
-    private readonly List<Layer> _layers = [];
 
-    public IEnumerable<Layer> Layers => _layers;
+    public Layer? SelectedLayer { get; private set; }
+    public Layer CurrentContext { get; set; }
 
-    public Layer SelectedLayer => _selectedLayer ?? RootLayer;
-    private Layer? _selectedLayer;
-
-    public void AddLayer(Layer layer)
+    public LayerManager()
     {
-        _layers.Add(layer);
+        CurrentContext = RootLayer;
     }
-
 
     public void SelectLayer(Layer layer)
     {
-        _selectedLayer = layer;
+        SelectedLayer = layer;
     }
 
-    public void RemoveLayer(Layer layer)
+    public void EnterLayer(Layer layer)
     {
-        _layers.Remove(layer);
+        CurrentContext = layer;
     }
 
-    public void Clear()
+    public void ExitToParent()
     {
-        _layers.Clear();
+        if (CurrentContext.ParentLayer != null)
+            CurrentContext = CurrentContext.ParentLayer;
+    }
+
+    public void Reset()
+    {
+        SelectedLayer = null;
+        CurrentContext = RootLayer;
     }
 }

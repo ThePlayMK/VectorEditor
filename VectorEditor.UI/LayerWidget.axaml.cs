@@ -5,7 +5,12 @@ namespace VectorEditor.UI;
 
 public partial class LayerWidget : UserControl
 {
-    public Layer LayerModel { get; set; }
+    public Layer LayerModel
+    {
+        get => (Layer)Tag!;
+        init => Tag = value;
+    }
+
     public LayerWidget()
     {
         InitializeComponent();

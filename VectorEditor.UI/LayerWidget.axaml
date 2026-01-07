@@ -20,7 +20,7 @@
             <Setter Property="Height" Value="24" />
         </Style>
     </UserControl.Styles>
-    <Button Classes="LayerButton">
+    <Border Classes="LayerButton" Background="Transparent">
         <Grid ColumnDefinitions="30, 30, *">
             <ToggleButton Grid.Column="0" Classes="LayerIcon" IsChecked="True">
                 <Panel>
@@ -41,5 +41,5 @@
             <TextBlock Grid.Column="2" Text="Name" VerticalAlignment="Center" Name="LayerNameBlock"
                        FontWeight="SemiBold" />
         </Grid>
-    </Button>
+    </Border>
 </UserControl>

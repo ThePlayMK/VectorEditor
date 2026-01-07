@@ -3,6 +3,7 @@ using Avalonia.Input;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
+using VectorEditor.UI.Tools.CommandTools;
 
 namespace VectorEditor.UI.UIControllers;
 
@@ -45,8 +46,10 @@ public class CommandController(
         }
     }
 
-    public void Undo() => commandManager.Undo();
-    public void Redo() => commandManager.Redo();
+    public void OnUndoClick() => commandManager.Undo();
+    public void OnRedoClick() => commandManager.Redo();
+    
+
 }
 
 

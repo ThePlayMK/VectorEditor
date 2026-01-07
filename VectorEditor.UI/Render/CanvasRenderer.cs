@@ -7,7 +7,7 @@ namespace VectorEditor.UI.Render;
 
 public class CanvasRenderer(Canvas canvas)
 {
-    public void Render(Layer rootLayer, IEnumerable<Layer> userLayers, IReadOnlyList<ICanvas> selected)
+    public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected)
     {
         canvas.Children.Clear();
 
