@@ -12,8 +12,6 @@ using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
 using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
-using VectorEditor.UI.Tools.BuilderTools;
-using VectorEditor.UI.Tools.CommandTools;
 using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI
@@ -32,9 +30,10 @@ namespace VectorEditor.UI
         private Button? _activeToolButton;
         private readonly LayerController _layerController;
         private readonly CanvasController _canvasController;
-        private readonly SelectionManager _selectionManager;
         private readonly CommandController _commandController;
         private readonly ToolController _tools;
+        private readonly OpacityController _opacity;
+        private readonly ColorController _colors;
         
         private LayerManager Layers { get; } = new();
         public DrawingSettings Settings { get; } = new();
@@ -53,18 +52,32 @@ namespace VectorEditor.UI
             var renderer = new CanvasRenderer(CanvasCanvas);
             _layerController = new LayerController(Layers);
             _canvasController = new CanvasController();
-            _selectionManager = new SelectionManager(CommandManager);
-            _tools = new ToolController(_selectionManager);
+            var selectionManager = new SelectionManager(CommandManager);
+            _tools = new ToolController(selectionManager);
+            
             _commandController = new CommandController(
                 CommandManager,
-                _selectionManager,
+                selectionManager,
                 () => SelectedLayerModel
+            );
+            
+            _opacity = new OpacityController(
+                Settings,
+                OpacitySlider,
+                OpacityInput
+            );
+
+            _colors = new ColorController(
+                Settings,
+                SelectedColor,
+                InputColorR,
+                InputColorG,
+                InputColorB
             );
 
 
-
             CommandManager.OnChanged += () =>
-                renderer.Render(Layers.RootLayer, Layers.Layers, _selectionManager.Selected);
+                renderer.Render(Layers.RootLayer, Layers.Layers, selectionManager.Selected);
         }
 
         private void ToggleThemeChange(object? sender, RoutedEventArgs e)
@@ -90,7 +103,7 @@ namespace VectorEditor.UI
         {
             if (e.Source is not Button { Background: ISolidColorBrush brush }) return;
 
-            Color selectedColor = brush.Color;
+            var selectedColor = brush.Color;
 
             Settings.ContourColor = selectedColor;              // ← NOWE
 
@@ -198,15 +211,12 @@ namespace VectorEditor.UI
 
         private void NewProject(object? sender, RoutedEventArgs e)
         {
-            _layerController.Reset();
-            Settings.Opacity = 100;
-            OpacityInput.Text = "100";
-            OpacitySlider.Value = 100;
-            UpdateColor(Brushes.Black, 0, 0, 0);
-            LayersStackPanel.Children.Clear();
-            _activeToolButton?.Classes.Remove("Selected");
-            _activeToolButton = null;
-            CenterCanvas();
+            _layerController.ResetUi(LayersStackPanel);
+            _opacity.Reset();
+            _colors.Reset();
+            _tools.Reset();
+            _canvasController.CenterCanvas(_myCanvas!);
+
         }
 
         /*private void AddLayer(object? sender, RoutedEventArgs e)
@@ -251,14 +261,9 @@ namespace VectorEditor.UI
         
         private void Canvas_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            CanvasController.Zoom(_myCanvas!, e);
+            _canvasController.Zoom(_myCanvas!, e);
         }
-        
-        private void CenterCanvas()
-        {
-            CanvasController.CenterCanvas(_myCanvas!);
-        }
-        
+
         private void Canvas_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
             _tools.PointerPressed(this, e);
@@ -318,7 +323,6 @@ namespace VectorEditor.UI
             base.OnKeyDown(e);
             _commandController.OnKeyDown(e);
         }
-
         
         private void Undo_Click(object? sender, RoutedEventArgs e) => _commandController.Undo();
 

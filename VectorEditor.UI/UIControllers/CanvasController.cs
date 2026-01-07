@@ -14,7 +14,7 @@ public class CanvasController
     // -------------------------
     // ZOOM (scroll wheel)
     // -------------------------
-    public static void Zoom(Canvas canvas, PointerWheelEventArgs e)
+    public void Zoom(Canvas canvas, PointerWheelEventArgs e)
     {
         if (canvas.RenderTransform is not MatrixTransform transform)
             return;
@@ -83,7 +83,7 @@ public class CanvasController
     // -------------------------
     // CENTER CANVAS
     // -------------------------
-    public static void CenterCanvas(Canvas canvas)
+    public void CenterCanvas(Canvas canvas)
     {
         if (canvas.RenderTransform is not MatrixTransform transform)
             return;

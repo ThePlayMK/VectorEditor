@@ -11,10 +11,10 @@ public class ToolController(SelectionManager selectionManager)
     private ITool? _activeTool;
     private Button? _activeToolButton;
 
-    public void SetTool(ITool? tool)
+    /*public void SetTool(ITool? tool)
     {
         _activeTool = tool;
-    }
+    }*/
 
     public void SelectTool(Button button)
     {
@@ -36,6 +36,13 @@ public class ToolController(SelectionManager selectionManager)
             "Hand"        => null, // Pan tool handled separately
             _             => null
         };
+    }
+
+    public void Reset()
+    {
+        _activeTool = null;
+        _activeToolButton?.Classes.Remove("Selected");
+        _activeToolButton = null;
     }
 
 

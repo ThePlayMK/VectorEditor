@@ -76,4 +76,11 @@ public class LayerController(LayerManager layerManager)
         SelectedLayer = null;
         LayerManager.Clear();
     }
+    
+    public void ResetUi(StackPanel panel)
+    {
+        panel.Children.Clear();
+        Reset();
+    }
+
 }
