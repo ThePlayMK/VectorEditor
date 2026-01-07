@@ -132,7 +132,7 @@
                 </StackPanel>
                 <Grid Grid.Column="1" Grid.Row="1">
                     <Border Name="CanvasBorder"
-                            Background="Gray"
+                            Background="White"
                             ClipToBounds="True"
                             PointerWheelChanged="Canvas_PointerWheelChanged"
                             PointerPressed="Canvas_PointerPressed"
@@ -196,8 +196,21 @@
                         </StackPanel>
                         <TextBlock Text="OPACITY" FontWeight="Bold" Opacity="0.6" Margin="0, 15,0,0" />
                         <StackPanel Orientation="Horizontal">
-                            <Slider Value="100" Minimum="0" Maximum="100" MinWidth="120" PointerWheelChanged="Opacity_PointerWheelChanged" ValueChanged="Opacity_SliderChanged" Name="OpacitySlider"/>
-                            <TextBox Classes="Small" Margin="3,0,3,0" Name="OpacityInput" TextChanged="Opacity_InputChange">100</TextBox>
+                            <Slider Value="100" Minimum="0" Maximum="100" MinWidth="120" 
+                                    PointerWheelChanged="Opacity_PointerWheelChanged" 
+                                    ValueChanged="Opacity_SliderChanged" 
+                                    Name="OpacitySlider"/>
+    
+                            <TextBox Classes="Small" Margin="3,0,3,0" 
+                                    Name="OpacityInput" 
+                                    TextChanged="Opacity_InputChange">100</TextBox>
+
+                            <CheckBox Content="Grid" 
+                                      IsChecked="True" 
+                                      Click="ToggleGrid"
+                                      Margin="10,0,0,0"
+                                      VerticalAlignment="Center"
+                                      ToolTip.Tip="Włącz/Wyłącz siatkę i przyciąganie"/>
                         </StackPanel>
                         <Grid RowDefinitions="*" ColumnDefinitions="*, auto, auto">
                             <TextBlock Text="LAYERS" FontWeight="Bold" Opacity="0.6" Grid.Row="0"

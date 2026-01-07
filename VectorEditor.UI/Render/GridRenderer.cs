@@ -9,6 +9,7 @@ public static class GridRenderer
 {
     public static void Render(Canvas canvas, EditorGrid grid)
     {
+        // Jeśli siatka wyłączona -> tło Canvasa jest przezroczyste (widać biały Border pod spodem)
         if (!grid.IsVisible)
         {
             canvas.Background = Brushes.Transparent;
@@ -17,26 +18,21 @@ public static class GridRenderer
 
         double size = grid.CellSize;
 
-        // 1. Rysunek pojedynczej kratki
         var geometryDrawing = new GeometryDrawing
         {
-            Brush = Brushes.Transparent,
+
+            Brush = Brushes.Transparent, 
+
+            
             Pen = new Pen(Brushes.LightGray, 1),
             Geometry = new RectangleGeometry(new Rect(0, 0, size, size))
         };
 
-        // 2. Pędzel powtarzający (DrawingBrush)
         var drawingBrush = new DrawingBrush
         {
             Drawing = geometryDrawing,
             TileMode = TileMode.Tile,
-            
-            // --- POPRAWKA DLA AVALONIA 11 ---
-            // Zamiast Viewport i ViewportUnits używamy DestinationRect.
-            // RelativeUnit.Absolute oznacza, że podajemy wymiary w pikselach (nie w procentach).
             DestinationRect = new RelativeRect(0, 0, size, size, RelativeUnit.Absolute),
-            // --------------------------------
-            
             Stretch = Stretch.None
         };
 

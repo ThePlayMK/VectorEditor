@@ -18,6 +18,7 @@ using VectorEditor.UI.Tools.CommandTools;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.Net;
 
+
 namespace VectorEditor.UI
 {
     public partial class MainWindow : Window
@@ -328,6 +329,26 @@ namespace VectorEditor.UI
             OpacityInput.CaretIndex = OpacityInput.Text.Length;
         }
         
+        private void ToggleGrid(object? sender, RoutedEventArgs e)
+{
+    // Sprawdzamy, czy to na pewno Checkbox wywołał zdarzenie
+    if (sender is CheckBox checkBox)
+    {
+        // Pobieramy stan (zaznaczony lub nie) - null traktujemy jako false
+        bool isChecked = checkBox.IsChecked ?? false;
+
+        // 1. Aktualizujemy logikę w Core
+        Tools.Grid.IsVisible = isChecked;
+        
+        // Opcjonalnie: Wyłączamy też przyciąganie, gdy siatka jest niewidoczna.
+        // (Zazwyczaj użytkownik nie chce, by myszka "skakała", gdy nie widzi kratek).
+        Tools.Grid.SnapEnabled = isChecked;
+
+        // 2. Odświeżamy widok (Renderowanie)
+        GridRenderer.Render(CanvasCanvas, Tools.Grid);
+    }
+}
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -375,14 +396,6 @@ namespace VectorEditor.UI
         private void Redo_Click(object? sender, RoutedEventArgs e)
         {
             CommandManager.Redo();
-        }
-        public void ToggleGrid(object? sender, RoutedEventArgs e)
-        {
-            // Zmieniamy stan widoczności na przeciwny
-            Tools.Grid.IsVisible = !Tools.Grid.IsVisible;
-            
-            // Odświeżamy widok siatki
-            GridRenderer.Render(CanvasCanvas, Tools.Grid);
         }
     }
 }
