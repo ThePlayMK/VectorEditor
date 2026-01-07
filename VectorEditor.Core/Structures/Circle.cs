@@ -86,7 +86,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     }
     
     // --- GEOMETRIA ---
-    public void Move(int dx, int dy)
+    public void Move(double dx, double dy)
     {
         if (IsBlocked) return;
         _centerPoint = new Point(_centerPoint.X + dx, _centerPoint.Y + dy);

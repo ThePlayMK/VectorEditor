@@ -8,10 +8,13 @@ using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using VectorEditor.Core.Command;
+using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
 using VectorEditor.UI.BuilderTools;
 using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
+using VectorEditor.UI.Tools.BuilderTools;
+using VectorEditor.UI.Tools.CommandTools;
 using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI
@@ -30,6 +33,7 @@ namespace VectorEditor.UI
         private Button? _activeToolButton;
         private readonly LayerController _layerController;
         private readonly CanvasController _canvasController;
+        private readonly SelectionManager _selectionManager;
 
         private LayerManager Layers { get; } = new();
         private ToolController Tools { get; } = new();
@@ -49,10 +53,12 @@ namespace VectorEditor.UI
             var renderer = new CanvasRenderer(CanvasCanvas);
             _layerController = new LayerController(Layers);
             _canvasController = new CanvasController();
+            _selectionManager = new SelectionManager(CommandManager);
+
 
 
             CommandManager.OnChanged += () =>
-                renderer.Render(Layers.RootLayer, Layers.Layers);
+                renderer.Render(Layers.RootLayer, Layers.Layers, _selectionManager.Selected);
         }
 
         private void ToggleThemeChange(object? sender, RoutedEventArgs e)
@@ -74,6 +80,8 @@ namespace VectorEditor.UI
                 "Line" => new LineTool(),
                 "Rectangle" => new RectangleTool(),
                 "Triangle" => new TriangleTool(),
+                "Selector" => new SelectTool(_selectionManager),
+                "Move" => new MoveTool(_selectionManager),
                 _ => null
             });
 
@@ -320,9 +328,31 @@ namespace VectorEditor.UI
                 case KeyModifiers.Control when e.Key == Key.Z:
                     CommandManager.Undo();
                     return;
+                
                 case KeyModifiers.Control when e.Key == Key.Y:
                     CommandManager.Redo();
                     return;
+                
+                case KeyModifiers.Control when e.Key == Key.C:
+                    if (_selectionManager.Selected.Count <= 0) return;
+                    var copy = new CopyCommand(_selectionManager.Selected);
+                    copy.Execute();
+                    return;
+                
+                case KeyModifiers.Control when e.Key == Key.V:
+                {
+                    var cmd = new PasteCommand(SelectedLayerModel, _selectionManager);
+                    CommandManager.Execute(cmd);
+                    return;
+                }
+                
+                /*case KeyModifiers.Control when e.Key == Key.V:
+                    var cmd = new PasteCommand(SelectedLayerModel);
+                    CommandManager.Execute(cmd);
+                    _selectionManager.Clear();
+                    _selectionManager.AddRange(cmd.PastedElements);
+                    return;*/
+
                 default:
                     return;
             }

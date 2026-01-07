@@ -1,26 +1,29 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using VectorEditor.Core.Builder;
-using VectorEditor.Core.Command;
-using VectorEditor.Core.Structures;
+using VectorEditor.Core.Command.Select;
+using Point = VectorEditor.Core.Structures.Point;
+using VectorEditor.UI.BuilderTools;
 
-namespace VectorEditor.UI.BuilderTools;
+namespace VectorEditor.UI.Tools.CommandTools;
 
-public class RectangleTool : ITool
+public class SelectTool(SelectionManager selection) : ITool
 {
     private Point? _startPoint;
     private Avalonia.Controls.Shapes.Rectangle? _previewRectangle;
     private const double PreviewOpacity = 0.2;
-
+    private const double PreviewWidth = 3;
+    
+    
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
-        var p = e.GetPosition(window.CanvasCanvas); 
+        var p = e.GetPosition(window.CanvasCanvas);
         
         if (_startPoint != null)
         {
-            FinishLine(window, p);
+            Finish(window, p);
             return;
         }
         
@@ -36,11 +39,10 @@ public class RectangleTool : ITool
 
         if (_previewRectangle == null)
         {
-            _previewRectangle = new Avalonia.Controls.Shapes.Rectangle
+            _previewRectangle = new Avalonia.Controls.Shapes.Rectangle()
             {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
-                Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
-                StrokeThickness = window.Settings.StrokeWidth
+                Stroke = new SolidColorBrush(Colors.Blue, PreviewOpacity),
+                StrokeThickness = PreviewWidth
             };
 
             window.CanvasCanvas.Children.Add(_previewRectangle);
@@ -55,7 +57,6 @@ public class RectangleTool : ITool
         Canvas.SetTop(_previewRectangle, y);
         _previewRectangle.Width = w;
         _previewRectangle.Height = h;
-
     }
 
     public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
@@ -67,30 +68,24 @@ public class RectangleTool : ITool
 
         if (_previewRectangle != null)
         {
-            FinishLine(window, end);
+            Finish(window, end);
         }
     }
-    private void FinishLine(MainWindow window, Avalonia.Point end)
+
+    private void Finish(MainWindow window, Avalonia.Point end)
     {
         if (_previewRectangle != null)
         {
             window.CanvasCanvas.Children.Remove(_previewRectangle);
             _previewRectangle = null;
         }
+        var endPoint = new Point(end.X, end.Y);
+        
+        selection.SelectArea(window.SelectedLayerModel, _startPoint!, endPoint);
 
-        var builder = new RectangleBuilder()
-            .SetStart(_startPoint!)
-            .SetEnd(new Point(end.X, end.Y))
-            .SetContourColor(window.Settings.ContourColor)
-            .SetContentColor(window.Settings.ContentColor)
-            .SetWidth(window.Settings.StrokeWidth)
-            .SetOpacity(window.Settings.Opacity / 100);
-
-
-        var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
-        window.CommandManager.Execute(cmd);
 
         _startPoint = null;
         _previewRectangle = null;
     }
+
 }

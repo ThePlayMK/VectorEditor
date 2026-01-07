@@ -72,7 +72,7 @@ testLayer.Add(circle);
 testLayer.Add(lineInside);
 testLayer.Add(lineOutside);
 
-// 2. Wykonanie testu zaznaczania (GroupCommand)
+// 2. Wykonanie testu zaznaczania (SelectionCommand)
 // Definiujemy obszar zaznaczenia od (15, 15) do (40, 40)
 // Powinien złapać:
 // - Okrąg (bo jego fragment/środek jest w tym obszarze)
@@ -83,7 +83,7 @@ var p1 = new Point(15, 15);
 var p2 = new Point(100, 100);
 
 Console.WriteLine("=== URUCHOMIENIE TESTU ZAZNACZANIA ===");
-var groupCmd = new GroupCommand(testLayer, p1, p2);
+var groupCmd = new SelectionCommand(testLayer, p1, p2);
 groupCmd.Execute();
 groupCmd.DisplayResults();
 
@@ -122,21 +122,21 @@ var cmdManager = new CommandManager();
 // --- TEST 1: ZAZNACZENIE SAMEJ GÓRY GŁOWY ---
 // Obszar od (30, 20) do (70, 40) - powinien dotknąć tylko głównego okręgu głowy
 Console.WriteLine(">>> TEST 1: ZAZNACZENIE CZUBKA GŁOWY <<<");
-var selectHeadTop = new GroupCommand(rootLayer, new Point(30, 20), new Point(70, 40));
+var selectHeadTop = new SelectionCommand(rootLayer, new Point(30, 20), new Point(70, 40));
 cmdManager.Execute(selectHeadTop);
 selectHeadTop.DisplayResults();
 
 // --- TEST 2: ZAZNACZENIE CAŁEGO CZŁOWIEKA ---
 // Obszar od (0, 0) do (200, 200) - powinien wypisać obie warstwy i wszystkie ich dzieci
 Console.WriteLine("\n>>> TEST 2: ZAZNACZENIE WSZYSTKIEGO <<<");
-var selectAll = new GroupCommand(rootLayer, new Point(0, 0), new Point(200, 200));
+var selectAll = new SelectionCommand(rootLayer, new Point(0, 0), new Point(200, 200));
 cmdManager.Execute(selectAll);
 selectAll.DisplayResults();
 
 // --- TEST 3: ZAZNACZENIE TYLKO PRAWEJ RĘKI ---
 // Obszar od (70, 75) do (100, 100)
 Console.WriteLine("\n>>> TEST 3: ZAZNACZENIE PRAWEJ RĘKI <<<");
-var selectHand = new GroupCommand(bodyLayer, new Point(70, 75), new Point(100, 100));
+var selectHand = new SelectionCommand(bodyLayer, new Point(70, 75), new Point(100, 100));
 cmdManager.Execute(selectHand);
 selectHand.DisplayResults();
 
@@ -198,11 +198,11 @@ var pStart = new Point(35, 115);
 var pEnd = new Point(65, 170);
 
 // 2. Wykonujemy zaznaczenie (używamy bodyLayer jako celu dla precyzji)
-var selectLegsCmd = new GroupCommand(bodyLayer, pStart, pEnd);
+var selectLegsCmd = new SelectionCommand(bodyLayer, pStart, pEnd);
 cmdManager.Execute(selectLegsCmd);
 selectLegsCmd.DisplayResults();
 
-// 3. Aplikujemy strategię tylko na to, co znalazło GroupCommand
+// 3. Aplikujemy strategię tylko na to, co znalazło SelectionCommand
 // Wykorzystujemy nowy konstruktor ApplyStrategyCommand przyjmujący IEnumerable<ICanvas>
 var greenContour = new VectorEditor.Core.Strategy.ChangeContourColorStrategy("green");
 var applyGreenCmd = new ApplyStrategyCommand(greenContour, selectLegsCmd.FoundElements);
@@ -224,7 +224,7 @@ rootLayer.ConsoleDisplay();
 Console.WriteLine("\n>>> TEST 8: ZMIANA KOLORU ZAWARTOŚCI (OKA I NOS) <<<");
 
 // 1. Zaznaczamy obszar oczu i nosa (42, 40) do (60, 56)
-var selectFaceCmd = new GroupCommand(headLayer, new Point(40, 40), new Point(60, 56));
+var selectFaceCmd = new SelectionCommand(headLayer, new Point(40, 40), new Point(60, 56));
 cmdManager.Execute(selectFaceCmd);
 selectFaceCmd.DisplayResults();
 
@@ -336,7 +336,7 @@ bodyLayer.Add(new Rectangle(new Point(52, 120), new Point(60, 160), "jeans", "bl
 Console.WriteLine("Stan początkowy bodyLayer:");
 bodyLayer.ConsoleDisplay();
 
-var selectLegsCmd = new GroupCommand(bodyLayer, new Point(35, 115), new Point(65, 170));
+var selectLegsCmd = new SelectionCommand(bodyLayer, new Point(35, 115), new Point(65, 170));
 cmdManager.Execute(selectLegsCmd);
 
 Console.WriteLine("\nZnalezione elementy (nogi):");
@@ -372,7 +372,7 @@ childLayer2.Add(new Line(new Point(100, 100), new Point(150, 150), "purple", 3))
 Console.WriteLine("Stan początkowy:");
 parentLayer.ConsoleDisplay();
 
-var selectAllCmd = new GroupCommand(parentLayer, new Point(0, 0), new Point(200, 200));
+var selectAllCmd = new SelectionCommand(parentLayer, new Point(0, 0), new Point(200, 200));
 cmdManager.Execute(selectAllCmd);
 
 Console.WriteLine("\nZnalezione wszystkie elementy:");
@@ -537,7 +537,7 @@ cmdManager.Execute(blockShape2Cmd);
 Console.WriteLine($"\nZablokowano shape2 za pomocą BlockCanvasStrategy (IsBlocked = {shape2.IsBlocked})");
 
 // Zaznaczamy wszystkie trzy okręgi
-var selectAllCmd = new GroupCommand(mixedLayer, new Point(90, 90), new Point(150, 110));
+var selectAllCmd = new SelectionCommand(mixedLayer, new Point(90, 90), new Point(150, 110));
 cmdManager.Execute(selectAllCmd);
 
 Console.WriteLine("\nZnalezione elementy w zaznaczeniu:");
@@ -1044,7 +1044,7 @@ Console.WriteLine("Stan początkowy warstwy:");
 layerToScale.ConsoleDisplay();
 
 Console.WriteLine("Grupowanie elementów w warstwie");
-var groupCmd = new GroupCommand(layerToScale, new Point(0, 0),  new Point(10, 30));
+var groupCmd = new SelectionCommand(layerToScale, new Point(0, 0),  new Point(10, 30));
 groupCmd.Execute();
 groupCmd.DisplayResults();
 
@@ -1094,7 +1094,7 @@ Console.WriteLine("Stan początkowy (Okrąg):");
 circleLayer.ConsoleDisplay();
 
 // Wybieramy obszar zawierający okrąg
-var groupCmd = new GroupCommand(circleLayer, new Point(0, 0), new Point(20, 20));
+var groupCmd = new SelectionCommand(circleLayer, new Point(0, 0), new Point(20, 20));
 groupCmd.Execute();
 
 // Strategia: Rozciągamy BottomRight do (30, 20)
@@ -1172,7 +1172,7 @@ scene.ConsoleDisplay(); // Spodziewane: Red, Green, Blue
 Console.WriteLine("\n>>> KONIEC TESTU KOLEJNOŚCI <<<");*/
 
 // --- TEST 34: COPY-CUT-PASTE SYSTEM ---
-
+/*
 Console.WriteLine("\n>>> TEST 34: SYSTEM KOPIOWANIA, WYCINANIA I WKLEJANIA <<<");
 
 var cmdManager = new CommandManager();
@@ -1190,7 +1190,7 @@ sourceLayer.ConsoleDisplay();
 
 // 2. Symulacja CUT (Wycinanie)
 Console.WriteLine("\n--- Wykonuję CUT (Wycinam oba obiekty z Source Layer) ---");
-// Zazwyczaj tu użyłbyś FoundElements z GroupCommand
+// Zazwyczaj tu użyłbyś FoundElements z SelectionCommand
 var elementsToCut = new List<ICanvas> { rect, circle };
 var cutCmd = new CutCommand(elementsToCut);
 cmdManager.Execute(cutCmd);
@@ -1227,4 +1227,4 @@ sourceLayer.ConsoleDisplay();
 Console.WriteLine("Destination Layer (z klonami):");
 destinationLayer.ConsoleDisplay();
 
-Console.WriteLine("\n>>> KONIEC TESTU COPY-CUT-PASTE <<<");
+Console.WriteLine("\n>>> KONIEC TESTU COPY-CUT-PASTE <<<");*/

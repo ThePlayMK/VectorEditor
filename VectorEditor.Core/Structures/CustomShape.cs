@@ -69,7 +69,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     }
 
     // --- GEOMETRIA ---
-    public void Move(int dx, int dy)
+    public void Move(double dx, double dy)
     {
         if (IsBlocked) return;
         for (var i = 0; i < points.Count; i++)

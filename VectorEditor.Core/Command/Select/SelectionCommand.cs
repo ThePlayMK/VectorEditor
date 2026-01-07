@@ -1,27 +1,34 @@
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
-namespace VectorEditor.Core.Command;
+namespace VectorEditor.Core.Command.Select;
 
-public class GroupCommand(Layer targetLayer, Point p1, Point p2) : ICommand
+public class SelectionCommand(Layer targetLayer, Point p1, Point p2, SelectionManager selection) : ICommand
 {
     private List<ICanvas> _foundElements = [];
-    
+    private List<ICanvas> _oldSelection = [];
+
     public IEnumerable<ICanvas> FoundElements => _foundElements;
     
     public void Execute()
     {
+        _oldSelection = selection.Selected.ToList();
+        
         var topLeft = new Point(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y));
         var bottomRight = new Point(Math.Max(p1.X, p2.X), Math.Max(p1.Y, p2.Y));
         
         _foundElements = targetLayer.GetChildren()
             .Where(child => child.IsWithinBounds(topLeft, bottomRight))
             .ToList();
+        selection.Clear();
+        selection.AddRange(_foundElements);
+
     }
 
     public void Undo()
     {
-        _foundElements.Clear();
+        selection.Clear();
+        selection.AddRange(_oldSelection);
     }
     
     public void DisplayResults()

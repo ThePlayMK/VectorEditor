@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
@@ -9,25 +10,25 @@ namespace VectorEditor.UI.Render;
 
 public class CanvasRenderer(Canvas canvas)
 {
-    public void Render(Layer rootLayer, IEnumerable<Layer> userLayers)
+    public void Render(Layer rootLayer, IEnumerable<Layer> userLayers, IReadOnlyList<ICanvas> selected)
     {
         canvas.Children.Clear();
 
         // Root
-        RenderLayer(rootLayer);
+        RenderLayer(rootLayer, selected);
 
         // User layers (bottom → top)
         foreach (var layer in userLayers)
-            RenderLayer(layer);
+            RenderLayer(layer, selected);
     }
 
-    private void RenderLayer(Layer layer)
+    private void RenderLayer(Layer layer, IReadOnlyList<ICanvas> selected)
     {
         foreach (var child in layer.GetChildren())
-            RenderCanvas(child);
+            RenderCanvas(child, selected);
     }
 
-    private void RenderCanvas(ICanvas canva)
+    private void RenderCanvas(ICanvas canva, IReadOnlyList<ICanvas> selected)
     {
         switch (canva)
         {
@@ -44,9 +45,13 @@ public class CanvasRenderer(Canvas canvas)
                 break;
 
             case Layer layer:
-                RenderLayer(layer);
+                RenderLayer(layer, selected);
                 break;
         }
+        
+        if (selected.Contains(canva))
+            RenderHighlight(canva);
+
     }
 
     private void RenderLine(Line line)
@@ -107,5 +112,32 @@ public class CanvasRenderer(Canvas canvas)
 
         canvas.Children.Add(ui);
 
+    }
+    
+    private void RenderHighlight(ICanvas shape)
+    {
+        var left = shape.GetMinX();
+        var right = shape.GetMaxX();
+        var top = shape.GetMinY();
+        var bottom = shape.GetMaxY();
+
+        var x = left - 3;
+        var y = top - 3;
+        var w = (right - left) + 6;
+        var h = (bottom - top) + 6;
+
+        var ui = new Avalonia.Controls.Shapes.Rectangle
+        {
+            Width = w,
+            Height = h,
+            Stroke = new SolidColorBrush(Colors.DeepSkyBlue),
+            StrokeThickness = 2,
+            Fill = null
+        };
+
+        Canvas.SetLeft(ui, x);
+        Canvas.SetTop(ui, y);
+
+        canvas.Children.Add(ui);
     }
 }

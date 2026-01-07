@@ -68,7 +68,7 @@ public class Layer(string name) : ICanvas
         _children.Remove(canvas);
     }
 
-    public void Move(int dx, int dy)
+    public void Move(double dx, double dy)
     {
         if (IsBlocked) return;
 

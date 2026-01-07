@@ -2,7 +2,7 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Strategy;
 
-public class MoveCanvasStrategy(int dx, int dy) : IModificationStrategy
+public class MoveCanvasStrategy(double dx, double dy) : IModificationStrategy
 {
     public object Apply(ICanvas target)
     {

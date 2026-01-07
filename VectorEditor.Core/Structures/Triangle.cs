@@ -79,7 +79,7 @@ public class Triangle(
     }
     
     // --- GEOMETRIA ---
-    public void Move(int dx, int dy)
+    public void Move(double dx, double dy)
     {
         if (IsBlocked) return;
         _firstPoint = new Point(_firstPoint.X + dx, _firstPoint.Y + dy);

@@ -7,7 +7,7 @@ public interface ICanvas
     Layer? ParentLayer { get; set; }
     bool IsBlocked { get; set; }
     bool IsVisible { get; set; }
-    void Move(int dx, int dy);
+    void Move(double dx, double dy);
     void Scale(ScaleHandle handle, Point newPos); 
     void ScaleTransform(Point pivot, double sx, double sy);
     IEnumerable<Point> GetPoints();

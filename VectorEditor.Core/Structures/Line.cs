@@ -70,7 +70,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
     }
 
     // --- GEOMETRIA ---
-    public void Move(int dx, int dy)
+    public void Move(double dx, double dy)
     {
         if (IsBlocked) return;
         _startPoint = new Point(_startPoint.X + dx, _startPoint.Y + dy);

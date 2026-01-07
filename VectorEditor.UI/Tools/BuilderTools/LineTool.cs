@@ -1,11 +1,11 @@
-using System;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Structures;
+using VectorEditor.UI.BuilderTools;
 
-namespace VectorEditor.UI.BuilderTools;
+namespace VectorEditor.UI.Tools.BuilderTools;
 
 public class LineTool : ITool
 {
