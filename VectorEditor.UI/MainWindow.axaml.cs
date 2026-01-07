@@ -26,21 +26,22 @@ namespace VectorEditor.UI
             AppleUniformTypeIdentifiers = ["public.svg-image"],
             MimeTypes = ["image/svg+xml"]
         };
+        
+        private enum ColorMode { Stroke, Fill }
+        private ColorMode _activeColorMode = ColorMode.Stroke;
 
-        private Button? _activeToolButton;
+        
         private readonly LayerController _layerController;
         private readonly CanvasController _canvasController;
         private readonly CommandController _commandController;
         private readonly ToolController _tools;
         private readonly OpacityController _opacity;
-        private readonly ColorController _colors;
-        
+        private readonly ColorController _color;
         private LayerManager Layers { get; } = new();
+        
         public DrawingSettings Settings { get; } = new();
         public CommandManager CommandManager { get; } = new();
-
         public Canvas CanvasCanvas => _myCanvas!;
-        //public Layer SelectedLayerModel => _selectedLayer?.LayerModel ?? Layers.RootLayer;
         public Layer SelectedLayerModel =>
             _layerController.SelectedLayer?.LayerModel ?? Layers.RootLayer;
 
@@ -66,20 +67,71 @@ namespace VectorEditor.UI
                 OpacitySlider,
                 OpacityInput
             );
-
-            _colors = new ColorController(
-                Settings,
-                SelectedColor,
-                InputColorR,
-                InputColorG,
-                InputColorB
+            
+            _color = new ColorController(
+                () => _activeColorMode == ColorMode.Stroke ? Settings.ContourColor : Settings.ContentColor,
+                c =>
+                {
+                    if (_activeColorMode == ColorMode.Stroke)
+                        Settings.ContourColor = c;
+                    else
+                        Settings.ContentColor = c;
+                },
+                ColorPreview,
+                InputColorR, InputColorG, InputColorB
             );
+
 
 
             CommandManager.OnChanged += () =>
                 renderer.Render(Layers.RootLayer, Layers.Layers, selectionManager.Selected);
         }
+        /*private void ColorModeChanged(object? sender, RoutedEventArgs e)
+        {
+            if (Equals(sender, StrokeModeButton))
+            {
+                StrokeModeButton.IsChecked = true;
+                FillModeButton.IsChecked = false;
+                _activeColorMode = ColorMode.Stroke;
+            }
+            else if (Equals(sender, FillModeButton))
+            {
+                FillModeButton.IsChecked = true;
+                StrokeModeButton.IsChecked = false;
+                _activeColorMode = ColorMode.Fill;
+            }
 
+            UpdateColorPanelFromSettings();
+        }*/
+        private void ColorModeChanged(object? sender, RoutedEventArgs e)
+        {
+            if (Equals(sender, StrokeModeButton))
+            {
+                StrokeModeButton.IsChecked = true;
+                FillModeButton.IsChecked = false;
+                _activeColorMode = ColorMode.Stroke;
+            }
+            else
+            {
+                FillModeButton.IsChecked = true;
+                StrokeModeButton.IsChecked = false;
+                _activeColorMode = ColorMode.Fill;
+            }
+
+            _color.UpdateUi();
+        }
+
+        /*private void UpdateColorPanelFromSettings()
+        {
+            var c = _activeColorMode == ColorMode.Stroke
+                ? Settings.ContourColor
+                : Settings.ContentColor;
+
+            ColorPreview.Background = new SolidColorBrush(c);
+            InputColorR.Text = c.R.ToString();
+            InputColorG.Text = c.G.ToString();
+            InputColorB.Text = c.B.ToString();
+        }*/
         private void ToggleThemeChange(object? sender, RoutedEventArgs e)
         {
             RequestedThemeVariant = (ActualThemeVariant == ThemeVariant.Dark)
@@ -98,80 +150,15 @@ namespace VectorEditor.UI
         {
             MainSplitView.IsPaneOpen = !MainSplitView.IsPaneOpen;
         }
-
         private void SelectColor(object? sender, RoutedEventArgs e)
         {
             if (e.Source is not Button { Background: ISolidColorBrush brush }) return;
-
-            var selectedColor = brush.Color;
-
-            Settings.ContourColor = selectedColor;              // ← NOWE
-
-            UpdateColor(brush, selectedColor.R, selectedColor.G, selectedColor.B);
+            _color.OnColorButtonClick(brush);
         }
         
-        private void UpdateColor(IBrush color, int r, int g, int b)
-        {
-            SelectedColor.Background = color;
-            InputColorR.Text = r.ToString();
-            InputColorG.Text = g.ToString();
-            InputColorB.Text = b.ToString();
-        }
-
         private void Color_InputChange(object? sender, RoutedEventArgs e)
         {
-            if (int.TryParse(InputColorR.Text, out int r))
-            {
-                r = Math.Clamp(r, 0, 255);
-            }
-            else
-            {
-                r = 0;
-            }
-
-            if (InputColorR.Text != r.ToString())
-            {
-                InputColorR.Text = r.ToString();
-                InputColorR.CaretIndex = InputColorR.Text.Length;
-            }
-
-            if (int.TryParse(InputColorG.Text, out int g))
-            {
-                g = Math.Clamp(g, 0, 255);
-            }
-            else
-            {
-                g = 0;
-            }
-
-            if (InputColorG.Text != g.ToString())
-            {
-                InputColorG.Text = g.ToString();
-                InputColorG.CaretIndex = InputColorG.Text.Length;
-            }
-
-            if (int.TryParse(InputColorB.Text, out int b))
-            {
-                b = Math.Clamp(b, 0, 255);
-            }
-            else
-            {
-                b = 0;
-            }
-
-            if (InputColorB.Text != b.ToString())
-            {
-                InputColorB.Text = b.ToString();
-                InputColorB.CaretIndex = InputColorB.Text.Length;
-            }
-            
-            var newColor = Color.FromRgb((byte)r, (byte)g, (byte)b);
-
-
-            Settings.ContourColor = newColor;                      // ← NOWE
-
-            SelectedColor.Background = new SolidColorBrush(newColor);
-
+            _color.OnRgbInputChange();
         }
 
         private async void OpenFile(object? sender, RoutedEventArgs e)
@@ -213,7 +200,7 @@ namespace VectorEditor.UI
         {
             _layerController.ResetUi(LayersStackPanel);
             _opacity.Reset();
-            _colors.Reset();
+            _color.Reset();
             _tools.Reset();
             _canvasController.CenterCanvas(_myCanvas!);
 
@@ -268,7 +255,7 @@ namespace VectorEditor.UI
         {
             _tools.PointerPressed(this, e);
 
-            if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
+            if (_tools.IsHandToolActive && sender is Border border)
                 _canvasController.PanStart(border, e);
         }
         
@@ -276,7 +263,7 @@ namespace VectorEditor.UI
         {
             _tools.PointerMoved(this, e);
 
-            if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
+            if (_tools.IsHandToolActive && sender is Border border)
                 _canvasController.PanMove(_myCanvas!, border, e);
         }
         

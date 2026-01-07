@@ -1,18 +1,25 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Media;
-using VectorEditor.UI.Render;
 
 namespace VectorEditor.UI.UIControllers;
 
-public class ColorController(DrawingSettings settings, Panel preview, TextBox r, TextBox g, TextBox b)
+
+public class ColorController(
+    Func<Color> getColor,
+    Action<Color> setColor,
+    Panel preview,
+    TextBox r,
+    TextBox g,
+    TextBox b)
 {
     public void OnColorButtonClick(ISolidColorBrush brush)
     {
         var c = brush.Color;
-        settings.ContourColor = c;
 
-        preview.Background = brush;
+        setColor(c);
+        preview.Background = new SolidColorBrush(c);
+
         r.Text = c.R.ToString();
         g.Text = c.G.ToString();
         b.Text = c.B.ToString();
@@ -25,8 +32,8 @@ public class ColorController(DrawingSettings settings, Panel preview, TextBox r,
         var b1 = Parse(b.Text!);
 
         var color = Color.FromRgb((byte)r1, (byte)g1, (byte)b1);
-        settings.ContourColor = color;
 
+        setColor(color);
         preview.Background = new SolidColorBrush(color);
 
         r.Text = r1.ToString();
@@ -40,11 +47,22 @@ public class ColorController(DrawingSettings settings, Panel preview, TextBox r,
     public void Reset()
     {
         var c = Colors.Black;
-        settings.ContourColor = c;
+
+        setColor(c);
+        preview.Background = new SolidColorBrush(c);
+
+        r.Text = c.R.ToString();
+        g.Text = c.G.ToString();
+        b.Text = c.B.ToString();
+    }
+
+    public void UpdateUi()
+    {
+        var c = getColor();
 
         preview.Background = new SolidColorBrush(c);
-        r.Text = "0";
-        g.Text = "0";
-        b.Text = "0";
+        r.Text = c.R.ToString();
+        g.Text = c.G.ToString();
+        b.Text = c.B.ToString();
     }
 }

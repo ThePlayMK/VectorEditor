@@ -10,20 +10,16 @@ public class ToolController(SelectionManager selectionManager)
 {
     private ITool? _activeTool;
     private Button? _activeToolButton;
-
-    /*public void SetTool(ITool? tool)
-    {
-        _activeTool = tool;
-    }*/
-
+    
+    public bool IsHandToolActive =>
+        _activeToolButton?.Tag as string == "Hand";
+    
     public void SelectTool(Button button)
     {
-        // 1. UI — zaznaczenie przycisku
         _activeToolButton?.Classes.Remove("Selected");
         _activeToolButton = button;
         _activeToolButton.Classes.Add("Selected");
-
-        // 2. Logika wyboru narzędzia
+        
         _activeTool = button.Tag switch
         {
             "Line"        => new LineTool(),
@@ -44,7 +40,6 @@ public class ToolController(SelectionManager selectionManager)
         _activeToolButton?.Classes.Remove("Selected");
         _activeToolButton = null;
     }
-
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
         => _activeTool?.PointerPressed(window, e);
