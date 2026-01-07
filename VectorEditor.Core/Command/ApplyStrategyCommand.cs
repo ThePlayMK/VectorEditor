@@ -8,7 +8,6 @@ public class ApplyStrategyCommand: ICommand
     private readonly List<ICanvas> _targets;
     private readonly IModificationStrategy _strategy;
     private readonly List<object?> _mementos = [];
-    private ICanvas? _activeTarget;
 
     // Konstruktor dla pojedynczego elementu (np. całej Canvy)
     public ApplyStrategyCommand(IModificationStrategy strategy, ICanvas target)
@@ -34,8 +33,7 @@ public class ApplyStrategyCommand: ICommand
             var originalParents = _targets.ToDictionary(t => t, t => t.ParentLayer);
             var proxy = new Layer("temporary_scale_group");
             foreach (var t in _targets) proxy.Add(t);
-            
-            _activeTarget = proxy;
+
             _mementos.Add(_strategy.Apply(proxy));
             
             foreach (var t in _targets)
