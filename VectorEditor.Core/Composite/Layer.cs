@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 
@@ -163,6 +164,14 @@ public class Layer(string name) : ICanvas
         foreach (var child in _children)
         {
             child.ScaleTransform(pivot, sx, sy);
+        }
+    }
+
+    public void Render(Canvas canvas)
+    {
+        foreach (var child in _children)
+        {
+            child.Render(canvas);
         }
     }
 

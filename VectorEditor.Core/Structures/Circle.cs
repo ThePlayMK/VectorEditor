@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -176,6 +177,22 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         // 2. Skalujemy promienie (zawsze wartości dodatnie)
         _radiusX *= Math.Abs(sx);
         _radiusY *= Math.Abs(sy);
+    }
+
+    public void Render(Canvas canvas)
+    {
+        var ui = new Avalonia.Controls.Shapes.Ellipse
+        {
+            Width = _radiusX * 2,
+            Height = _radiusY * 2,
+            Stroke = new SolidColorBrush(_contourColor, _opacity),
+            Fill = new SolidColorBrush(_contentColor,_opacity),
+            StrokeThickness = _width
+        };
+
+        Canvas.SetLeft(ui, _centerPoint.X - _radiusX);
+        Canvas.SetTop(ui, _centerPoint.Y - _radiusY);
+        canvas.Children.Add(ui);
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)

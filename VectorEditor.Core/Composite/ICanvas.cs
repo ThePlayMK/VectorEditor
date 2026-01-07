@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 namespace VectorEditor.Core.Composite;
@@ -17,6 +18,7 @@ public interface ICanvas
     double GetMinY();
     double GetMaxY();
     void ConsoleDisplay(int depth = 0);
+    void Render(Canvas canvas);
     bool IsWithinBounds(Point startPoint, Point oppositePoint);
     ICanvas Clone();
 }

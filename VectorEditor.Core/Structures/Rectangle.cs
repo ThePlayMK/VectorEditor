@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -6,7 +7,7 @@ namespace VectorEditor.Core.Structures;
 
 public class Rectangle : IShape
 {
-    // Pola prywatne - brak bezpośredniego dostępu z zewnątrz
+    // Pola prywatne
     private Color _contentColor;
     private Color _contourColor;
     private double _width;
@@ -153,8 +154,7 @@ public class Rectangle : IShape
     public void ScaleTransform(Point pivot, double sx, double sy)
     {
         if (IsBlocked) return;
-
-        // Każdy punkt prostokąta transformujemy względem Pivotu
+        
         _startPoint = TransformPoint(_startPoint, pivot, sx, sy);
         _oppositePoint = TransformPoint(_oppositePoint, pivot, sx, sy);
 
@@ -190,6 +190,29 @@ public class Rectangle : IShape
     {
         _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
         _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
+    }
+
+    public void Render(Canvas canvas)
+    {
+
+        var x = Math.Min(_startPoint.X, _oppositePoint.X);
+        var y = Math.Min(_startPoint.Y, _oppositePoint.Y);
+        var w = Math.Abs(_oppositePoint.X - _startPoint.X);
+        var h = Math.Abs(_oppositePoint.Y - _startPoint.Y);
+
+        var ui = new Avalonia.Controls.Shapes.Rectangle
+        {
+            Width = w,
+            Height = h,
+            Stroke = new SolidColorBrush(_contourColor, _opacity),
+            Fill = new SolidColorBrush(_contentColor,_opacity),
+            StrokeThickness = _width
+        };
+
+        Canvas.SetLeft(ui, x);
+        Canvas.SetTop(ui, y);
+
+        canvas.Children.Add(ui);
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)

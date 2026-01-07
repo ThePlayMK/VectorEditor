@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -76,6 +77,22 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         {
             points[i] = new Point(points[i].X + dx, points[i].Y + dy);
         }
+    }
+
+    public void Render(Canvas canvas)
+    {
+        var avaloniaList = points.Select(p => new Avalonia.Point(p.X, p.Y)).ToList();
+        avaloniaList.Add(avaloniaList[0]);
+
+        var ui = new Avalonia.Controls.Shapes.Polygon
+        {
+            Points = new List<Avalonia.Point>(avaloniaList),
+            Stroke = new SolidColorBrush(_contourColor, _opacity),
+            Fill = new SolidColorBrush(_contentColor,_opacity),
+            StrokeThickness = _width
+        };
+
+        canvas.Children.Add(ui);
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)

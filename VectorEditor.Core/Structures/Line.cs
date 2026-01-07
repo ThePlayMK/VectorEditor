@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -161,6 +162,19 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
             pivot.X + (_endPoint.X - pivot.X) * sx,
             pivot.Y + (_endPoint.Y - pivot.Y) * sy
         );
+    }
+
+    public void Render(Canvas canvas)
+    {
+        var ui = new Avalonia.Controls.Shapes.Line
+        {
+            StartPoint = new Avalonia.Point(_startPoint.X, _startPoint.Y),
+            EndPoint = new Avalonia.Point(_endPoint.X, _endPoint.Y),
+            Stroke = new SolidColorBrush(_contourColor, _opacity),
+            StrokeThickness = _width
+        };
+
+        canvas.Children.Add(ui);
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)

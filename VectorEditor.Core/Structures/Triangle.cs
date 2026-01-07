@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -172,6 +173,24 @@ public class Triangle(
             pivot.X + (p.X - pivot.X) * sx,
             pivot.Y + (p.Y - pivot.Y) * sy
         );
+    }
+
+    public void Render(Canvas canvas)
+    {
+        var ui = new Avalonia.Controls.Shapes.Polygon
+        {
+            Points =
+            {
+                new Avalonia.Point(_firstPoint.X, _firstPoint.Y),
+                new Avalonia.Point(_secondPoint.X, _secondPoint.Y),
+                new Avalonia.Point(_thirdPoint.X, _thirdPoint.Y)
+            },
+            Stroke = new SolidColorBrush(_contourColor, _opacity),
+            Fill = new SolidColorBrush(_contentColor,_opacity),
+            StrokeThickness = _width
+        };
+
+        canvas.Children.Add(ui);
     }
 
     public bool IsWithinBounds(Point startPoint, Point oppositePoint)
