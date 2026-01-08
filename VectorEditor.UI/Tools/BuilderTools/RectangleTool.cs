@@ -13,7 +13,10 @@ public class RectangleTool : ITool
     private Point? _startPoint;
     private Avalonia.Controls.Shapes.Rectangle? _previewRectangle;
     private const double PreviewOpacity = 0.2;
+    private const bool ClearsSelection = true;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
+    
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas); 

@@ -3,7 +3,7 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.UI;
 
-public partial class LayerWidget : UserControl
+public partial class CanvasWidget : UserControl
 {
     public Layer LayerModel
     {
@@ -11,7 +11,7 @@ public partial class LayerWidget : UserControl
         init => Tag = value;
     }
 
-    public LayerWidget()
+    public CanvasWidget()
     {
         InitializeComponent();
     }

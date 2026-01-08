@@ -3,52 +3,50 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Command.Select;
 
-public class SelectionManager(CommandManager commandManager)
+public class SelectionManager
 {
     private readonly List<ICanvas> _currentSelection = [];
 
     public IReadOnlyList<ICanvas> Selected => _currentSelection;
-
-    /// <summary>
-    /// Czyści zaznaczenie
-    /// </summary>
+    public event Action? OnChanged;
+    
     public void Clear()
     {
         _currentSelection.Clear();
+        OnChanged?.Invoke();
     }
-
-    /// <summary>
-    /// Zaznaczenie pojedynczego elementu (np. kliknięcie)
-    /// </summary>
+    
     public void SelectSingle(ICanvas element)
     {
         _currentSelection.Clear();
         _currentSelection.Add(element);
+        OnChanged?.Invoke();
     }
 
     public void AddRange(IEnumerable<ICanvas> elements)
     {
         _currentSelection.AddRange(elements);
+        OnChanged?.Invoke();
     }
-
-    /// <summary>
-    /// Przełączenie zaznaczenia (Ctrl+Click)
-    /// </summary>
+    
     public void Toggle(ICanvas element)
     {
         if (!_currentSelection.Remove(element))
             _currentSelection.Add(element);
     }
-
-    /// <summary>
-    /// Zaznaczenie obszarem prostokątnym
-    /// </summary>
-    public void SelectArea(Layer layer, Point p1, Point p2)
+    
+    
+    public void SelectArea(Layer targetLayer, Point p1, Point p2)
     {
-        var command = new SelectionCommand(layer, p1, p2, this);
-
-        // wykonujemy komendę przez CommandManager
-        commandManager.Execute(command);
+        var topLeft = new Point(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y));
+        var bottomRight = new Point(Math.Max(p1.X, p2.X), Math.Max(p1.Y, p2.Y));
+        
+        var foundElements = targetLayer.GetChildren()
+            .Where(child => child.IsWithinBounds(topLeft, bottomRight))
+            .ToList();
+        
+        Clear();
+        AddRange(foundElements);
     }
     
 }

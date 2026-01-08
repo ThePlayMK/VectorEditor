@@ -3,7 +3,6 @@ using Avalonia.Input;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
-using VectorEditor.UI.Tools.CommandTools;
 
 namespace VectorEditor.UI.UIControllers;
 
@@ -18,38 +17,57 @@ public class CommandController(
         {
             // CTRL + Z → Undo
             case KeyModifiers.Control when e.Key == Key.Z:
-                commandManager.Undo();
+                OnUndoClick();
                 return;
             // CTRL + Y → Redo
             case KeyModifiers.Control when e.Key == Key.Y:
-                commandManager.Redo();
+                OnRedoClick();
                 return;
             // CTRL + C → Copy
             case KeyModifiers.Control when e.Key == Key.C:
-            {
-                if (selectionManager.Selected.Count == 0)
-                    return;
-
-                var copy = new CopyCommand(selectionManager.Selected);
-                copy.Execute(); 
+                OnCopyClick();
                 return;
-            }
+            
             // CTRL + V → Paste
             case KeyModifiers.Control when e.Key == Key.V:
-            {
-                var cmd = new PasteCommand(getSelectedLayer(), selectionManager);
-                commandManager.Execute(cmd);
+                OnPasteClick();
                 return;
-            }
+            
             default:
                 return;
         }
     }
 
-    public void OnUndoClick() => commandManager.Undo();
-    public void OnRedoClick() => commandManager.Redo();
-    
+    public void OnUndoClick()
+    {
+        commandManager.Undo();
+        selectionManager.Clear();
+    }
 
+    public void OnRedoClick()
+    {
+        commandManager.Redo();
+        selectionManager.Clear();
+    }
+
+    public void OnPasteClick()
+    {
+        var cmd = new PasteCommand(getSelectedLayer());
+        commandManager.Execute(cmd);
+        
+        selectionManager.Clear();
+        selectionManager.AddRange(cmd.PastedElements);
+
+    }
+
+    public void OnCopyClick()
+    {
+        if (selectionManager.Selected.Count == 0)
+            return;
+
+        var copy = new CopyCommand(selectionManager.Selected);
+        copy.Execute(); 
+    }
 }
 
 

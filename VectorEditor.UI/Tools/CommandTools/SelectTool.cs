@@ -16,7 +16,9 @@ public class SelectTool(SelectionManager selection) : ITool
     private const double PreviewOpacity = 0.2;
     private const double PreviewWidth = 3;
     private static readonly AvaloniaList<double>? PreviewDashArray = [4, 4];
+    private const bool ClearsSelection = false;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {

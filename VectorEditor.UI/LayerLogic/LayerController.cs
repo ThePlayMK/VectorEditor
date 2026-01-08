@@ -13,7 +13,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
     private StackPanel? _layerListPanel;
     private StackPanel? _breadcrumbPanel;
 
-    public LayerWidget? SelectedLayerWidget { get; set; }
+    public CanvasWidget? SelectedLayerWidget { get; set; }
 
     // -----------------------------------------
     // INITIALIZE UI REFERENCES
@@ -95,7 +95,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
         foreach (var child in layerManager.CurrentContext.GetChildren())
         {
             if (child is not Layer layer) continue;
-            var widget = new LayerWidget
+            var widget = new CanvasWidget
             {
                 LayerModel = layer
             };
@@ -111,7 +111,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
     // -----------------------------------------
     // SELECT LAYER
     // -----------------------------------------
-    private void SelectLayerWidget(LayerWidget widget)
+    private void SelectLayerWidget(CanvasWidget widget)
     {
         if (widget.LayerModel.ParentLayer != layerManager.CurrentContext)
             return;

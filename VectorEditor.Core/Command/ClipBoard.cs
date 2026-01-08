@@ -5,14 +5,14 @@ namespace VectorEditor.Core.Command;
 public static class Clipboard
 {
     // Przechowujemy klony, aby oryginały mogły żyć własnym życiem
-    private static List<ICanvas> _content = [];
+    private static readonly List<ICanvas> Content = [];
 
     public static void Copy(IEnumerable<ICanvas> elements)
     {
-        _content.Clear();
+        Content.Clear();
         foreach (var el in elements)
         {
-            _content.Add(el.Clone());
+            Content.Add(el.Clone());
         }
     }
 
@@ -20,6 +20,6 @@ public static class Clipboard
     {
         // Ponownie klonujemy przy wklejaniu, 
         // aby można było wkleić to samo kilka razy pod rząd
-        return _content.Select(el => el.Clone()).ToList();
+        return Content.Select(el => el.Clone()).ToList();
     }
 }

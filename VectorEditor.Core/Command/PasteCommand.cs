@@ -3,12 +3,14 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Command;
 
-public class PasteCommand(Layer targetLayer, SelectionManager selection) : ICommand
+public class PasteCommand(Layer targetLayer) : ICommand
 {
-    private List<ICanvas> _pastedElements = [];
+    private readonly List<ICanvas> _pastedElements = [];
     private const int Dx = 10;
     private const int Dy = 10;
     private bool _executedOnce;
+    
+    public IReadOnlyList<ICanvas> PastedElements => _pastedElements;
 
     public void Execute()
     {
@@ -29,9 +31,6 @@ public class PasteCommand(Layer targetLayer, SelectionManager selection) : IComm
         // dodaj TE SAME instancje do warstwy
         foreach (var obj in _pastedElements)
             targetLayer.Add(obj);
-
-        selection.Clear();
-        selection.AddRange(_pastedElements);
     }
 
     public void Undo()
@@ -41,7 +40,5 @@ public class PasteCommand(Layer targetLayer, SelectionManager selection) : IComm
         {
             targetLayer.Remove(element);
         }
-        
-        selection.Clear();
     }
 }

@@ -18,7 +18,10 @@ public class MoveTool(SelectionManager selection) : ITool
     private double _accDy;
     
     private readonly List<Control> _previewShapes = [];
+    private const bool ClearsSelection = false;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
+    
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         if (selection.Selected.Count == 0)

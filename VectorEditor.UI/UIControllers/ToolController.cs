@@ -32,6 +32,11 @@ public class ToolController(SelectionManager selectionManager)
             "Hand"        => null, // Pan tool handled separately
             _             => null
         };
+        
+        if (_activeTool != null && _activeTool.ClearsSelectionBeforeUse())
+        {
+            selectionManager.Clear();
+        }
     }
 
     public void Reset()

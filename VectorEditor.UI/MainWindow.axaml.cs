@@ -50,7 +50,7 @@ public partial class MainWindow : Window
         var renderer = new CanvasRenderer(CanvasCanvas);
         _layerController = new LayerController(Layers, CommandManager);
         _canvasController = new CanvasController();
-        var selectionManager = new SelectionManager(CommandManager);
+        var selectionManager = new SelectionManager();
         _tools = new ToolController(selectionManager);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
@@ -85,11 +85,13 @@ public partial class MainWindow : Window
 
 
 
-        CommandManager.OnChanged += () =>
+        CommandManager.OnChanged += () => 
         {
             renderer.Render(Layers.RootLayer, selectionManager.Selected);
             _layerController.RefreshUi();
         };
+        
+        selectionManager.OnChanged += () => renderer.Render(Layers.RootLayer, selectionManager.Selected);
     }
         
     private void ColorModeChanged(object? sender, RoutedEventArgs e)
@@ -187,7 +189,7 @@ public partial class MainWindow : Window
     /*private void AddLayer(object? sender, RoutedEventArgs e)
     {
         _layerCount++;
-        var newLayer = new LayerWidget();
+        var newLayer = new CanvasWidget();
         newLayer.SetLayerName($"Layer{_layerCount}");
         LayersStackPanel.Children.Insert(0, newLayer);
     }*/
@@ -201,7 +203,7 @@ public partial class MainWindow : Window
         if (e.Source is not Button button) return;
         var oldBtn = _selectedLayer?.FindDescendantOfType<Button>();
         if (oldBtn != null) oldBtn.Background = Brushes.Transparent;
-        _selectedLayer = button.FindAncestorOfType<LayerWidget>();
+        _selectedLayer = button.FindAncestorOfType<CanvasWidget>();
         if (_selectedLayer != null)
         {
             button.Background = Brushes.Gray;

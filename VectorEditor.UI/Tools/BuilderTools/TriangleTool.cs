@@ -14,7 +14,10 @@ public class TriangleTool : ITool
     private Point? _secondPoint;
     private Polygon? _previewTriangle;
     private const double PreviewOpacity = 0.2;
+    private const bool ClearsSelection = true;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
+    
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         // Tryb press-release-release:

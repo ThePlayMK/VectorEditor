@@ -11,7 +11,10 @@ public class LineTool : ITool
     private Point? _start;
     private Avalonia.Controls.Shapes.Line? _previewLine;
     private const double PreviewOpacity = 0.2;
+    private const bool ClearsSelection = true;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
+    
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
         var p = e.GetPosition(window.CanvasCanvas);

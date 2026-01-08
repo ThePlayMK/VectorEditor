@@ -17,7 +17,9 @@ public class CustomShapeTool : ITool
 
     private Polyline? _preview;
     private bool _isDrawing;
+    private const bool ClearsSelection = true;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
     
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)

@@ -13,6 +13,9 @@ public class CircleTool : ITool
     private Point? _start;
     private Avalonia.Controls.Shapes.Ellipse? _previewCircle;
     private const double PreviewOpacity = 0.2;
+    private const bool ClearsSelection = true;
+
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
 
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
