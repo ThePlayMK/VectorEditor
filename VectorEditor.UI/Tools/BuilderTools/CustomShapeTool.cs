@@ -26,6 +26,9 @@ public class CustomShapeTool : ITool
     // Ustawienia "Magnesu"
     private const double CloseThreshold = 15.0; // Jak blisko (w pikselach) trzeba być, żeby zamknąć
     private bool _isHoveringStart = false;      // Czy myszka jest nad punktem startowym?
+    private const bool ClearsSelection = true;
+    
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
 
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {

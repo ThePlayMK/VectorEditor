@@ -4,12 +4,12 @@ using Avalonia.Input;
 using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.Select;
 using VectorEditor.Core.Net;
-
+using VectorEditor.UI.Tools.CommandTools;
 using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.UIControllers;
 
-public class ToolController(SelectionManager selectionManager)
+public class ToolController
 {
     private ITool? _activeTool;
     private Button? _activeToolButton;

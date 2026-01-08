@@ -19,6 +19,8 @@ public class RectangleTool : ITool
     private const double PreviewOpacity = 0.2;
     private const bool ClearsSelection = true;
 
+    public bool ClearsSelectionBeforeUse() => ClearsSelection;
+    
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
