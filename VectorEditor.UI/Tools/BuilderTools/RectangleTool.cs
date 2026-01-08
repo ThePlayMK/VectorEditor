@@ -96,7 +96,7 @@ public class RectangleTool : ITool
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
 
-        var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
+        var cmd = new AddShapeCommand(builder, window._layerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
 
         _startPoint = null;

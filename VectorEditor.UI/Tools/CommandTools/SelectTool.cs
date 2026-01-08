@@ -71,7 +71,7 @@ public class SelectTool(SelectionManager selection) : ITool
 
             var endPoint = new Point(p.X + 1, p.Y + 1);
 
-            selection.SelectArea(window.SelectedLayerModel, p, endPoint);
+            selection.SelectArea(window._layerController.ActiveLayer, p, endPoint);
 
             _startPoint = null;
             return;
@@ -93,7 +93,7 @@ public class SelectTool(SelectionManager selection) : ITool
 
         var endPoint = new Point(end.X, end.Y);
 
-        selection.SelectArea(window.SelectedLayerModel, _startPoint!, endPoint);
+        selection.SelectArea(window._layerController.ActiveLayer, _startPoint!, endPoint);
 
         _startPoint = null;
         _previewRectangle =  null;

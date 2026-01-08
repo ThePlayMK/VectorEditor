@@ -89,7 +89,7 @@ public class LineTool : ITool
             .SetOpacity(window.Settings.Opacity / 100)
             .SetEnd(endPoint);
 
-        var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
+        var cmd = new AddShapeCommand(builder, window._layerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
 
         // Resetujemy stan na null -> gotowość do nowej linii

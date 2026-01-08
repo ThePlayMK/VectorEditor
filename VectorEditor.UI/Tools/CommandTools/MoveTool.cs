@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Command;
+using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
@@ -82,22 +83,30 @@ public class MoveTool(SelectionManager selection) : ITool
 
     private void CreatePreview(MainWindow window)
     {
-        foreach (var shape in selection.Selected)
+        foreach (var element in selection.Selected)
         {
-            var preview = shape switch
+            foreach (var shape in Expand(element))
             {
-                Line line => CreateLinePreview(line),
-                Rectangle rect => CreateRectPreview(rect),
-                Triangle tri => CreateTrianglePreview(tri),
-                Circle circle => CreateCirclePreview(circle),
-                CustomShape customShape => CreateCustomShapePreview(customShape),
-                _ => null!
-            };
+                var preview = shape switch
+                {
+                    Line line => CreateLinePreview(line),
+                    Rectangle rect => CreateRectPreview(rect),
+                    Triangle tri => CreateTrianglePreview(tri),
+                    Circle circle => CreateCirclePreview(circle),
+                    CustomShape customShape => CreateCustomShapePreview(customShape),
+                    _ => null
+                };
 
-            _previewShapes.Add(preview);
-            window.CanvasCanvas.Children.Add(preview);
+                if (preview == null)
+                {
+                    continue;
+                }
+                _previewShapes.Add(preview);
+                window.CanvasCanvas.Children.Add(preview);
+            }
         }
     }
+
 
     private void MovePreview(double dx, double dy)
     {
@@ -117,7 +126,7 @@ public class MoveTool(SelectionManager selection) : ITool
                     poly.Points = newPoints;
                     break;
 
-                case Avalonia.Controls.Shapes.Ellipse ellipse:   // ⭐ NOWE
+                case Avalonia.Controls.Shapes.Ellipse ellipse:  
                     Canvas.SetLeft(ellipse, Canvas.GetLeft(ellipse) + dx);
                     Canvas.SetTop(ellipse, Canvas.GetTop(ellipse) + dy);
                     break;
@@ -231,5 +240,20 @@ public class MoveTool(SelectionManager selection) : ITool
 
         return poly;
     }
+    
+    private IEnumerable<ICanvas> Expand(ICanvas canvas)
+    {
+        if (canvas is Layer layer)
+        {
+            foreach (var child in layer.GetChildren())
+            foreach (var inner in Expand(child))
+                yield return inner;
+        }
+        else
+        {
+            yield return canvas;
+        }
+    }
+
     
 }

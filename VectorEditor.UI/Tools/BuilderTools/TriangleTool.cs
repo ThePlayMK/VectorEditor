@@ -116,7 +116,8 @@ public class TriangleTool : ITool
             .SetOpacity(window.Settings.Opacity / 100);
 
         // Wykonujemy komendę
-        window.CommandManager.Execute(new AddShapeCommand(builder, window.SelectedLayerModel));
+        var cmd = new AddShapeCommand(builder, window._layerController.ActiveLayer);
+        window.CommandManager.Execute(cmd);
 
         // Resetujemy stan
         _firstPoint = null;

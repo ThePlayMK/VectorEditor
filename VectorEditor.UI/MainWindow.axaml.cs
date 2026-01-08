@@ -34,7 +34,7 @@ public partial class MainWindow : Window
     private ColorMode _activeColorMode = ColorMode.Stroke;
 
 
-    private readonly LayerController _layerController;
+    public readonly LayerController _layerController;
     private readonly CanvasController _canvasController;
     private readonly CommandController _commandController;
     private readonly ToolController _tools;

@@ -1,12 +1,5 @@
 namespace VectorEditor.Core.Command;
 
-public enum CommandChangeType
-{
-    Execute,
-    Undo,
-    Redo
-}
-
 
 public class CommandManager
 {

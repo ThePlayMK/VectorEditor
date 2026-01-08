@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
-using Avalonia.VisualTree;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.UI.Select;
@@ -13,6 +11,8 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 {
     private StackPanel? _layerListPanel;
     private StackPanel? _breadcrumbPanel;
+
+    public Layer ActiveLayer => layerManager.CurrentContext;
 
     public CanvasWidget? SelectedLayerWidget { get; set; }
 
@@ -66,6 +66,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
             btn.Click += (_, _) =>
             {
+                layerManager.EnterLayer(layer);
                 layerManager.SelectLayer(layer);
                 SelectedLayerWidget = null;
                 RefreshUi();
@@ -100,44 +101,13 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
             widget.PointerPressed += (_, _) => OnLayerClicked(widget);
 
             // DWUKLIK → stara logika: wybór warstwy + wejście
-            widget.DoubleTapped += (_, _) => SelectLayerWidget(widget);
+            widget.DoubleTapped += (_, _) => EnterLayer(layer);
 
             _layerListPanel.Children.Add(widget);
 
         }
     }
-
-
-
-    // -----------------------------------------
-    // SELECT LAYER
-    // -----------------------------------------
-    private void SelectLayerWidget(CanvasWidget widget)
-    {
-        if (widget.LayerModel.ParentLayer != layerManager.CurrentContext)
-            return;
-
-        // Unhighlight old
-        if (SelectedLayerWidget != null)
-        {
-            var oldBtn = SelectedLayerWidget.FindDescendantOfType<Button>();
-            if (oldBtn != null)
-                oldBtn.Background = Brushes.Transparent;
-        }
-
-        SelectedLayerWidget = widget;
-
-        // Highlight new
-        var btn = widget.FindDescendantOfType<Button>();
-        if (btn != null)
-            btn.Background = Brushes.Gray;
-
-        // logika warstw, jak wcześniej
-        layerManager.SelectLayer(widget.LayerModel);
-    }
-
-
-
+    
     private void OnLayerClicked(CanvasWidget widget)
     {
         // żadnej logiki LayerManager, żadnego kontekstu
@@ -158,7 +128,16 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     }
 
 
+    private void EnterLayer(Layer layer)
+    {
+        layerManager.EnterLayer(layer);
+        SelectedLayerWidget = null;
+        layerManager.SelectLayer(layerManager.CurrentContext); // albo null, jeśli dopuszczasz
+        selectionManager.Clear();
+        RefreshUi();
+    }
 
+    
 
     // -----------------------------------------
     // REMOVE SELECTED LAYER
