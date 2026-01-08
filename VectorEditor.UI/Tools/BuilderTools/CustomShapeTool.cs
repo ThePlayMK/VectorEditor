@@ -29,30 +29,43 @@ public class CustomShapeTool : ITool
 
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
-        // 1. Logika Podwójnego Kliknięcia (Opcjonalnie: kończy rysowanie w obecnym miejscu)
+    // 1. Obsługa podwójnego kliknięcia (koniec rysowania)
         if (e.ClickCount == 2 && _points.Count > 1)
         {
             Finish(window);
             return;
         }
 
-        // 2. Pobierz punkt z siatki
+    // 2. Pobierz punkt z siatki
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
         var newPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
 
-        // 3. Sprawdź, czy zamykamy kształt (czy zadziałał "Magnes")
+        // 3. Sprawdź Magnes (zamykanie kształtu)
         if (_points.Count > 2 && _isHoveringStart)
         {
-            // Kliknięto, gdy magnes był aktywny -> Zamykamy
             Finish(window);
             return;
         }
 
-        // 4. Normalne dodawanie punktu
-        _points.Add(newPoint);
-        _builder.AddPoint(newPoint);
+    // 4. BEZPIECZNIK (Try-Catch) - To naprawia crash!
+        try
+        {
+        // Najpierw próbujemy dodać punkt do logiki (Buildera)
+            _builder.AddPoint(newPoint);
+        }
+        catch (Exception)
+        {
+        // Jeśli Builder rzucił błąd (np. "Nieprawidłowa geometria", "Przecięcie linii"),
+        // to po prostu IGNORUJEMY to kliknięcie.
+        // Możesz tu dodać np. System.Media.SystemSounds.Beep.Play(); żeby dać znać użytkownikowi.
+            return; 
+        }      
 
-        UpdatePreview(window, e.GetPosition(window.CanvasCanvas)); // Przekazujemy surową pozycję dla płynności
+    // 5. Dopiero jeśli Builder nie zgłosił sprzeciwu, dodajemy punkt do listy wizualnej
+        _points.Add(newPoint);
+
+    // Aktualizujemy podgląd
+        UpdatePreview(window, e.GetPosition(window.CanvasCanvas));
     }
 
     public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
