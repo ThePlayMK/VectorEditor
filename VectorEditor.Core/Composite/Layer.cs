@@ -7,12 +7,13 @@ namespace VectorEditor.Core.Composite;
 public class Layer(string name) : ICanvas
 {
     private readonly List<ICanvas> _children = [];
+    public string Name { get; } = name;
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
     public bool IsVisible { get; set; } = true;
 
     // --- GETTERY ---
-    public string GetName() => name;
+    public string GetName() => Name;
     public IEnumerable<ICanvas> GetChildren() => _children;
     public int GetChildIndex(ICanvas child) => _children.IndexOf(child);
     public IEnumerable<Point> GetPoints() => _children.SelectMany(c => c.GetPoints());
@@ -207,11 +208,11 @@ public class Layer(string name) : ICanvas
     {
         if (!IsVisible)
         {
-            Console.WriteLine(new string('-', depth) + "Layer: " + name + " [HIDDEN]");
+            Console.WriteLine(new string('-', depth) + "Layer: " + Name + " [HIDDEN]");
             return;
         }
 
-        Console.WriteLine(new string('-', depth) + name);
+        Console.WriteLine(new string('-', depth) + Name);
         foreach (var child in _children)
         {
             child.ConsoleDisplay(depth + 2);

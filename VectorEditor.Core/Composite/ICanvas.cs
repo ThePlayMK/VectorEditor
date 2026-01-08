@@ -5,6 +5,7 @@ namespace VectorEditor.Core.Composite;
 
 public interface ICanvas
 {
+    string Name { get; }
     Layer? ParentLayer { get; set; }
     bool IsBlocked { get; set; }
     bool IsVisible { get; set; }

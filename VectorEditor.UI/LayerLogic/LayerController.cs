@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.LayerLogic;
@@ -78,35 +80,85 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
                 _breadcrumbPanel.Children.Add(new TextBlock { Text = ">" });
         }
     }
-
-
-    // -----------------------------------------
-    // BUILD LAYER LIST (children of current context)
-    // -----------------------------------------
+    
+    
     private void BuildLayerList()
     {
         _layerListPanel!.Children.Clear();
 
         foreach (var child in layerManager.CurrentContext.GetChildren())
         {
-            if (child is not Layer layer) continue;
+            Control widget;
 
-            var widget = new CanvasWidget
+            if (child is Layer layer)
             {
-                LayerModel = layer
-            };
-            widget.SetLayerName(layer.GetName());
-
-            // JEDNOKLIK → tylko selection
-            widget.PointerPressed += (_, _) => OnLayerClicked(widget);
-
-            // DWUKLIK → stara logika: wybór warstwy + wejście
-            widget.DoubleTapped += (_, _) => EnterLayer(layer);
+                widget = CreateLayerWidget(layer);
+            }
+            else
+            {
+                widget = CreateShapeWidget(child);
+            }
 
             _layerListPanel.Children.Add(widget);
-
         }
     }
+
+    private Control CreateLayerWidget(Layer layer)
+    {
+        var widget = new CanvasWidget
+        {
+            LayerModel = layer
+        };
+
+        widget.SetLayerName(layer.GetName());
+
+        widget.PointerPressed += (_, _) => OnLayerClicked(widget);
+        widget.DoubleTapped += (_, _) => EnterLayer(layer);
+
+        return widget;
+    }
+    
+    private Control CreateShapeWidget(ICanvas shape)
+    {
+        var panel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 6,
+            Margin = new Thickness(4)
+        };
+
+        // Ikonka zależna od typu
+        var icon = new TextBlock
+        {
+            Text = shape switch
+            {
+                Line => "📏",
+                Rectangle => "▭",
+                Triangle => "▲",
+                Circle => "●",
+                CustomShape => "⬠",
+                _ => "?"
+            }
+        };
+
+        var name = new TextBlock
+        {
+            Text = shape.Name // albo shape.GetName() jeśli masz
+        };
+
+        panel.Children.Add(icon);
+        panel.Children.Add(name);
+
+        // Kliknięcie → zaznaczenie shape’a
+        panel.PointerPressed += (_, _) =>
+        {
+            selectionManager.SelectSingle(shape);
+        };
+
+        return panel;
+    }
+
+
     
     private void OnLayerClicked(CanvasWidget widget)
     {

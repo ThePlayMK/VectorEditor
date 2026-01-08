@@ -20,4 +20,5 @@ public partial class CanvasWidget : UserControl
     {
         LayerNameBlock.Text = name;
     }
+    
 }
