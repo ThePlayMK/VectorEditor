@@ -5,7 +5,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Tools.BuilderTools;
 
 // Alias dla Twojego punktu z Core (żeby nie mylić z Avalonia.Point)
 using CorePoint = VectorEditor.Core.Structures.Point;
@@ -25,7 +25,7 @@ public class TriangleTool : ITool
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
     
 
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         // 1. Pobieramy punkt przyciągnięty do siatki
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);

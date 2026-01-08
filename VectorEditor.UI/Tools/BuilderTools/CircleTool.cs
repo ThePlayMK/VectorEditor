@@ -6,7 +6,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Tools.BuilderTools;
 using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.Tools.BuilderTools;

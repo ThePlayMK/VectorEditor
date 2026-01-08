@@ -5,7 +5,7 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Tools.BuilderTools;
 
 // Alias dla Twojego punktu z Core
 using CorePoint = VectorEditor.Core.Structures.Point;
@@ -24,7 +24,7 @@ public class LineTool : ITool
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
     
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window,ToolController controller, PointerPressedEventArgs e)
     {
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
@@ -66,10 +66,11 @@ public class LineTool : ITool
 
     public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
-        if (_start is null)
+        if (_startPoint is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas);
+        var end = controller.GetSnappedPoint(e, window.CanvasCanvas);
+
 
         if (_previewLine != null)
         {
@@ -77,7 +78,7 @@ public class LineTool : ITool
         }
     }
 
-    private void FinishLine(MainWindow window, Avalonia.Point end)
+    private void FinishLine(MainWindow window, CorePoint endPoint)
     {
         if (_previewLine != null)
         {

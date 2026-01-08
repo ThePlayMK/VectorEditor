@@ -17,7 +17,7 @@ namespace VectorEditor.UI;
 
 public partial class MainWindow : Window
 {
-    rivate readonly Canvas? _myCanvas;
+    private readonly Canvas? _myCanvas;
 
     private readonly FilePickerFileType _svgFiles = new("SVG Images")
     {
@@ -47,12 +47,41 @@ public partial class MainWindow : Window
 
         public MainWindow()
         {
-            InitializeComponent();
-            _myCanvas = this.FindControl<Canvas>("MyCanvas");
-            var renderer = new CanvasRenderer(CanvasCanvas);
-            _layerController = new LayerController(Layers);
-            _canvasController = new CanvasController();
-            _selectionManager = new SelectionManager(CommandManager);
+           var selectionManager = new SelectionManager();
+        _layerController = new LayerController(Layers, CommandManager, selectionManager);
+        _canvasController = new CanvasController();
+        _tools = new ToolController(selectionManager);
+        var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
+        var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
+        _layerController.BindUi(layersPanel, breadcrumb);
+
+        
+        
+        _commandController = new CommandController(
+            CommandManager,
+            selectionManager,
+            () => SelectedLayerModel
+        );
+            
+        _opacity = new OpacityController(
+            Settings,
+            OpacitySlider,
+            OpacityInput
+        );
+            
+        _color = new ColorController(
+            () => _activeColorMode == ColorMode.Stroke ? Settings.ContourColor : Settings.ContentColor,
+            c =>
+            {
+                if (_activeColorMode == ColorMode.Stroke)
+                    Settings.ContourColor = c;
+                else
+                    Settings.ContentColor = c;
+            },
+            ColorPreview,
+            InputColorR, InputColorG, InputColorB
+        );
+
 
             //Siatka
             Tools.Grid.IsVisible = true;

@@ -1,8 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using VectorEditor.UI.BuilderTools;
+using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.Select;
+using VectorEditor.Core.Net;
+
+using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.UIControllers;
 
