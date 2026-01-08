@@ -1,99 +1,90 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Structures;
+using VectorEditor.UI.UIControllers;
+using VectorEditor.UI.Tools.BuilderTools;
+using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
 public class RectangleTool : ITool
 {
-    private Point? _startPoint;
-    private Avalonia.Controls.Shapes.Rectangle? _previewRectangle;
+    private CorePoint? _startPoint;
+    private Rectangle? _previewRect;
     private const double PreviewOpacity = 0.2;
     private const bool ClearsSelection = true;
 
-    public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
-        var p = e.GetPosition(window.CanvasCanvas); 
-        
+        var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
+
         if (_startPoint != null)
         {
-            FinishLine(window, p);
+            FinishShape(window, snappedPoint);
             return;
         }
-        
-        _startPoint = new Point(p.X, p.Y);
+
+        // TWORZYMY NOWĄ INSTANCJĘ (BEZPIECZNIE)
+        _startPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
-        if (_startPoint == null)
-            return;
+        if (_startPoint == null) return;
 
-        var current = e.GetPosition(window.CanvasCanvas);
+        var snappedCurrent = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
-        if (_previewRectangle == null)
+        if (_previewRect == null)
         {
-            _previewRectangle = new Avalonia.Controls.Shapes.Rectangle
+            _previewRect = new Rectangle
             {
                 Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
-                Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
-                StrokeThickness = window.Settings.StrokeWidth
+                StrokeThickness = window.Settings.StrokeWidth,
+                IsHitTestVisible = false
             };
-
-            window.CanvasCanvas.Children.Add(_previewRectangle);
+            window.CanvasCanvas.Children.Add(_previewRect);
         }
 
-        var x = Math.Min(_startPoint.X, current.X);
-        var y = Math.Min(_startPoint.Y, current.Y);
-        var w = Math.Abs(current.X - _startPoint.X);
-        var h = Math.Abs(current.Y - _startPoint.Y);
+        // 1. Obliczamy pozycję (Lewy Górny róg) - zawsze najmniejsze X i Y
+        double posX = Math.Min(_startPoint.X, snappedCurrent.X);
+        double posY = Math.Min(_startPoint.Y, snappedCurrent.Y);
 
-        Canvas.SetLeft(_previewRectangle, x);
-        Canvas.SetTop(_previewRectangle, y);
-        _previewRectangle.Width = w;
-        _previewRectangle.Height = h;
+        // 2. Obliczamy wymiary (Różnica) - zawsze dodatnia
+        double width = Math.Abs(snappedCurrent.X - _startPoint.X);
+        double height = Math.Abs(snappedCurrent.Y - _startPoint.Y);
 
+        Canvas.SetLeft(_previewRect, posX);
+        Canvas.SetTop(_previewRect, posY);
+        _previewRect.Width = width;
+        _previewRect.Height = height;
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
-    {
-        if (_startPoint is null)
-            return;
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e) { }
 
-        var end = e.GetPosition(window.CanvasCanvas);
-
-        if (_previewRectangle != null)
-        {
-            FinishLine(window, end);
-        }
-    }
-    private void FinishLine(MainWindow window, Avalonia.Point end)
+    private void FinishShape(MainWindow window, CorePoint endPoint)
     {
-        if (_previewRectangle != null)
+        if (_previewRect != null)
         {
-            window.CanvasCanvas.Children.Remove(_previewRectangle);
-            _previewRectangle = null;
+            window.CanvasCanvas.Children.Remove(_previewRect);
+            _previewRect = null;
         }
 
+        // Builder prostokąta zazwyczaj przyjmuje Start i End (narożniki)
         var builder = new RectangleBuilder()
             .SetStart(_startPoint!)
-            .SetEnd(new Point(end.X, end.Y))
+            .SetEnd(endPoint)
             .SetContourColor(window.Settings.ContourColor)
-            .SetContentColor(window.Settings.ContentColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
-
 
         var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
         window.CommandManager.Execute(cmd);
 
         _startPoint = null;
-        _previewRectangle = null;
     }
 }

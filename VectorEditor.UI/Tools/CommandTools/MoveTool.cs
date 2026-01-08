@@ -8,6 +8,8 @@ using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.Tools.BuilderTools;
+using VectorEditor.UI.UIControllers;
+
 
 namespace VectorEditor.UI.Tools.CommandTools;
 
@@ -22,7 +24,7 @@ public class MoveTool(SelectionManager selection) : ITool
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
     
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         if (selection.Selected.Count == 0)
             return;
@@ -36,7 +38,7 @@ public class MoveTool(SelectionManager selection) : ITool
         CreatePreview(window);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller,PointerEventArgs e)
     {
         if (_lastMouse == null || selection.Selected.Count == 0)
             return;
@@ -58,7 +60,7 @@ public class MoveTool(SelectionManager selection) : ITool
         _lastMouse = current;
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         if (selection.Selected.Count == 0)
             return;

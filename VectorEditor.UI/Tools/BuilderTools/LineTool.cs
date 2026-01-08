@@ -1,14 +1,23 @@
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Structures;
+using VectorEditor.UI.UIControllers;
+using VectorEditor.UI.BuilderTools;
+
+// Alias dla Twojego punktu z Core
+using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
 public class LineTool : ITool
 {
-    private Point? _start;
+    // Używamy obiektu, ale z pytajnikiem (Nullable).
+    // Jeśli jest null -> nie rysujemy. Jeśli jest obiekt -> rysujemy.
+    private CorePoint? _startPoint; 
+    
     private Avalonia.Controls.Shapes.Line? _previewLine;
     private const double PreviewOpacity = 0.2;
     private const bool ClearsSelection = true;
@@ -17,40 +26,45 @@ public class LineTool : ITool
     
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
     {
-        var p = e.GetPosition(window.CanvasCanvas);
-        
-        if (_start != null)
+        var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
+
+        // Jeśli _startPoint ma wartość, to znaczy, że to drugie kliknięcie (koniec linii)
+        if (_startPoint != null)
         {
-            FinishLine(window, p);
+            FinishLine(window, snappedPoint);
             return;
         }
         
-        _start = new Point(p.X, p.Y);
+        // TU BYŁ PROBLEM WCZEŚNIEJ:
+        // Zamiast przypisywać referencję, tworzymy NOWY, niezależny obiekt.
+        // To jest bezpieczne podejście.
+        _startPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
     }
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
-        if (_start == null)
-            return;
+        // Jeśli jest null, to znaczy, że jeszcze nie kliknięto startu -> wychodzimy
+        if (_startPoint == null) return;
 
-        var current = e.GetPosition(window.CanvasCanvas);
+        var snappedCurrent = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         if (_previewLine == null)
         {
             _previewLine = new Avalonia.Controls.Shapes.Line
             {
                 Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
-                StrokeThickness = window.Settings.StrokeWidth
+                StrokeThickness = window.Settings.StrokeWidth,
+                IsHitTestVisible = false
             };
-
             window.CanvasCanvas.Children.Add(_previewLine);
         }
 
-        _previewLine.StartPoint = new Avalonia.Point(_start.X, _start.Y);
-        _previewLine.EndPoint = current;
+        // Teraz bezpiecznie używamy _startPoint, bo wiemy, że nie jest nullem
+        _previewLine.StartPoint = new Avalonia.Point(_startPoint.X, _startPoint.Y);
+        _previewLine.EndPoint = new Avalonia.Point(snappedCurrent.X, snappedCurrent.Y);
     }
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
         if (_start is null)
             return;
@@ -71,16 +85,19 @@ public class LineTool : ITool
             _previewLine = null;
         }
 
+        // Budujemy kształt używając naszego obiektu _startPoint
+        // Używamy ! (null-forgiving), bo wiemy z logiki wyżej, że nie jest nullem
         var builder = new LineBuilder()
-            .SetStart(_start!)
+            .SetStart(_startPoint!) 
             .SetContourColor(window.Settings.ContourColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100)
-            .SetEnd(new Point(end.X, end.Y));
+            .SetEnd(endPoint);
 
         var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
         window.CommandManager.Execute(cmd);
 
-        _start = null;
+        // Resetujemy stan na null -> gotowość do nowej linii
+        _startPoint = null;
     }
 }

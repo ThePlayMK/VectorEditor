@@ -10,12 +10,14 @@ using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
+using VectorEditor.Core.Net;
+
 
 namespace VectorEditor.UI;
 
 public partial class MainWindow : Window
 {
-    private readonly Canvas? _myCanvas;
+    rivate readonly Canvas? _myCanvas;
 
     private readonly FilePickerFileType _svgFiles = new("SVG Images")
     {
@@ -43,46 +45,21 @@ public partial class MainWindow : Window
         _layerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
 
 
-    public MainWindow()
-    {
-        InitializeComponent();
-        _myCanvas = this.FindControl<Canvas>("MyCanvas");
-        var renderer = new CanvasRenderer(CanvasCanvas);
-        var selectionManager = new SelectionManager();
-        _layerController = new LayerController(Layers, CommandManager, selectionManager);
-        _canvasController = new CanvasController();
-        _tools = new ToolController(selectionManager);
-        var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
-        var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
-        _layerController.BindUi(layersPanel, breadcrumb);
+        public MainWindow()
+        {
+            InitializeComponent();
+            _myCanvas = this.FindControl<Canvas>("MyCanvas");
+            var renderer = new CanvasRenderer(CanvasCanvas);
+            _layerController = new LayerController(Layers);
+            _canvasController = new CanvasController();
+            _selectionManager = new SelectionManager(CommandManager);
 
-        
-        
-        _commandController = new CommandController(
-            CommandManager,
-            selectionManager,
-            () => SelectedLayerModel
-        );
-            
-        _opacity = new OpacityController(
-            Settings,
-            OpacitySlider,
-            OpacityInput
-        );
-            
-        _color = new ColorController(
-            () => _activeColorMode == ColorMode.Stroke ? Settings.ContourColor : Settings.ContentColor,
-            c =>
-            {
-                if (_activeColorMode == ColorMode.Stroke)
-                    Settings.ContourColor = c;
-                else
-                    Settings.ContentColor = c;
-            },
-            ColorPreview,
-            InputColorR, InputColorG, InputColorB
-        );
+            //Siatka
+            Tools.Grid.IsVisible = true;
+            Tools.Grid.SnapEnabled = true;
 
+            // Rysujemy siatkę na płótnie
+            GridRenderer.Render(CanvasCanvas, Tools.Grid);
 
 
         CommandManager.OnChanged += () => 
@@ -232,22 +209,95 @@ public partial class MainWindow : Window
     {
         _tools.PointerMoved(this, e);
 
-        if (_tools.IsHandToolActive && sender is Border border)
-            _canvasController.OnPointerMoved(_myCanvas!, border, e);
-    }
-    private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        _tools.PointerReleased(this, e);
-        _canvasController.OnPointerReleased(e);
-    }
-    private void Opacity_SliderChanged(object? s, RoutedEventArgs e) => _opacity.OnSliderChanged();
-    private void Opacity_PointerWheelChanged(object? s, PointerWheelEventArgs e) => _opacity.OnWheel(e);
-    private void Opacity_InputChange(object? s, RoutedEventArgs e) => _opacity.OnInputChanged();
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
-        base.OnKeyDown(e);
-        _commandController.OnKeyDown(e);
-    }
-    private void Undo_Click(object? s, RoutedEventArgs e) => _commandController.OnUndoClick();
-    private void Redo_Click(object? s, RoutedEventArgs e) => _commandController.OnRedoClick();
+            if (_activeToolButton?.Tag as string == "Hand" && sender is Border border)
+                _canvasController.PanMove(_myCanvas!, border, e);
+        }
+        
+        private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
+        {
+            Tools.PointerReleased(this, e);
+            _canvasController.PanEnd(e);
+        }
+
+        private void Opacity_SliderChanged(object? sender, RoutedEventArgs e)
+        {
+            Settings.Opacity = (int)OpacitySlider.Value;
+            OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private void Opacity_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+        {
+            if (e.Delta.Y > 0 && Settings.Opacity < 100)
+            {
+                Settings.Opacity++;
+                OpacitySlider.Value = Settings.Opacity;
+                OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
+            }
+            else if (e.Delta.Y < 0 && Settings.Opacity > 0)
+            {
+                Settings.Opacity--;
+                OpacitySlider.Value = Settings.Opacity;
+                OpacityInput.Text = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        private void Opacity_InputChange(object? sender, RoutedEventArgs e)
+        {
+            Settings.Opacity = int.TryParse(OpacityInput.Text, out int result) ? Math.Clamp(result, 0, 100) : 0;
+            OpacitySlider.Value = Settings.Opacity;
+            var newText = Settings.Opacity.ToString(CultureInfo.InvariantCulture);
+            if (OpacityInput.Text == newText) return;
+            OpacityInput.Text = newText;
+            OpacityInput.CaretIndex = OpacityInput.Text.Length;
+        }
+        
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            switch (e.KeyModifiers)
+            {
+                case KeyModifiers.Control when e.Key == Key.Z:
+                    CommandManager.Undo();
+                    return;
+                
+                case KeyModifiers.Control when e.Key == Key.Y:
+                    CommandManager.Redo();
+                    return;
+                
+                case KeyModifiers.Control when e.Key == Key.C:
+                    if (_selectionManager.Selected.Count <= 0) return;
+                    var copy = new CopyCommand(_selectionManager.Selected);
+                    copy.Execute();
+                    return;
+                
+                case KeyModifiers.Control when e.Key == Key.V:
+                {
+                    var cmd = new PasteCommand(SelectedLayerModel, _selectionManager);
+                    CommandManager.Execute(cmd);
+                    return;
+                }
+                
+                /*case KeyModifiers.Control when e.Key == Key.V:
+                    var cmd = new PasteCommand(SelectedLayerModel);
+                    CommandManager.Execute(cmd);
+                    _selectionManager.Clear();
+                    _selectionManager.AddRange(cmd.PastedElements);
+                    return;*/
+
+                default:
+                    return;
+            }
+        }
+        
+        private void Undo_Click(object? sender, RoutedEventArgs e)
+        {
+            CommandManager.Undo();
+        }
+
+        private void Redo_Click(object? sender, RoutedEventArgs e)
+        {
+            CommandManager.Redo();
+        }
+    
 }
