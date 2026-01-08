@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using VectorEditor.Core.Command.Select;
+using VectorEditor.UI.Select;
 using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.Tools.CommandTools;
 

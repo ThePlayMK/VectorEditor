@@ -1,8 +1,8 @@
 using System;
 using Avalonia.Input;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
+using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.UIControllers;
 
@@ -69,10 +69,3 @@ public class CommandController(
         copy.Execute(); 
     }
 }
-
-
-/*
-        private void Undo_Click(object? sender, RoutedEventArgs e) => _commandController.Undo();
-
-        private void Redo_Click(object? sender, RoutedEventArgs e) => _commandController.Redo();
-*/

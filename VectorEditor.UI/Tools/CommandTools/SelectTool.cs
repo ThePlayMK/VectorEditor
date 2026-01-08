@@ -3,7 +3,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using VectorEditor.Core.Command.Select;
+using VectorEditor.UI.Select;
 using Point = VectorEditor.Core.Structures.Point;
 using VectorEditor.UI.Tools.BuilderTools;
 

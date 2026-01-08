@@ -4,9 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
+using VectorEditor.UI.Select;
 using VectorEditor.UI.Tools.BuilderTools;
 
 namespace VectorEditor.UI.Tools.CommandTools;

@@ -5,10 +5,11 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.LayerLogic;
 
-public class LayerController(LayerManager layerManager, CommandManager commands)
+public class LayerController(LayerManager layerManager, CommandManager commands, SelectionManager selectionManager)
 {
     private StackPanel? _layerListPanel;
     private StackPanel? _breadcrumbPanel;
@@ -54,10 +55,8 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
             node = node.ParentLayer;
         }
 
-        for (int i = 0; i < chain.Count; i++)
+        foreach (var layer in chain)
         {
-            var layer = chain[i];
-
             var btn = new Button
             {
                 Content = layer.GetName(),
@@ -67,23 +66,18 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
 
             btn.Click += (_, _) =>
             {
-                layerManager.EnterLayer(layer);
-
-                // zaznaczamy tę warstwę, bo jest przodkiem kontekstu
-                SelectedLayerWidget = null;
                 layerManager.SelectLayer(layer);
-
+                SelectedLayerWidget = null;
                 RefreshUi();
             };
 
-
-
             _breadcrumbPanel.Children.Add(btn);
 
-            if (i < chain.Count - 1)
+            if (layer != chain[^1])
                 _breadcrumbPanel.Children.Add(new TextBlock { Text = ">" });
         }
     }
+
 
     // -----------------------------------------
     // BUILD LAYER LIST (children of current context)
@@ -95,18 +89,25 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
         foreach (var child in layerManager.CurrentContext.GetChildren())
         {
             if (child is not Layer layer) continue;
+
             var widget = new CanvasWidget
             {
                 LayerModel = layer
             };
             widget.SetLayerName(layer.GetName());
 
-            widget.PointerPressed += (_, _) => SelectLayerWidget(widget);
-            widget.DoubleTapped += (_, _) => EnterLayer(layer);
+            // JEDNOKLIK → tylko selection
+            widget.PointerPressed += (_, _) => OnLayerClicked(widget);
+
+            // DWUKLIK → stara logika: wybór warstwy + wejście
+            widget.DoubleTapped += (_, _) => SelectLayerWidget(widget);
 
             _layerListPanel.Children.Add(widget);
+
         }
     }
+
+
 
     // -----------------------------------------
     // SELECT LAYER
@@ -115,6 +116,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
     {
         if (widget.LayerModel.ParentLayer != layerManager.CurrentContext)
             return;
+
         // Unhighlight old
         if (SelectedLayerWidget != null)
         {
@@ -130,18 +132,16 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
         if (btn != null)
             btn.Background = Brushes.Gray;
 
+        // logika warstw, jak wcześniej
         layerManager.SelectLayer(widget.LayerModel);
     }
 
-    // -----------------------------------------
-    // ENTER LAYER (double-click)
-    // -----------------------------------------
-    private void EnterLayer(Layer layer)
+
+
+    private void OnLayerClicked(CanvasWidget widget)
     {
-        layerManager.EnterLayer(layer);
-        SelectedLayerWidget = null;
-        layerManager.SelectLayer(layerManager.CurrentContext); // albo null, jeśli dopuszczasz
-        RefreshUi();
+        // żadnej logiki LayerManager, żadnego kontekstu
+        selectionManager.SelectSingle(widget.LayerModel);
     }
 
 
@@ -151,10 +151,13 @@ public class LayerController(LayerManager layerManager, CommandManager commands)
     // -----------------------------------------
     public void AddLayer()
     {
-        var cmd = new AddLayerCommand(layerManager.CurrentContext);
+        var parent = layerManager.CurrentContext;
+        var cmd = new AddLayerCommand(parent);
         commands.Execute(cmd);
         RefreshUi();
     }
+
+
 
 
     // -----------------------------------------

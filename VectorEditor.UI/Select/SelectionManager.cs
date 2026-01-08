@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
 
-namespace VectorEditor.Core.Command.Select;
+namespace VectorEditor.UI.Select;
 
 public class SelectionManager
 {

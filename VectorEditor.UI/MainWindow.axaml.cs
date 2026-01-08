@@ -5,10 +5,10 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Command.Select;
 using VectorEditor.Core.Composite;
 using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
+using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 
 namespace VectorEditor.UI;
@@ -48,9 +48,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         _myCanvas = this.FindControl<Canvas>("MyCanvas");
         var renderer = new CanvasRenderer(CanvasCanvas);
-        _layerController = new LayerController(Layers, CommandManager);
-        _canvasController = new CanvasController();
         var selectionManager = new SelectionManager();
+        _layerController = new LayerController(Layers, CommandManager, selectionManager);
+        _canvasController = new CanvasController();
         _tools = new ToolController(selectionManager);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
