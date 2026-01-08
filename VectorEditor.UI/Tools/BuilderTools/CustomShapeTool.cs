@@ -1,13 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using Avalonia; // Do Avalonia.Point
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
-using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.UIControllers;
 
 // Alias dla Twojej struktury
@@ -18,170 +15,112 @@ namespace VectorEditor.UI.Tools.BuilderTools;
 public class CustomShapeTool : ITool
 {
     private CustomShapeBuilder _builder = new();
-    private readonly List<CorePoint> _points = new();
+    private readonly List<CorePoint> _previewPoints = [];
     
     private Polyline? _previewPolyline;
     private const double PreviewOpacity = 0.5;
     
-    // Ustawienia "Magnesu"
-    private const double CloseThreshold = 15.0; // Jak blisko (w pikselach) trzeba być, żeby zamknąć
-    private bool _isHoveringStart = false;      // Czy myszka jest nad punktem startowym?
+    private bool _isDrawing;
     private const bool ClearsSelection = true;
     
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
 
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
-    // 1. Obsługa podwójnego kliknięcia (koniec rysowania)
-        if (e.ClickCount == 2 && _points.Count > 1)
+        if (e.GetCurrentPoint(window.CanvasCanvas).Properties.IsRightButtonPressed)
         {
-            Finish(window);
-            return;
+            if (_isDrawing)
+                Finish(window);   // kończymy kształt
+            return;               // nie dodajemy punktu
         }
 
-    // 2. Pobierz punkt z siatki
+        // 2. Pobierz punkt z siatki
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
         var newPoint = new CorePoint(snappedPoint.X, snappedPoint.Y);
 
-        // 3. Sprawdź Magnes (zamykanie kształtu)
-        if (_points.Count > 2 && _isHoveringStart)
+        if (!_isDrawing)
         {
-            Finish(window);
-            return;
+            _isDrawing = true;
+
+            _previewPoints.Clear();
+            _previewPoints.Add(newPoint);
+
+            _previewPolyline = new Polyline
+            {
+                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
+                StrokeThickness = window.Settings.StrokeWidth
+            };
+
+            window.CanvasCanvas.Children.Add(_previewPolyline);
         }
-
-    // 4. BEZPIECZNIK (Try-Catch) - To naprawia crash!
-        try
+        else
         {
-        // Najpierw próbujemy dodać punkt do logiki (Buildera)
-            _builder.AddPoint(newPoint);
+            _previewPoints.Add(newPoint);
         }
-        catch (Exception)
+        
+        _builder.AddPoint(newPoint);
+
+        if (e.GetCurrentPoint(window.CanvasCanvas).Properties.IsMiddleButtonPressed)
         {
-        // Jeśli Builder rzucił błąd (np. "Nieprawidłowa geometria", "Przecięcie linii"),
-        // to po prostu IGNORUJEMY to kliknięcie.
-        // Możesz tu dodać np. System.Media.SystemSounds.Beep.Play(); żeby dać znać użytkownikowi.
-            return; 
-        }      
-
-    // 5. Dopiero jeśli Builder nie zgłosił sprzeciwu, dodajemy punkt do listy wizualnej
-        _points.Add(newPoint);
-
-    // Aktualizujemy podgląd
-        UpdatePreview(window, e.GetPosition(window.CanvasCanvas));
+            if (_isDrawing)
+                Finish(window); 
+        }
+        UpdatePreview();
     }
 
     public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
-        if (_points.Count == 0) return;
+        if (!_isDrawing || _previewPolyline == null)
+            return;
 
-        // Pobieramy pozycję do podglądu (tu też używamy siatki dla spójności)
-        var snappedCurrent = controller.GetSnappedPoint(e, window.CanvasCanvas);
-        
-        // --- LOGIKA MAGNESU (Smart Closing) ---
-        var start = _points[0];
-        
-        // Obliczamy dystans (w pikselach ekranowych) między kursorem a startem
-        // Używamy surowej pozycji myszy do sprawdzania odległości, żeby było płynniej
-        var rawPos = e.GetPosition(window.CanvasCanvas);
-        double dist = Math.Sqrt(Math.Pow(rawPos.X - start.X, 2) + Math.Pow(rawPos.Y - start.Y, 2));
+        var pos = e.GetPosition(window.CanvasCanvas);
+        var hover = new CorePoint(pos.X, pos.Y);
 
-        if (_points.Count > 2 && dist < CloseThreshold)
-        {
-            // JESTEŚMY BLISKO STARTU -> "Przyklej" podgląd do startu
-            _isHoveringStart = true;
-            
-            // Wizualna sztuczka: podgląd "skacze" do punktu startowego
-            var magnetPoint = new CorePoint(start.X, start.Y);
-            UpdatePreview(window, magnetPoint);
-            
-            // Opcjonalnie: Zmień kursor na "Hand", żeby zasygnalizować zamknięcie
-            window.Cursor = new Cursor(StandardCursorType.Hand);
-        }
-        else
-        {
-            // NORMALNY RUCH
-            _isHoveringStart = false;
-            
-            var hoverPoint = new CorePoint(snappedCurrent.X, snappedCurrent.Y);
-            UpdatePreview(window, hoverPoint);
-            
-            window.Cursor = Cursor.Default;
-        }
+        UpdatePreview(hover);
     }
 
-    private void UpdatePreview(MainWindow window, CorePoint hoverPoint) // Przeciążenie dla CorePoint
-    {
-        UpdatePreview(window, new Avalonia.Point(hoverPoint.X, hoverPoint.Y));
-    }
-
-    private void UpdatePreview(MainWindow window, Avalonia.Point hoverPoint)
+    private void UpdatePreview(CorePoint? hover = null)
     {
         if (_previewPolyline == null)
-        {
-            _previewPolyline = new Polyline
-            {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
-                StrokeThickness = window.Settings.StrokeWidth,
-                Fill = Brushes.Transparent, // Na razie bez wypełnienia, żeby nie zasłaniać
-                IsHitTestVisible = false
-            };
-            window.CanvasCanvas.Children.Add(_previewPolyline);
-        }
+            return;
 
         var pts = new Avalonia.Collections.AvaloniaList<Avalonia.Point>();
-        
-        // Dodaj wszystkie zatwierdzone punkty
-        foreach (var p in _points)
-        {
-            pts.Add(new Avalonia.Point(p.X, p.Y));
-        }
 
-        // Dodaj punkt "latający" (kursora)
-        pts.Add(hoverPoint);
+        foreach (var p in _previewPoints)
+            pts.Add(new Avalonia.Point(p.X, p.Y));
+
+        if (hover != null)
+            pts.Add(new Avalonia.Point(hover.X, hover.Y));
 
         _previewPolyline.Points = pts;
-        
-        // Opcjonalnie: Zmień kolor linii na zielony, jeśli zamykamy
-        if (_isHoveringStart)
-        {
-            _previewPolyline.Stroke = Brushes.Green; // Sygnał dla użytkownika: "Tu zamkniesz"
-            _previewPolyline.StrokeThickness = window.Settings.StrokeWidth * 1.5;
-        }
-        else
-        {
-            _previewPolyline.Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100);
-            _previewPolyline.StrokeThickness = window.Settings.StrokeWidth;
-        }
     }
 
     public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e) { }
 
     private void Finish(MainWindow window)
     {
-        // Sprzątanie podglądu
         if (_previewPolyline != null)
         {
             window.CanvasCanvas.Children.Remove(_previewPolyline);
             _previewPolyline = null;
         }
-        window.Cursor = Cursor.Default;
-
-        // Jeśli mamy za mało punktów -> anuluj
-        if (_points.Count < 2)
+        
+        if (_builder.GetPoints().Count() < 2)
         {
-            ResetTool();
+            _previewPoints.Clear();
+            _isDrawing = false;
+            _builder = new CustomShapeBuilder();
             return;
         }
 
-        // Konfiguracja buildera (punkty były dodawane na bieżąco w PointerPressed)
+        
         _builder
             .SetContentColor(window.Settings.ContentColor)
             .SetContourColor(window.Settings.ContourColor)
             .SetOpacity(window.Settings.Opacity / 100)
             .SetWidth(window.Settings.StrokeWidth);
         
-        // Wykonanie komendy
         var cmd = new AddShapeCommand(_builder, window.SelectedLayerModel);
         window.CommandManager.Execute(cmd);
 
@@ -190,8 +129,8 @@ public class CustomShapeTool : ITool
 
     private void ResetTool()
     {
-        _points.Clear();
-        _isHoveringStart = false;
+        _previewPoints.Clear();
+        _isDrawing = false;
         _builder = new CustomShapeBuilder();
     }
 }

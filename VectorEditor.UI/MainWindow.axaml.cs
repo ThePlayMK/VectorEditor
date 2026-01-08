@@ -270,20 +270,18 @@ public partial class MainWindow : Window
     private void ToggleGrid(object? sender, RoutedEventArgs e)
     {
         // Sprawdzamy, czy to na pewno Checkbox wywołał zdarzenie
-        if (sender is CheckBox checkBox)
-        {
-            // Pobieramy stan (zaznaczony lub nie) - null traktujemy jako false
-            bool isChecked = checkBox.IsChecked ?? false;
+        if (sender is not CheckBox checkBox) return;
+        // Pobieramy stan (zaznaczony lub nie) - null traktujemy jako false
+        var isChecked = checkBox.IsChecked ?? false;
 
-            // 1. Aktualizujemy logikę w Core
-            _tools.Grid.IsVisible = isChecked;
+        // 1. Aktualizujemy logikę w Core
+        _tools.Grid.IsVisible = isChecked;
         
-            // Opcjonalnie: Wyłączamy też przyciąganie, gdy siatka jest niewidoczna.
-            // (Zazwyczaj użytkownik nie chce, by myszka "skakała", gdy nie widzi kratek).
-            _tools.Grid.SnapEnabled = isChecked;
+        // Opcjonalnie: Wyłączamy też przyciąganie, gdy siatka jest niewidoczna.
+        // (Zazwyczaj użytkownik nie chce, by myszka "skakała", gdy nie widzi kratek).
+        _tools.Grid.SnapEnabled = isChecked;
 
-            // 2. Odświeżamy widok (Renderowanie)
-            GridRenderer.Render(CanvasCanvas, _tools.Grid);
-        }
+        // 2. Odświeżamy widok (Renderowanie)
+        GridRenderer.Render(CanvasCanvas, _tools.Grid);
     }
 }

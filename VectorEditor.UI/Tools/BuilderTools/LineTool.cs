@@ -1,12 +1,8 @@
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.Tools.BuilderTools;
-
 // Alias dla Twojego punktu z Core
 using CorePoint = VectorEditor.Core.Structures.Point;
 
@@ -85,9 +81,7 @@ public class LineTool : ITool
             window.CanvasCanvas.Children.Remove(_previewLine);
             _previewLine = null;
         }
-
-        // Budujemy kształt używając naszego obiektu _startPoint
-        // Używamy ! (null-forgiving), bo wiemy z logiki wyżej, że nie jest nullem
+        
         var builder = new LineBuilder()
             .SetStart(_startPoint!) 
             .SetContourColor(window.Settings.ContourColor)

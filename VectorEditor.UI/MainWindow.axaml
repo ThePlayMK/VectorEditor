@@ -194,7 +194,6 @@
                             <ToggleButton x:Name="FillModeButton"
                                           Content="Fill"
                                           Click="ColorModeChanged"/>
-
                         </StackPanel>
 
                         

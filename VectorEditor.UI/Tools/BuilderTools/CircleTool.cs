@@ -6,7 +6,6 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.Tools.BuilderTools;
 using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
@@ -51,22 +50,29 @@ public class CircleTool : ITool
             window.CanvasCanvas.Children.Add(_previewEllipse);
         }
 
-        // --- MATEMATYKA DLA TWOJEGO BUILDERA ---
-        // 1. Obliczamy promień (odległość od środka do kursora)
-        double radius = Math.Sqrt(Math.Pow(snappedCurrent.X - _centerPoint.X, 2) + Math.Pow(snappedCurrent.Y - _centerPoint.Y, 2));
-
-        // 2. Avalonia rysuje elipsę wewnątrz prostokąta, więc musimy:
-        //    - Ustawić szerokość i wysokość na 2 * promień
-        //    - Przesunąć lewy górny róg o promień w lewo i w górę od środka
+        var dx = snappedCurrent.X - _centerPoint.X;
+        var dy = snappedCurrent.Y - _centerPoint.Y;
+        var radius = Math.Sqrt(dx * dx + dy * dy);
         
-        _previewEllipse.Width = radius * 2;
-        _previewEllipse.Height = radius * 2;
-
+        
         Canvas.SetLeft(_previewEllipse, _centerPoint.X - radius);
         Canvas.SetTop(_previewEllipse, _centerPoint.Y - radius);
+        _previewEllipse.Width = radius * 2;
+        _previewEllipse.Height = radius * 2;
     }
 
-    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e) { }
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
+    {
+        if (_centerPoint is null)
+            return;
+
+        var end = controller.GetSnappedPoint(e, window.CanvasCanvas);
+
+        if (_previewEllipse != null)
+        {
+            FinishShape(window, end);
+        }
+    }
 
     private void FinishShape(MainWindow window, CorePoint endPoint)
     {
@@ -75,18 +81,21 @@ public class CircleTool : ITool
             window.CanvasCanvas.Children.Remove(_previewEllipse);
             _previewEllipse = null;
         }
-
+        
+        
         // Twój Builder idealnie tu pasuje: SetStart (środek) i SetRadius (punkt na obwodzie)
         var builder = new CircleBuilder()
             .SetStart(_centerPoint!)    // Środek
             .SetRadius(endPoint)        // Punkt końcowy (do wyliczenia promienia)
             .SetContourColor(window.Settings.ContourColor)
+            .SetContentColor(window.Settings.ContentColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
             
         var cmd = new AddShapeCommand(builder, window.SelectedLayerModel);
         window.CommandManager.Execute(cmd);
-
+        
         _centerPoint = null;
+        _previewEllipse = null;
     }
 }

@@ -1,14 +1,12 @@
 using System;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.Tools.BuilderTools;
 using CorePoint = VectorEditor.Core.Structures.Point;
+using Rectangle = Avalonia.Controls.Shapes.Rectangle;
 
 namespace VectorEditor.UI.Tools.BuilderTools;
 
@@ -53,12 +51,12 @@ public class RectangleTool : ITool
         }
 
         // 1. Obliczamy pozycję (Lewy Górny róg) - zawsze najmniejsze X i Y
-        double posX = Math.Min(_startPoint.X, snappedCurrent.X);
-        double posY = Math.Min(_startPoint.Y, snappedCurrent.Y);
+        var posX = Math.Min(_startPoint.X, snappedCurrent.X);
+        var posY = Math.Min(_startPoint.Y, snappedCurrent.Y);
 
         // 2. Obliczamy wymiary (Różnica) - zawsze dodatnia
-        double width = Math.Abs(snappedCurrent.X - _startPoint.X);
-        double height = Math.Abs(snappedCurrent.Y - _startPoint.Y);
+        var width = Math.Abs(snappedCurrent.X - _startPoint.X);
+        var height = Math.Abs(snappedCurrent.Y - _startPoint.Y);
 
         Canvas.SetLeft(_previewRect, posX);
         Canvas.SetTop(_previewRect, posY);
@@ -66,7 +64,20 @@ public class RectangleTool : ITool
         _previewRect.Height = height;
     }
 
-    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e) { }
+    public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
+    {
+        if (_startPoint is null)
+            return;
+
+        var end = e.GetPosition(window.CanvasCanvas);
+        var endPoint = new CorePoint(end.X, end.Y);
+
+        if (_previewRect != null)
+        {
+            FinishShape(window, endPoint);
+        }
+    }
+    
 
     private void FinishShape(MainWindow window, CorePoint endPoint)
     {
@@ -81,6 +92,7 @@ public class RectangleTool : ITool
             .SetStart(_startPoint!)
             .SetEnd(endPoint)
             .SetContourColor(window.Settings.ContourColor)
+            .SetContentColor(window.Settings.ContentColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
 
@@ -88,5 +100,6 @@ public class RectangleTool : ITool
         window.CommandManager.Execute(cmd);
 
         _startPoint = null;
+        _previewRect = null;
     }
 }

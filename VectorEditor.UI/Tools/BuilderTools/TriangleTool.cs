@@ -5,7 +5,6 @@ using Avalonia.Media;
 using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.UI.UIControllers;
-using VectorEditor.UI.Tools.BuilderTools;
 
 // Alias dla Twojego punktu z Core (żeby nie mylić z Avalonia.Point)
 using CorePoint = VectorEditor.Core.Structures.Point;
@@ -54,7 +53,10 @@ public class TriangleTool : ITool
     public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         // Jeśli nie zaczęliśmy rysować (brak pierwszego punktu), nic nie robimy
-        if (_firstPoint == null) return;
+        if (_firstPoint == null)
+        {
+            return;
+        }
 
         var snappedCurrent = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
@@ -70,22 +72,23 @@ public class TriangleTool : ITool
             window.CanvasCanvas.Children.Add(_previewTriangle);
         }
 
-        // RYSOWANIE PODGLĄDU
-        var p1 = new Avalonia.Point(_firstPoint.X, _firstPoint.Y);
-        var current = new Avalonia.Point(snappedCurrent.X, snappedCurrent.Y);
-
         if (_secondPoint == null)
         {
-            // STAN: Mamy 1 punkt, szukamy 2.
-            // Rysujemy "linię" (trójkąt spłaszczony), żeby użytkownik wiedział, gdzie stawia 2 punkt.
-            _previewTriangle.Points = new List<Avalonia.Point> { p1, current, current };
+            _previewTriangle.Points = new List<Avalonia.Point>()
+            {
+                new(_firstPoint.X, _firstPoint.Y),
+                new(snappedCurrent.X, snappedCurrent.Y)
+            };
         }
+        
         else
         {
-            // STAN: Mamy 1 i 2 punkt, szukamy 3.
-            // Rysujemy pełny trójkąt dynamicznie.
-            var p2 = new Avalonia.Point(_secondPoint.X, _secondPoint.Y);
-            _previewTriangle.Points = new List<Avalonia.Point> { p1, p2, current };
+            _previewTriangle.Points = new List<Avalonia.Point>()
+            {
+                new(_firstPoint.X, _firstPoint.Y),
+                new(_secondPoint.X, _secondPoint.Y),
+                new(snappedCurrent.X, snappedCurrent.Y)
+            };
         }
     }
 
