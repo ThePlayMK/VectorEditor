@@ -17,7 +17,6 @@ public class CustomShapeBuilder: IShapeBuilder
 
     public CustomShapeBuilder AddPoint(Point point)
     {
-
         _points.Add(point);
         return this;
     }

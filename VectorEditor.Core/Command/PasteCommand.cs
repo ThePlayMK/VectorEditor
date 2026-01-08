@@ -1,4 +1,4 @@
-using VectorEditor.Core.Command.Select;
+using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Command;
