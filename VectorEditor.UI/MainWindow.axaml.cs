@@ -10,6 +10,7 @@ using VectorEditor.UI.LayerLogic;
 using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
+using VectorEditor.Core.State;
 
 
 namespace VectorEditor.UI;
@@ -45,6 +46,7 @@ public partial class MainWindow : Window
     public DrawingSettings Settings { get; } = new();
     public CommandManager CommandManager { get; } = new();
     public Canvas CanvasCanvas => _myCanvas!;
+    private readonly EditorContext _editorContext;
 
     public Layer SelectedLayerModel =>
         _layerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
@@ -62,6 +64,7 @@ public partial class MainWindow : Window
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
         _layerController.BindUi(layersPanel, breadcrumb);
+        _editorContext = new EditorContext();
 
 
         _commandController = new CommandController(
