@@ -5,24 +5,20 @@ namespace VectorEditor.Core.Command;
 
 public class AddShapeCommand(IShapeBuilder builder, Layer targetLayer) : ICommand
 {
-    private IShape? _createdShape;
+    private IShape? _shape;
 
     public void Execute()
     {
         if (targetLayer.IsBlocked)
-        {
             return;
-        }
-        
-        _createdShape = builder.Build();
-        targetLayer.Add(_createdShape);
+
+        _shape ??= builder.Build(); // ✅ tylko raz
+        targetLayer.Add(_shape);
     }
 
     public void Undo()
     {
-        if (_createdShape != null)
-        {
-            targetLayer.Remove(_createdShape);
-        }
+        if (_shape != null)
+            targetLayer.Remove(_shape);
     }
 }

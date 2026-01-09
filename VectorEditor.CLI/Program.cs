@@ -737,13 +737,13 @@ Console.WriteLine("\n>>> KONIEC TESTÓW UKRYWANIA/POKAZYWANIA <<<");
 */
 
 // --- TEST 23: MÓJ TEST PRZESUWANIE
-/*
+
 Console.WriteLine("\n>>> TEST 23: PRZESUWANIE ELEMENTÓW <<<");
 
 var cmdManager = new CommandManager();
 var moveLayer = new Layer("Move Test Layer");
-var rectToMove = new Rectangle(new Point(0, 0), new Point(10, 10), "blue", "black", 1);
-var blockedRect = new Rectangle(new Point(100, 100), new Point(110, 110), "red", "black", 1)
+var rectToMove = new Rectangle(new Point(0, 0), new Point(10, 10), Color.FromRgb(1, 2, 3), Color.FromRgb(4, 5, 6), 1);
+var blockedRect = new Rectangle(new Point(100, 100), new Point(110, 110), Color.FromRgb(7, 8, 9), Color.FromRgb(4, 5, 6), 1)
 {
     IsBlocked = true // Ten nie powinien się ruszyć
 };
@@ -778,7 +778,7 @@ var selectMoveCmd = new ApplyStrategyCommand(new MoveCanvasStrategy(50, 50), new
     
 cmdManager.Execute(selectMoveCmd);
 Console.WriteLine("Po przesunięciu samego niebieskiego o (50, 50):");
-moveLayer.ConsoleDisplay();*/
+moveLayer.ConsoleDisplay();
 
 // --- TEST 25: BLOKADA DODAWANIA DO ZABLOKOWANEJ WARSTWY ---
 /*
