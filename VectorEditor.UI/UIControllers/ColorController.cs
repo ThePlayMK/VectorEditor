@@ -4,7 +4,6 @@ using Avalonia.Media;
 
 namespace VectorEditor.UI.UIControllers;
 
-
 public class ColorController(
     Func<Color> getColor,
     Action<Color> setColor,
@@ -18,21 +17,7 @@ public class ColorController(
     public TextBox B => b;
     public event Action<Color>? CommitEdit;
 
-    private void OnColorButtonClick(Color c, bool commit = true)
-    {
-        setColor(c);
-        preview.Background = new SolidColorBrush(c);
-
-        r.Text = c.R.ToString();
-        g.Text = c.G.ToString();
-        b.Text = c.B.ToString();
-        
-        if (commit)
-            CommitEdit?.Invoke(c);
-    }
-
-    // ColorController
-    public void OnRgbInputChange()
+    private void SetColorFromInput(bool commit = true)
     {
         var r1 = Parse(r.Text!);
         var g1 = Parse(g.Text!);
@@ -40,20 +25,41 @@ public class ColorController(
 
         var color = Color.FromRgb((byte)r1, (byte)g1, (byte)b1);
 
-        // Tylko aktualizacja UI/podglądu, commit = false
-        OnColorButtonClick(color, commit: false);
-    }
-    
-    public void CommitFromInput()
-    {
-        var r1 = Parse(r.Text!);
-        var g1 = Parse(g.Text!);
-        var b1 = Parse(b.Text!);
-
-        var color = Color.FromRgb((byte)r1, (byte)g1, (byte)b1);
+        setColor(color);
         preview.Background = new SolidColorBrush(color);
 
-        CommitEdit?.Invoke(color);
+        r.Text = r1.ToString();
+        g.Text = g1.ToString();
+        b.Text = b1.ToString();
+
+        if (commit)
+            CommitEdit?.Invoke(color);
+    }
+
+    // Obsługa palety
+    public void OnPaletteClick(Button button)
+    {
+        if (button.Background is not ISolidColorBrush brush)
+        {
+            return;
+        }
+        r.Text = brush.Color.R.ToString();
+        g.Text = brush.Color.G.ToString();
+        b.Text = brush.Color.B.ToString();
+
+        SetColorFromInput(commit: true);
+    }
+
+    // Aktualizacja UI na każdym wpisywanym znaku w TextBoxach
+    public void OnRgbInputChange()
+    {
+        SetColorFromInput(commit: false);
+    }
+
+    // Commit z Enter / LostFocus
+    public void CommitFromInput()
+    {
+        SetColorFromInput(commit: true);
     }
 
     private static int Parse(string s)
@@ -80,11 +86,4 @@ public class ColorController(
         g.Text = c.G.ToString();
         b.Text = c.B.ToString();
     }
-    
-    public void OnPaletteClick(Button button)
-    {
-        if (button.Background is ISolidColorBrush brush)
-            OnColorButtonClick(brush.Color, commit: true);
-    }
-
 }
