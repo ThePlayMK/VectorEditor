@@ -13,13 +13,10 @@ public class ColorController(
     TextBox g,
     TextBox b)
 {
-    
     public event Action<Color>? CommitEdit;
 
-    public void OnColorButtonClick(ISolidColorBrush brush)
+    public void OnColorButtonClick(Color c)
     {
-        var c = brush.Color;
-
         setColor(c);
         preview.Background = new SolidColorBrush(c);
 
@@ -38,12 +35,7 @@ public class ColorController(
 
         var color = Color.FromRgb((byte)r1, (byte)g1, (byte)b1);
 
-        setColor(color);
-        preview.Background = new SolidColorBrush(color);
-
-        r.Text = r1.ToString();
-        g.Text = g1.ToString();
-        b.Text = b1.ToString();
+        OnColorButtonClick(color);
     }
 
     private static int Parse(string s)
@@ -74,8 +66,7 @@ public class ColorController(
     public void OnPaletteClick(Button button)
     {
         if (button.Background is ISolidColorBrush brush)
-            OnColorButtonClick(brush);
+            OnColorButtonClick(brush.Color);
     }
-
 
 }

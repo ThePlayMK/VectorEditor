@@ -27,12 +27,6 @@ public partial class MainWindow : Window
         MimeTypes = ["image/svg+xml"]
     };
 
-    private enum ColorMode
-    {
-        Stroke,
-        Fill
-    }
-
     private ColorMode _activeColorMode = ColorMode.Stroke;
 
 
@@ -87,7 +81,6 @@ public partial class MainWindow : Window
 
             c =>
             {
-                // PREVIEW – tylko wizualnie
                 if (_activeColorMode == ColorMode.Stroke)
                     Settings.ContourColor = c;
                 else
@@ -129,7 +122,7 @@ public partial class MainWindow : Window
 
         selectionManager.OnChanged += () => renderer.Render(Layers.RootLayer, selectionManager.Selected);
     }
-
+    
     private void ColorModeChanged(object? sender, RoutedEventArgs e)
     {
         if (Equals(sender, StrokeModeButton))
