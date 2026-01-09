@@ -83,7 +83,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         _radiusY = Math.Abs(points[1].Y - points[0].Y);
     }
 
-    public void SetTransparency(double transparency)
+    public void SetOpacity(double transparency)
     {
         _opacity = transparency;
     }

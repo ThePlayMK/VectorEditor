@@ -74,7 +74,7 @@ public class Triangle(
         _thirdPoint = points[2];
     }
     
-    public void SetTransparency(double transparency)
+    public void SetOpacity(double transparency)
     {
         _opacity = transparency;
     }

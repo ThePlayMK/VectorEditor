@@ -63,7 +63,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         }
     }
     
-    public void SetTransparency(double transparency)
+    public void SetOpacity(double transparency)
     {
         if (IsBlocked) return;
         _opacity = transparency;

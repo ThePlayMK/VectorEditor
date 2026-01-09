@@ -6,7 +6,7 @@ public interface IShape : ICanvas
 {
     public void SetContentColor(Color newColor);
     public void SetContourColor(Color newColor);
-    public void SetTransparency(double transparency);
+    public void SetOpacity(double transparency);
     public void SetWidth(int width);
     public Color GetContentColor();
     public Color GetContourColor();

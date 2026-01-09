@@ -23,7 +23,7 @@ public class SetTransparencyStrategy(double transparency) : IModificationStrateg
         {
             case IShape shape:
                 memento[shape] = shape.GetOpacity();
-                shape.SetTransparency(_transparency);
+                shape.SetOpacity(_transparency);
                 break;
             case Layer layer:
             {
@@ -44,7 +44,7 @@ public class SetTransparencyStrategy(double transparency) : IModificationStrateg
 
         foreach (var kvp in oldColors)
         {
-            kvp.Key.SetTransparency(kvp.Value);
+            kvp.Key.SetOpacity(kvp.Value);
         }
     }
 }

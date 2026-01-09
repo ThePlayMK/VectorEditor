@@ -65,7 +65,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
         _endPoint = points[1];
     }
     
-    public void SetTransparency(double transparency)
+    public void SetOpacity(double transparency)
     {
         _opacity = transparency;
     }

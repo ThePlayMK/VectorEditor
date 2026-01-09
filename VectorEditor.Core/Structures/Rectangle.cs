@@ -74,7 +74,7 @@ public class Rectangle : IShape
         _width = width;
     }
     
-    public void SetTransparency(double transparency)
+    public void SetOpacity(double transparency)
     {
         _opacity = transparency;
     }
