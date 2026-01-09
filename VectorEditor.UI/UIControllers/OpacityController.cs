@@ -10,8 +10,11 @@ public class OpacityController(DrawingSettings settings, Slider slider, TextBox 
 {
     public void OnSliderChanged()
     {
-        settings.Opacity = slider.Value;
-        input.Text = settings.Opacity.ToString(CultureInfo.InvariantCulture);
+        var rounded = Math.Round(slider.Value);
+
+        settings.Opacity = rounded;
+        input.Text = ((int)rounded).ToString(CultureInfo.CurrentCulture);
+
     }
 
     public void OnInputChanged()
@@ -21,7 +24,7 @@ public class OpacityController(DrawingSettings settings, Slider slider, TextBox 
             : 0;
 
         slider.Value = settings.Opacity;
-        input.Text = settings.Opacity.ToString(CultureInfo.InvariantCulture);
+        input.Text = settings.Opacity.ToString(CultureInfo.CurrentCulture);
         input.CaretIndex = input.Text.Length;
     }
 
