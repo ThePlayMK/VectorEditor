@@ -1,4 +1,6 @@
+using VectorEditor.Core.State;
 namespace VectorEditor.Core.Command;
+
 
 
 public class CommandManager
@@ -6,7 +8,12 @@ public class CommandManager
     private readonly Stack<ICommand> _undoStack = [];
     private readonly Stack<ICommand> _redoStack = [];
     public event Action? OnChanged;
+    private readonly EditorContext _editorContext;
 
+    public CommandManager(EditorContext editorContext)
+    {
+        _editorContext = editorContext;
+    }
     
     public void Execute(ICommand command)
     {
@@ -15,7 +22,9 @@ public class CommandManager
         _undoStack.Push(command);
         _redoStack.Clear();
         
+        _editorContext.Modify();
         OnChanged?.Invoke();
+
     }
     
     public void Undo()
@@ -29,7 +38,9 @@ public class CommandManager
         command.Undo();
         _redoStack.Push(command);
         
+        _editorContext.Modify();
         OnChanged?.Invoke();
+  
     }
     
     public void Redo()
@@ -42,7 +53,9 @@ public class CommandManager
         var command = _redoStack.Pop();
         command.Execute();
         _undoStack.Push(command);
-        
+
+        _editorContext.Modify();
         OnChanged?.Invoke();
+        
     }
 }

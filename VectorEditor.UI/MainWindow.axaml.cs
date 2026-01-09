@@ -1,4 +1,7 @@
 using System.IO;
+using System;
+using System.Threading.Tasks; // Naprawia błąd "Task<>"
+using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -11,6 +14,7 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.State;
+
 
 
 namespace VectorEditor.UI;
@@ -44,7 +48,7 @@ public partial class MainWindow : Window
     private LayerManager Layers { get; } = new();
 
     public DrawingSettings Settings { get; } = new();
-    public CommandManager CommandManager { get; } = new();
+    public CommandManager CommandManager { get; private set; }
     public Canvas CanvasCanvas => _myCanvas!;
     private readonly EditorContext _editorContext;
 
@@ -55,6 +59,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        _editorContext = new EditorContext();
+        CommandManager = new CommandManager(_editorContext);
         _myCanvas = this.FindControl<Canvas>("MyCanvas");
         var selectionManager = new SelectionManager();
         var renderer = new CanvasRenderer(CanvasCanvas);
@@ -64,7 +70,7 @@ public partial class MainWindow : Window
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
         _layerController.BindUi(layersPanel, breadcrumb);
-        _editorContext = new EditorContext();
+
 
 
         _commandController = new CommandController(
@@ -108,6 +114,11 @@ public partial class MainWindow : Window
         };
 
         selectionManager.OnChanged += () => renderer.Render(Layers.RootLayer, selectionManager.Selected);
+        
+        _editorContext.SaveAction = async (path) =>
+        {
+            return await PerformPhysicalSave(path);
+        };
     }
 
     private void ColorModeChanged(object? sender, RoutedEventArgs e)
@@ -176,19 +187,7 @@ public partial class MainWindow : Window
 
     private async void SaveFile(object? sender, RoutedEventArgs e)
     {
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null) return;
-        var fileToSave = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-        {
-            Title = "Save as SVG",
-            DefaultExtension = ".svg",
-            SuggestedFileName = "project.svg",
-        });
-        if (fileToSave is null) return;
-        await using var writeStream = await fileToSave.OpenWriteAsync();
-        await using var writer = new StreamWriter(writeStream);
-        string projectData = "test";
-        await writer.WriteAsync(projectData);
+        _editorContext.Save();
         // This needs to be handled to do something with this
     }
 
@@ -286,5 +285,41 @@ public partial class MainWindow : Window
 
         // 2. Odświeżamy widok (Renderowanie)
         GridRenderer.Render(CanvasCanvas, _tools.Grid);
+    }
+    private async Task<bool> PerformPhysicalSave(string? path)
+    {
+    if (string.IsNullOrEmpty(path))
+    {
+        var topLevel = TopLevel.GetTopLevel(this); // Upewnij się, że używasz TopLevel.GetTopLevel
+        if (topLevel == null) return false;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Zapisz projekt",
+            DefaultExtension = "vec"
+        });
+
+        if (file == null) return false;
+        
+        path = file.Path.LocalPath;
+        _editorContext.CurrentFilePath = path;
+    }
+
+    try 
+    {
+        var dataToSave = SelectedLayerModel.GetChildren(); 
+        
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        string jsonString = JsonSerializer.Serialize(dataToSave, options);
+        
+        await System.IO.File.WriteAllTextAsync(path, jsonString);
+        
+        return true;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Błąd zapisu: {ex.Message}");
+        return false;
+    }
     }
 }
