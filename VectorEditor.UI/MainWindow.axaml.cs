@@ -11,6 +11,7 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.State;
+using VectorEditor.Core.Strategy;
 
 
 namespace VectorEditor.UI;
@@ -35,7 +36,7 @@ public partial class MainWindow : Window
     private ColorMode _activeColorMode = ColorMode.Stroke;
 
 
-    public readonly LayerController _layerController;
+    public readonly LayerController LayerController;
     private readonly CanvasController _canvasController;
     private readonly CommandController _commandController;
     private readonly ToolController _tools;
@@ -49,7 +50,7 @@ public partial class MainWindow : Window
     private readonly EditorContext _editorContext;
 
     public Layer SelectedLayerModel =>
-        _layerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
+        LayerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
 
 
     public MainWindow()
@@ -58,12 +59,12 @@ public partial class MainWindow : Window
         _myCanvas = this.FindControl<Canvas>("MyCanvas");
         var selectionManager = new SelectionManager();
         var renderer = new CanvasRenderer(CanvasCanvas);
-        _layerController = new LayerController(Layers, CommandManager, selectionManager);
+        LayerController = new LayerController(Layers, CommandManager, selectionManager);
         _canvasController = new CanvasController();
         _tools = new ToolController(selectionManager);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
-        _layerController.BindUi(layersPanel, breadcrumb);
+        LayerController.BindUi(layersPanel, breadcrumb);
         _editorContext = new EditorContext();
 
 
@@ -80,18 +81,37 @@ public partial class MainWindow : Window
         );
 
         _color = new ColorController(
-            () => _activeColorMode == ColorMode.Stroke ? Settings.ContourColor : Settings.ContentColor,
+            () => _activeColorMode == ColorMode.Stroke
+                ? Settings.ContourColor
+                : Settings.ContentColor,
+
             c =>
             {
+                // PREVIEW – tylko wizualnie
                 if (_activeColorMode == ColorMode.Stroke)
                     Settings.ContourColor = c;
                 else
                     Settings.ContentColor = c;
+
+                _color!.UpdateUi();
             },
             ColorPreview,
             InputColorR, InputColorG, InputColorB
         );
 
+        _color.CommitEdit += c =>
+        {
+            if (selectionManager.Selected.Count == 0)
+                return;
+
+            IModificationStrategy strategy =
+                _activeColorMode == ColorMode.Fill
+                    ? new ChangeContentColorStrategy(c)
+                    : new ChangeContourColorStrategy(c);
+
+            var cmd = new ApplyStrategyCommand(strategy, selectionManager.Selected);
+            CommandManager.Execute(cmd);
+        };
 
         //Siatka
         _tools.Grid.IsVisible = true;
@@ -104,7 +124,7 @@ public partial class MainWindow : Window
         CommandManager.OnChanged += () =>
         {
             renderer.Render(Layers.RootLayer, selectionManager.Selected);
-            _layerController.RefreshUi();
+            LayerController.RefreshUi();
         };
 
         selectionManager.OnChanged += () => renderer.Render(Layers.RootLayer, selectionManager.Selected);
@@ -194,7 +214,7 @@ public partial class MainWindow : Window
 
     private void NewProject(object? sender, RoutedEventArgs e)
     {
-        _layerController.ResetUi();
+        LayerController.ResetUi();
         _opacity.Reset();
         _color.Reset();
         _tools.Reset();
@@ -210,7 +230,7 @@ public partial class MainWindow : Window
     }*/
     private void AddLayer(object? sender, RoutedEventArgs e)
     {
-        _layerController.AddLayer();
+        LayerController.AddLayer();
     }
 
     /*private void SelectLayer(object? sender, RoutedEventArgs e)
@@ -233,7 +253,7 @@ public partial class MainWindow : Window
     }*/
 
     private void RemoveLayer(object? s, RoutedEventArgs e)
-        => _layerController.RemoveSelectedLayer();
+        => LayerController.RemoveSelectedLayer();
 
     private void Canvas_PointerWheelChanged(object? s, PointerWheelEventArgs e)
         => _canvasController.OnPointerWheel(_myCanvas!, e);

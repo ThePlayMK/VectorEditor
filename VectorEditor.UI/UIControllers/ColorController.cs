@@ -13,6 +13,9 @@ public class ColorController(
     TextBox g,
     TextBox b)
 {
+    
+    public event Action<Color>? CommitEdit;
+
     public void OnColorButtonClick(ISolidColorBrush brush)
     {
         var c = brush.Color;
@@ -23,6 +26,8 @@ public class ColorController(
         r.Text = c.R.ToString();
         g.Text = c.G.ToString();
         b.Text = c.B.ToString();
+        
+        CommitEdit?.Invoke(c);
     }
 
     public void OnRgbInputChange()

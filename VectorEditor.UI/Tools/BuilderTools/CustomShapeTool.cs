@@ -121,7 +121,7 @@ public class CustomShapeTool : ITool
             .SetOpacity(window.Settings.Opacity / 100)
             .SetWidth(window.Settings.StrokeWidth);
         
-        var cmd = new AddShapeCommand(_builder, window._layerController.ActiveLayer);
+        var cmd = new AddShapeCommand(_builder, window.LayerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
 
         ResetTool();

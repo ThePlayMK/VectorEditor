@@ -92,7 +92,7 @@ public class CircleTool : ITool
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
             
-        var cmd = new AddShapeCommand(builder, window._layerController.ActiveLayer);
+        var cmd = new AddShapeCommand(builder, window.LayerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
         
         _centerPoint = null;
