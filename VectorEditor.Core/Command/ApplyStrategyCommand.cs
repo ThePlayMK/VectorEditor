@@ -25,39 +25,22 @@ public class ApplyStrategyCommand: ICommand
 
     public void Execute()
     {
+        if (_mementos.Count > 0) // już wykonana wcześniej
+        {
+            // redo – tylko wywołujemy strategie bez tworzenia nowych mement
+            foreach (var (target, memento) in _targets.Zip(_mementos, (t,m)=> (t,m)))
+                _strategy.Apply(target); // lub specjalnie redo, jeśli strategy ma redo
+            return;
+        }
+
+        // pierwsze wykonanie – tworzymy mementa
         _mementos.Clear();
-
-        // 1. Logika grupowania specjalnie dla ScaleStrategy
-        if (_strategy is ScaleStrategy && _targets.Count > 1)
-        {
-            var originalParents = _targets.ToDictionary(t => t, t => t.ParentLayer);
-            var proxy = new Layer("temporary_scale_group");
-            foreach (var t in _targets) proxy.Add(t);
-
-            _mementos.Add(_strategy.Apply(proxy));
-            
-            foreach (var t in _targets)
-            {
-                t.ParentLayer = originalParents[t];
-            }
-        }
-        else
-        {
-            // 2. Standardowe zachowanie (pojedynczo)
-            foreach (var target in _targets)
-            {
-                _mementos.Add(_strategy.Apply(target));
-            }
-        }
+        foreach (var target in _targets)
+            _mementos.Add(_strategy.Apply(target));
     }
 
     public void Undo()
     {
-        if (_strategy is ScaleStrategy && _targets.Count > 1)
-        {
-            _strategy.Undo(null!, _mementos[0]);
-            return;
-        }
         for (var i = _targets.Count - 1; i >= 0; i--)
         {
             _strategy.Undo(_targets[i], _mementos[i]);

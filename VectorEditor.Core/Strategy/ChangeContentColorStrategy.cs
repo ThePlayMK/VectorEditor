@@ -23,7 +23,8 @@ public class ChangeContentColorStrategy(Color newColor) : IModificationStrategy
         switch (target)
         {
             case IShape shape:
-                memento[shape] = shape.GetContentColor();
+                if (!memento.ContainsKey(shape)) // WAŻNE – nie nadpisujemy wcześniejszego koloru
+                    memento[shape] = shape.GetContentColor();
                 shape.SetContentColor(newColor);
                 break;
             case Layer layer:

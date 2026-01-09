@@ -105,6 +105,11 @@ public partial class MainWindow : Window
             var cmd = new ApplyStrategyCommand(strategy, selectionManager.Selected);
             CommandManager.Execute(cmd);
         };
+        
+        // Podpięcie LostFocus i KeyDown w RGB TextBoxach
+        _color.R.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
+        _color.G.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
+        _color.B.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
 
         //Siatka
         _tools.Grid.IsVisible = true;
