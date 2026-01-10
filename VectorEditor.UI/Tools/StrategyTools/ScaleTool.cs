@@ -16,6 +16,7 @@ public class ScaleTool(SelectionManager selection) : ITool
 {
     private Point? _lastMouse;
     private List<ICanvas>? _previewModel;
+    private readonly List<Layer?> _oldParentLayers = [];
     private Dictionary<ICanvas, List<Point>>? _previewState;
     private const double HitTolerance = 30;
     private ScaleHandle? _activeHandle;
@@ -70,11 +71,15 @@ public class ScaleTool(SelectionManager selection) : ITool
         if (endPos == _lastMouse)
             return;
 
+
+        var layer = CreateFakeLayer();
         var strategy = new ScaleStrategy(_activeHandle.Value, endPos);
-        var command = new ApplyStrategyCommand(strategy, selection.Selected);
+        var command = new ApplyStrategyCommand(strategy, layer);
+
+        DiscardFakeLayer(layer);
 
         window.CommandManager.Execute(command);
-
+        
         controller.PreviewModel = null;
         _activeHandle = null;
         _lastMouse = null;
@@ -82,6 +87,27 @@ public class ScaleTool(SelectionManager selection) : ITool
         _previewState = null;
     }
 
+    private Layer CreateFakeLayer()
+    {
+        var layer = new Layer("test");
+        foreach (var canva in selection.Selected)
+        {
+            _oldParentLayers.Add(canva.ParentLayer);
+            layer.Add(canva);
+        }
+
+        return layer;
+    }
+
+    private void DiscardFakeLayer(Layer layer)
+    {
+        for(var i = 0; i < selection.Selected.Count; i++)
+        {
+            var canvas = selection.Selected[i];
+            canvas.ParentLayer = _oldParentLayers[i];
+        }
+    }
+    
     private void CreatePreview()
     {
         _previewModel = selection.Selected
@@ -102,18 +128,14 @@ public class ScaleTool(SelectionManager selection) : ITool
         if (_previewModel == null || _previewState == null || handle == null)
             return;
 
-        // 🔁 reset preview
+        // reset oryginałów do stanu początkowego
         foreach (var (canvas, points) in _previewState)
-        {
             canvas.SetPoints(points);
-        }
 
         var strategy = new ScaleStrategy(handle.Value, mouse);
 
-        foreach (var element in _previewModel)
-        {
-            strategy.Apply(element);
-        }
+        // używamy oryginałów zamiast kopii
+        strategy.Apply(_previewState.Keys.ToList());
     }
 
     

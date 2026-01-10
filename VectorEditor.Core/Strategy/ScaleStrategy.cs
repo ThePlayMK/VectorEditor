@@ -36,6 +36,8 @@ public class ScaleStrategy(ScaleHandle? handle, Point newPos) : IModificationStr
         var pivot = CalculatePivot(handle, minX, maxX, minY, maxY);
         var (sx, sy) = CalculateScaleFactors(handle, newPos, minX, maxX, minY, maxY);
 
+        Console.WriteLine($"Scaling {elements.Count} elements: minX={minX}, maxX={maxX}, pivot={pivot}, sx={sx}");
+        
         var states = new Dictionary<ICanvas, List<Point>>();
 
         foreach (var element in elements)

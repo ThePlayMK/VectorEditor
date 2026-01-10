@@ -1,6 +1,8 @@
 ﻿using Avalonia.Media;
+using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.Core.State;
 using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 
@@ -737,7 +739,7 @@ Console.WriteLine("\n>>> KONIEC TESTÓW UKRYWANIA/POKAZYWANIA <<<");
 */
 
 // --- TEST 23: MÓJ TEST PRZESUWANIE
-
+/*
 Console.WriteLine("\n>>> TEST 23: PRZESUWANIE ELEMENTÓW <<<");
 
 var cmdManager = new CommandManager();
@@ -778,7 +780,7 @@ var selectMoveCmd = new ApplyStrategyCommand(new MoveCanvasStrategy(50, 50), new
     
 cmdManager.Execute(selectMoveCmd);
 Console.WriteLine("Po przesunięciu samego niebieskiego o (50, 50):");
-moveLayer.ConsoleDisplay();
+moveLayer.ConsoleDisplay();*/
 
 // --- TEST 25: BLOKADA DODAWANIA DO ZABLOKOWANEJ WARSTWY ---
 /*
@@ -829,7 +831,7 @@ Console.WriteLine("\n>>> TEST 27: PRZESKALOWANIE PROSTOKĄTA <<<");
 
 var cmdManager = new CommandManager();
 var scaleLayer = new Layer("Scale Test Layer");
-var rectToScale = new Rectangle(new Point(10, 10), new Point(30, 30), "green", "black", 2);
+var rectToScale = new Rectangle(new Point(10, 10), new Point(30, 30),  Colors.Green,  Colors.Black, 2);
 
 scaleLayer.Add(rectToScale);
 
@@ -861,7 +863,6 @@ Console.WriteLine("Stan po REDO (prostokąt powinien być znowu przeskalowany):"
 scaleLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA <<<");
-
 */
 
 // --- TEST 28: PRZESKALOWANIE TRÓJKĄTA Z KRAWĘDZIAMI RÓWNOLEGŁYMI DO OSI ---
@@ -874,7 +875,7 @@ var triangleLayer = new Layer("Triangle Scale Test Layer");
 // Krawędź pozioma: (10, 30) do (40, 30)
 // Krawędź pionowa: (10, 10) do (10, 30)
 // Przekątna: (10, 10) do (40, 30)
-var triangleToScale = new Triangle(new Point(10, 10), new Point(40, 30), new Point(10, 30), "purple", "black", 2);
+var triangleToScale = new Triangle(new Point(10, 10), new Point(40, 30), new Point(10, 30), Colors.Purple, Colors.Black, 2);
 
 triangleLayer.Add(triangleToScale);
 
@@ -906,7 +907,6 @@ Console.WriteLine("Stan po REDO (trójkąt powinien być znowu przeskalowany):")
 triangleLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA TRÓJKĄTA <<<");
-
 */
 
 // --- TEST 29: PRZESKALOWANIE CUSTOMSHAPE (TRAPEZ PROSTOKĄTNY) ---
@@ -925,8 +925,8 @@ var trapezoidToScale = new CustomShape(
         new Point(60, 50),
         new Point(10, 50)
     },
-    "orange",
-    "black",
+    Colors.Orange,
+    Colors.Black,
     2
 );
 
@@ -960,9 +960,8 @@ Console.WriteLine("Stan po REDO (trapez powinien być znowu przeskalowany):");
 customShapeLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU PRZESKALOWANIA CUSTOMSHAPE <<<");
-
-
 */
+
 
 // --- TEST 30: PRZESKALOWANIE WARSTWY Z PROSTYMI WSPÓŁRZĘDNYMI ---
 /*
@@ -972,15 +971,15 @@ var cmdManager = new CommandManager();
 var layerToScale = new Layer("Layer Scale Test");
 
 // Prostokąt od (0,0) do (10,10)
-var simpleRect = new Rectangle(new Point(0, 0), new Point(10, 10), "blue", "black", 1);
+var simpleRect = new Rectangle(new Point(0, 0), new Point(10, 10), Colors.Blue, Colors.Black, 1);
 
 // Trójkąt z prostymi współrzędnymi: (0,20), (10,20), (5,30)
 var simpleTriangle = new Triangle(
     new Point(0, 20),
     new Point(10, 20),
     new Point(5, 30),
-    "red",
-    "black",
+    Colors.Red,
+    Colors.Black,
     1
 );
 
@@ -1228,3 +1227,30 @@ Console.WriteLine("Destination Layer (z klonami):");
 destinationLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU COPY-CUT-PASTE <<<");*/
+
+
+var rootLayer = new Layer("Root Canvas");
+var builder1 = new LineBuilder()
+    .SetStart(new Point(0, 0))
+    .SetContourColor(Colors.Black)
+    .SetOpacity(100)
+    .SetWidth(3)
+    .SetEnd(new Point(4, 0));
+    
+var builder2 = new LineBuilder()
+    .SetStart(new Point(8, 0))
+    .SetContourColor(Colors.Black)
+    .SetOpacity(100)
+    .SetWidth(3)
+    .SetEnd(new Point(12, 0));
+    
+var cmdManager = new CommandManager(new EditorContext());
+
+cmdManager.Execute(new AddShapeCommand(builder1, rootLayer));
+cmdManager.Execute(new AddShapeCommand(builder2, rootLayer));
+
+var scale = new ScaleStrategy(ScaleHandle.Right, new Point(24, 0));
+var scaleLayerCmd = new ApplyStrategyCommand(scale, rootLayer);
+cmdManager.Execute(scaleLayerCmd);
+
+rootLayer.ConsoleDisplay();
