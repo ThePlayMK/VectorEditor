@@ -17,7 +17,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
 
     public string Name => Math.Abs(_radiusX - _radiusY) < 0.001 ? "Circle" : "Ellipse";
     public Layer? ParentLayer { get; set; }
-    public bool IsBlocked { get; set; } 
+    public bool IsBlocked { get; set; }
     public bool IsVisible { get; set; } = true;
     
     // --- GETTERY ---
@@ -181,6 +181,11 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
         var ui = new Avalonia.Controls.Shapes.Ellipse
         {
             Width = _radiusX * 2,

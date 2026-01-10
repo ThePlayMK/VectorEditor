@@ -177,6 +177,11 @@ public class Triangle(
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
         var ui = new Avalonia.Controls.Shapes.Polygon
         {
             Points =

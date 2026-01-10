@@ -194,6 +194,10 @@ public class Rectangle : IShape
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
 
         var x = Math.Min(_startPoint.X, _oppositePoint.X);
         var y = Math.Min(_startPoint.Y, _oppositePoint.Y);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -71,6 +72,13 @@ public class MoveTool(SelectionManager selection) : ITool
             return;
 
         // Tworzymy strategię i komendę
+        var actionable = selection.Selected
+            .Where(canvas => !canvas.IsBlocked)
+            .ToList();
+
+        if (actionable.Count == 0)
+            return; // Nic do zrobienia, nie twórz komendy
+        
         var strategy = new MoveCanvasStrategy(_accDx, _accDy);
         var command = new ApplyStrategyCommand(strategy, selection.Selected);
 

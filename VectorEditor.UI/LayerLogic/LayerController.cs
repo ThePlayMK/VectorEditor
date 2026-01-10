@@ -1,11 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Avalonia.Media;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
-using VectorEditor.Core.Strategy;
-using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.LayerLogic;
@@ -17,7 +14,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
     public Layer ActiveLayer => layerManager.CurrentContext;
 
-    public CanvasWidget? SelectedLayerWidget { get; set; }
+    public CanvasWidget? SelectedLayerWidget { get; private set; }
 
     // -----------------------------------------
     // INITIALIZE UI REFERENCES
@@ -96,141 +93,27 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
     private Control CreateLayerWidget(Layer layer)
     {
-        var widget = new CanvasWidget
-        {
-            LayerModel = layer
-        };
+        var widget = new CanvasWidget();
+        widget.Bind(layer, commands, selectionManager);
 
-        widget.SetLayerName(layer.GetName());
+        widget.PointerPressed += (_, _) =>
+            selectionManager.SelectSingle(layer);
 
-        widget.BindLock(commands, selectionManager); // 🔥 TO TU
-        widget.PointerPressed += (_, _) => OnLayerClicked(widget);
-        widget.DoubleTapped += (_, _) => EnterLayer(layer);
+        widget.DoubleTapped += (_, _) =>
+            EnterLayer(layer);
 
         return widget;
     }
     
     private Control CreateShapeWidget(ICanvas shape)
     {
-        var panel = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 6,
-            Margin = new Thickness(4)
-        };
-        
-        var eyeBtn = new Button
-        {
-            Background = Brushes.Transparent,
-            BorderThickness = new Thickness(0),
-            Padding = new Thickness(2),
-            Width = 24, 
-            Height = 24,
-            Content = new Material.Icons.Avalonia.MaterialIcon
-            {
-                Kind = shape.IsVisible 
-                       ? Material.Icons.MaterialIconKind.Eye 
-                       : Material.Icons.MaterialIconKind.EyeOff,
-                Width = 14, Height = 14
-            }
-        };
+        var widget = new CanvasWidget();
+        widget.Bind(shape, commands, selectionManager);
 
-        eyeBtn.Click += (_, _) =>
-        {
-            IModificationStrategy strategy =
-                shape.IsBlocked
-                    ? new HideCanvasStrategy()
-                    : new ShowCanvasStrategy();
-            var cmd = new ApplyStrategyCommand(strategy, shape);
-            commands.Execute(cmd);
-
-            eyeBtn.Content = new Material.Icons.Avalonia.MaterialIcon
-            {
-                Kind = shape.IsVisible 
-                       ? Material.Icons.MaterialIconKind.Eye 
-                       : Material.Icons.MaterialIconKind.EyeOff,
-                Width = 14, Height = 14
-            };
-        };
-        
-        var lockBtn = new Button
-        {
-            Background = Brushes.Transparent,
-            BorderThickness = new Thickness(0),
-            Padding = new Thickness(2),
-            Width = 24, 
-            Height = 24,
-            Content = new Material.Icons.Avalonia.MaterialIcon
-            {
-                Kind = shape.IsBlocked 
-                       ? Material.Icons.MaterialIconKind.Lock 
-                       : Material.Icons.MaterialIconKind.LockOpenVariant,
-                Width = 14, Height = 14
-            }
-        };
-
-        lockBtn.Click += (_, _) =>
-        {
-            IModificationStrategy strategy =
-                shape.IsBlocked
-                    ? new UnblockCanvasStrategy()
-                    : new BlockCanvasStrategy();
-            var cmd = new ApplyStrategyCommand(strategy, shape);
-            commands.Execute(cmd);
-            
-            lockBtn.Content = new Material.Icons.Avalonia.MaterialIcon
-            {
-                Kind = shape.IsBlocked 
-                       ? Material.Icons.MaterialIconKind.Lock 
-                       : Material.Icons.MaterialIconKind.LockOpenVariant,
-                Width = 14, Height = 14
-            };
-            
-            if (shape.IsBlocked)
-            {
-                selectionManager.Clear();
-            }
-        };
-        
-        // Ikonka zależna od typu
-        var icon = new TextBlock
-        {
-            Text = shape switch
-            {
-                Line => "📏",
-                Rectangle => "▭",
-                Triangle => "▲",
-                Circle => "●",
-                CustomShape => "⬠",
-                _ => "?"
-            }
-        };
-
-        var name = new TextBlock
-        {
-            Text = shape.Name // albo shape.GetName() jeśli masz
-        };
-        
-        panel.Children.Add(eyeBtn);
-        panel.Children.Add(lockBtn);
-        panel.Children.Add(icon);
-        panel.Children.Add(name);
-
-        // Kliknięcie → zaznaczenie shape’a
-        panel.PointerPressed += (_, _) =>
-        {
+        widget.PointerPressed += (_, _) =>
             selectionManager.SelectSingle(shape);
-        };
-        
-        return panel;
-    }
 
-
-    
-    private void OnLayerClicked(CanvasWidget widget)
-    {
-        // żadnej logiki LayerManager, żadnego kontekstu
-        selectionManager.SelectSingle(widget.LayerModel);
+        return widget;
     }
 
 

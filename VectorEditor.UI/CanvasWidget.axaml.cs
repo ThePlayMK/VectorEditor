@@ -1,7 +1,4 @@
-using System.Threading;
 using Avalonia.Controls;
-using Material.Icons;
-using Material.Icons.Avalonia;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -11,12 +8,9 @@ namespace VectorEditor.UI;
 
 public partial class CanvasWidget : UserControl
 {
-    //private readonly Button _lockButton;
-    public Layer LayerModel
-    {
-        get => (Layer)Tag!;
-        init => Tag = value;
-    }
+    private ICanvas CanvasModel { get; set; } = null!;
+
+    public Layer LayerModel => (Layer)Tag!;
 
     public CanvasWidget()
     {
@@ -24,28 +18,53 @@ public partial class CanvasWidget : UserControl
        // _lockButton = LockButton;
     }
 
-    public void SetLayerName(string name)
-    {
-        LayerNameBlock.Text = name;
-    }
-    
-    public void BindLock(
+    public void Bind(
+        ICanvas canvas,
         CommandManager commands,
         SelectionManager selectionManager)
     {
-        UpdateLockIcon();
+        CanvasModel = canvas;
 
+        LayerNameBlock.Text = canvas.Name;
+
+        BindVisibility(commands);
+        BindLock(commands, selectionManager);
+    }
+    
+    private void BindVisibility(CommandManager commands)
+    {
+        VisibilityButton.Click += (_, _) =>
+        {
+            IModificationStrategy strategy =
+                CanvasModel.IsVisible
+                    ? new HideCanvasStrategy()
+                    : new ShowCanvasStrategy();
+            commands.Execute(new ApplyStrategyCommand(strategy, CanvasModel));
+
+            UpdateVisibilityIcon();
+        };
+        
+    }
+    
+    private void UpdateVisibilityIcon()
+    {
+        VisibilityButton.IsChecked = CanvasModel.IsVisible;
+    }
+    
+    private void BindLock(
+        CommandManager commands,
+        SelectionManager selectionManager)
+    {
         LockButton.Click += (_, _) =>
         {
             IModificationStrategy strategy =
-                LayerModel.IsBlocked
+                CanvasModel.IsBlocked
                     ? new UnblockCanvasStrategy()
                     : new BlockCanvasStrategy();
 
-            var cmd = new ApplyStrategyCommand(strategy, LayerModel);
-            commands.Execute(cmd);
+            commands.Execute(new ApplyStrategyCommand(strategy, CanvasModel));
 
-            if (LayerModel.IsBlocked)
+            if (CanvasModel.IsBlocked)
                 selectionManager.Clear();
 
             UpdateLockIcon();
@@ -54,12 +73,7 @@ public partial class CanvasWidget : UserControl
 
     private void UpdateLockIcon()
     {
-        LockButton.Content = new MaterialIcon
-        {
-            Kind = LayerModel.IsBlocked
-                ? MaterialIconKind.Lock
-                : MaterialIconKind.LockOpenVariant
-        };
+        LockButton.IsChecked = !CanvasModel.IsBlocked;
     }
     
 }

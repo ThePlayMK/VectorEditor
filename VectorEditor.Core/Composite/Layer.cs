@@ -170,6 +170,11 @@ public class Layer(string name) : ICanvas
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
         foreach (var child in _children)
         {
             child.Render(canvas);

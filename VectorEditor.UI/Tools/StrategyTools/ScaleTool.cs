@@ -78,6 +78,13 @@ public class ScaleTool(SelectionManager selection) : ITool
             return;
 
 
+        var actionable = selection.Selected
+            .Where(canvas => !canvas.IsBlocked)
+            .ToList();
+
+        if (actionable.Count == 0)
+            return; // Nic do zrobienia, nie twórz komendy
+        
         var layer = CreateFakeLayer();
         var strategy = new ScaleStrategy(_activeHandle.Value, endPos);
         var command = new ApplyStrategyCommand(strategy, layer);

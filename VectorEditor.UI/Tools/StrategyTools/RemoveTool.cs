@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using Avalonia.Collections;
-using Avalonia.Controls;
+using System.Linq;
 using Avalonia.Input;
-using Avalonia.Media;
 using VectorEditor.Core.Command;
-using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
-using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.UIControllers;
@@ -40,6 +34,13 @@ public class RemoveTool(SelectionManager selection) : ITool
         if (selection.Selected.Count == 0)
             return;
 
+        var actionable = selection.Selected
+            .Where(canvas => !canvas.IsBlocked)
+            .ToList();
+
+        if (actionable.Count == 0)
+            return; // Nic do zrobienia, nie twórz komendy
+        
         var strategy = new RemoveStrategy(); 
         var cmd = new ApplyStrategyCommand(strategy, selection.Selected);
         window.CommandManager.Execute(cmd);

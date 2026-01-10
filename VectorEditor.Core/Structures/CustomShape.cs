@@ -81,6 +81,11 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
         var avaloniaList = points.Select(p => new Avalonia.Point(p.X, p.Y)).ToList();
         avaloniaList.Add(avaloniaList[0]);
 

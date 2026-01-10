@@ -37,37 +37,6 @@ public class SetOpacityStrategy(double opacity) : IModificationStrategy
         }
     }
 
-    public void PreviewApply(IReadOnlyList<ICanvas> targets)
-    {
-        foreach (var target in targets)
-        {
-            PreviewApplyRecursive(target);
-        }
-    }
-    
-    public void PreviewApplyRecursive(ICanvas target)
-    {
-        if (target.IsBlocked)
-        {
-            return;
-        }
-
-        switch (target)
-        {
-            case IShape shape:
-                shape.SetOpacity(_opacity);
-                break;
-            case Layer layer:
-            {
-                foreach (var child in layer.GetChildren())
-                {
-                    PreviewApplyRecursive(child);
-                }
-                break;
-            }
-        }
-    }
-
     public void Undo(ICanvas target, object? memento)
     {
         if (memento is not Dictionary<IShape, double> oldColors || oldColors.Count == 0)

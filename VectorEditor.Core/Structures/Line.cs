@@ -166,6 +166,12 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
 
     public void Render(Canvas canvas)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
+
         var ui = new Avalonia.Controls.Shapes.Line
         {
             StartPoint = new Avalonia.Point(_startPoint.X, _startPoint.Y),
