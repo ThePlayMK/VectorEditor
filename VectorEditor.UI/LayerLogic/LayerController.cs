@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Structures;
@@ -12,7 +12,7 @@ namespace VectorEditor.UI.LayerLogic;
 public class LayerController(LayerManager layerManager, CommandManager commands, SelectionManager selectionManager)
 {
     private StackPanel? _layerListPanel;
-    private StackPanel? _breadcrumbPanel;
+    private StackPanel? _layerGoBackButton;
 
     public Layer ActiveLayer => layerManager.CurrentContext;
 
@@ -21,64 +21,54 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // INITIALIZE UI REFERENCES
     // -----------------------------------------
-    public void BindUi(StackPanel? layerList, StackPanel? breadcrumb)
+    public void BindUi(StackPanel? layerList, StackPanel? goBackButton)
     {
         _layerListPanel = layerList;
-        _breadcrumbPanel = breadcrumb;
+        _layerGoBackButton = goBackButton;
 
         RefreshUi();
     }
 
     // -----------------------------------------
-    // REFRESH UI (list + breadcrumb)
+    // REFRESH UI (list + back button)
     // -----------------------------------------
     public void RefreshUi()
     {
-        if (_layerListPanel == null || _breadcrumbPanel == null)
+        if (_layerListPanel == null || _layerGoBackButton == null)
             return;
 
-        BuildBreadcrumb();
+        LayerGoBack();
         BuildLayerList();
     }
 
     // -----------------------------------------
-    // BUILD BREADCRUMB
+    // LAYER GO BACK BUTTON
     // -----------------------------------------
-    private void BuildBreadcrumb()
+    private void LayerGoBack()
     {
-        _breadcrumbPanel!.Children.Clear();
+        _layerGoBackButton!.Children.Clear();
 
-        var chain = new List<Layer>();
-        var node = layerManager.CurrentContext;
-
-        while (node != null)
+        var current = layerManager.CurrentContext;
+        
+        if (current.ParentLayer == null)
         {
-            chain.Insert(0, node);
-            node = node.ParentLayer;
+            return;
         }
-
-        foreach (var layer in chain)
+        
+        var backBtn = new Button
         {
-            var btn = new Button
-            {
-                Content = layer.GetName(),
-                Tag = layer,
-                Padding = new Thickness(4, 2)
-            };
+            Content = $"⬅ Back to {current.ParentLayer.GetName()}",
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Padding = new Thickness(10, 5),
+            Margin = new Thickness(0, 0, 0, 10)
+        };
 
-            btn.Click += (_, _) =>
-            {
-                layerManager.EnterLayer(layer);
-                layerManager.SelectLayer(layer);
-                SelectedLayerWidget = null;
-                RefreshUi();
-            };
+        backBtn.Click += (_, _) =>
+        {
+            EnterLayer(current.ParentLayer);
+        };
 
-            _breadcrumbPanel.Children.Add(btn);
-
-            if (layer != chain[^1])
-                _breadcrumbPanel.Children.Add(new TextBlock { Text = ">" });
-        }
+        _layerGoBackButton.Children.Add(backBtn);
     }
     
     
@@ -126,7 +116,70 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
             Spacing = 6,
             Margin = new Thickness(4)
         };
+        
+        var eyeBtn = new Button
+        {
+            Background = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(2),
+            Width = 24, 
+            Height = 24,
+            Content = new Material.Icons.Avalonia.MaterialIcon
+            {
+                Kind = shape.IsVisible 
+                       ? Material.Icons.MaterialIconKind.Eye 
+                       : Material.Icons.MaterialIconKind.EyeOff,
+                Width = 14, Height = 14
+            }
+        };
 
+        eyeBtn.Click += (_, _) =>
+        {
+            shape.IsVisible = !shape.IsVisible;
+
+            eyeBtn.Content = new Material.Icons.Avalonia.MaterialIcon
+            {
+                Kind = shape.IsVisible 
+                       ? Material.Icons.MaterialIconKind.Eye 
+                       : Material.Icons.MaterialIconKind.EyeOff,
+                Width = 14, Height = 14
+            };
+        };
+        
+        var lockBtn = new Button
+        {
+            Background = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(2),
+            Width = 24, 
+            Height = 24,
+            Content = new Material.Icons.Avalonia.MaterialIcon
+            {
+                Kind = shape.IsBlocked 
+                       ? Material.Icons.MaterialIconKind.Lock 
+                       : Material.Icons.MaterialIconKind.LockOpenVariant,
+                Width = 14, Height = 14
+            }
+        };
+
+        lockBtn.Click += (_, _) =>
+        {
+            shape.IsBlocked = !shape.IsBlocked;
+            
+            lockBtn.Content = new Material.Icons.Avalonia.MaterialIcon
+            {
+                Kind = shape.IsBlocked 
+                       ? Material.Icons.MaterialIconKind.Lock 
+                       : Material.Icons.MaterialIconKind.LockOpenVariant,
+                Width = 14, Height = 14
+            };
+            
+            if (shape.IsBlocked)
+            {
+                // Tutaj blokowanie
+            }
+        };
+        
         // Ikonka zależna od typu
         var icon = new TextBlock
         {
@@ -145,7 +198,9 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         {
             Text = shape.Name // albo shape.GetName() jeśli masz
         };
-
+        
+        panel.Children.Add(eyeBtn);
+        panel.Children.Add(lockBtn);
         panel.Children.Add(icon);
         panel.Children.Add(name);
 
@@ -154,7 +209,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         {
             selectionManager.SelectSingle(shape);
         };
-
+        
         return panel;
     }
 

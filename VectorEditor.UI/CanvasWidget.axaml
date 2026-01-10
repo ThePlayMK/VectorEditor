@@ -6,40 +6,63 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VectorEditor.UI.CanvasWidget">
     <UserControl.Styles>
-        <Style Selector="Button.LayerButton">
+        <Style Selector="Border.LayerContainer">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="BorderBrush" Value="Gray" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Margin" Value="1" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" /> <Setter Property="Padding" Value="4,2" />
         </Style>
+
         <Style Selector="ToggleButton.LayerIcon">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="2" />
             <Setter Property="Width" Value="24" />
             <Setter Property="Height" Value="24" />
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
+        <Style Selector="ToggleButton.LayerIcon:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#22FFFFFF" />
         </Style>
     </UserControl.Styles>
-    <Border Classes="LayerButton" Background="Transparent">
-        <Grid ColumnDefinitions="30, 30, *">
-            <ToggleButton Grid.Column="0" Classes="LayerIcon" IsChecked="True">
+    
+    <Border Classes="LayerContainer">
+        <Grid ColumnDefinitions="Auto, Auto, *">
+            
+            <ToggleButton Grid.Column="0" 
+                          Classes="LayerIcon" 
+                          Name="VisibilityButton"
+                          IsChecked="True"
+                          Margin="0,0,2,0">
                 <Panel>
-                    <material:MaterialIcon Kind="Eye" Width="16"
+                    <material:MaterialIcon Kind="Eye" Width="14" Height="14"
                                            IsVisible="{Binding $parent[ToggleButton].IsChecked}" />
-                    <material:MaterialIcon Kind="EyeOff" Width="16"
+                    <material:MaterialIcon Kind="EyeOff" Width="14" Height="14"
                                            IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
                 </Panel>
             </ToggleButton>
-            <ToggleButton Grid.Column="1" Classes="LayerIcon" IsChecked="True">
+
+            <ToggleButton Grid.Column="1" 
+                          Classes="LayerIcon" 
+                          Name="LockButton"
+                          IsChecked="True"
+                          Margin="0,0,6,0">
                 <Panel>
-                    <material:MaterialIcon Kind="Lock" Width="16"
-                                           IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
-                    <material:MaterialIcon Kind="LockOpenVariant" Width="16"
+                    <material:MaterialIcon Kind="LockOpenVariant" Width="14" Height="14"
                                            IsVisible="{Binding $parent[ToggleButton].IsChecked}" />
+                    <material:MaterialIcon Kind="Lock" Width="14" Height="14"
+                                           IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
                 </Panel>
             </ToggleButton>
-            <TextBlock Grid.Column="2" Text="Name" VerticalAlignment="Center" Name="LayerNameBlock"
-                       FontWeight="SemiBold" />
+
+            <TextBlock Grid.Column="2" 
+                       Text="Layer Name" 
+                       VerticalAlignment="Center" 
+                       Name="LayerNameBlock"
+                       FontWeight="SemiBold"
+                       FontSize="12"/>
         </Grid>
     </Border>
 </UserControl>

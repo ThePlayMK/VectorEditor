@@ -64,8 +64,8 @@ public partial class MainWindow : Window
         _canvasController = new CanvasController();
         _tools = new ToolController(selectionManager, this);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
-        var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
-        LayerController.BindUi(layersPanel, breadcrumb);
+        var layerGoBack = this.FindControl<StackPanel>("LayerGoBack");
+        LayerController.BindUi(layersPanel, layerGoBack);
         _editorContext = new EditorContext();
 
 
