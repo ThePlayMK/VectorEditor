@@ -2,6 +2,7 @@ using System;
 using Avalonia.Input;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.Core.Strategy;
 using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.UIControllers;
@@ -27,14 +28,15 @@ public class CommandController(
             case KeyModifiers.Control when e.Key == Key.C:
                 OnCopyClick();
                 return;
-            
             // CTRL + V → Paste
             case KeyModifiers.Control when e.Key == Key.V:
                 OnPasteClick();
                 return;
-            
-            default:
-                return;
+        }
+        
+        if (e.Key == Key.Delete)
+        {
+            OnDeleteClick();
         }
     }
 
@@ -50,7 +52,7 @@ public class CommandController(
         selectionManager.Clear();
     }
 
-    public void OnPasteClick()
+    private void OnPasteClick()
     {
         var cmd = new PasteCommand(getSelectedLayer());
         commandManager.Execute(cmd);
@@ -60,12 +62,24 @@ public class CommandController(
 
     }
 
-    public void OnCopyClick()
+    private void OnCopyClick()
     {
         if (selectionManager.Selected.Count == 0)
             return;
 
         var copy = new CopyCommand(selectionManager.Selected);
         copy.Execute(); 
+    }
+
+    public void OnDeleteClick()
+    {
+        if (selectionManager.Selected.Count == 0)
+            return;
+
+        var strategy = new RemoveStrategy();
+        var cmd = new ApplyStrategyCommand(strategy, selectionManager.Selected);
+        commandManager.Execute(cmd);
+
+        selectionManager.Clear();
     }
 }

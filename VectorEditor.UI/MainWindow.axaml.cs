@@ -270,14 +270,14 @@ public partial class MainWindow : Window
 
     private void Canvas_PointerPressed(object? s, PointerPressedEventArgs e)
     {
-        _tools.PointerPressed(this, e);
+        _tools.PointerPressed(e);
         if (_tools.IsHandToolActive && s is Border b)
             _canvasController.OnPointerPressed(b, e);
     }
 
     private void Canvas_PointerMoved(object? sender, PointerEventArgs e)
     {
-        _tools.PointerMoved(this, e);
+        _tools.PointerMoved(e);
 
         if (_tools.IsHandToolActive && sender is Border border)
             _canvasController.OnPointerMoved(_myCanvas!, border, e);
@@ -285,7 +285,7 @@ public partial class MainWindow : Window
 
     private void Canvas_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        _tools.PointerReleased(this, e);
+        _tools.PointerReleased(e);
         _canvasController.OnPointerReleased(e);
     }
     private void Opacity_SliderChanged(object? s, RoutedEventArgs e) => _opacity.OnSliderChanged();
@@ -321,7 +321,7 @@ public partial class MainWindow : Window
     {
     if (string.IsNullOrEmpty(path))
     {
-        var topLevel = TopLevel.GetTopLevel(this); // Upewnij się, że używasz TopLevel.GetTopLevel
+        var topLevel = GetTopLevel(this); // Upewnij się, że używasz TopLevel.GetTopLevel
         if (topLevel == null) return false;
 
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions

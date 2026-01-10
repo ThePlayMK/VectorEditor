@@ -69,7 +69,7 @@ public class RectangleTool : ITool
         if (_startPoint is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas);
+        var end = controller.GetSnappedPoint(e, window.CanvasCanvas);
         var endPoint = new CorePoint(end.X, end.Y);
 
         if (_previewRect != null)

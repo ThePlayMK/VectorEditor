@@ -46,12 +46,19 @@ public class ToolController(SelectionManager selectionManager, MainWindow window
             "CustomShape" => new CustomShapeTool(),
             "Hand"        => null, // Pan tool handled separately
             "Scale"       => new ScaleTool(selectionManager),
+            "Eraser"      => new RemoveTool(selectionManager), 
             _             => null
         };
         
         if (ActiveTool != null && ActiveTool.ClearsSelectionBeforeUse())
         {
             selectionManager.Clear();
+        }
+
+        if (ActiveTool is RemoveTool removeTool)
+        {
+            removeTool.ApplyRemove(window);
+            ActiveTool = null;
         }
        
         OnChanged?.Invoke();
@@ -66,13 +73,13 @@ public class ToolController(SelectionManager selectionManager, MainWindow window
     }
 
     // Pamiętaj, że zaktualizowaliśmy metody, przekazując 'this'
-    public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
+    public void PointerPressed(PointerPressedEventArgs e)
         => ActiveTool?.PointerPressed(window, this, e);
 
-    public void PointerMoved(MainWindow window, PointerEventArgs e)
+    public void PointerMoved(PointerEventArgs e)
         => ActiveTool?.PointerMoved(window, this, e);
 
-    public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
+    public void PointerReleased(PointerReleasedEventArgs e)
         => ActiveTool?.PointerReleased(window, this, e);
 
     /// <summary>
