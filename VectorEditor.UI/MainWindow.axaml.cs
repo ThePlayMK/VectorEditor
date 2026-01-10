@@ -17,7 +17,6 @@ using VectorEditor.Core.State;
 using VectorEditor.Core.Strategy;
 
 
-
 namespace VectorEditor.UI;
 
 public partial class MainWindow : Window
@@ -40,14 +39,16 @@ public partial class MainWindow : Window
     private readonly ToolController _tools;
     private readonly OpacityController _opacity;
     private readonly ColorController _color;
-    private LayerManager Layers { get; } = new();
+    private readonly CanvasRenderer _renderer;
+    public LayerManager Layers { get; } = new();
 
     public DrawingSettings Settings { get; } = new();
-    public CommandManager CommandManager { get; private set; }
+    public CommandManager CommandManager { get; }
+    public CanvasRenderer Renderer => _renderer;
     public Canvas CanvasCanvas => _myCanvas!;
     private readonly EditorContext _editorContext;
 
-    public Layer SelectedLayerModel =>
+    private Layer SelectedLayerModel =>
         LayerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
 
 
@@ -58,10 +59,10 @@ public partial class MainWindow : Window
         CommandManager = new CommandManager(_editorContext);
         _myCanvas = this.FindControl<Canvas>("MyCanvas");
         var selectionManager = new SelectionManager();
-        var renderer = new CanvasRenderer(CanvasCanvas);
+        _renderer = new CanvasRenderer(CanvasCanvas);
         LayerController = new LayerController(Layers, CommandManager, selectionManager);
         _canvasController = new CanvasController();
-        _tools = new ToolController(selectionManager);
+        _tools = new ToolController(selectionManager, this);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var breadcrumb = this.FindControl<StackPanel>("LayerBreadcrumb");
         LayerController.BindUi(layersPanel, breadcrumb);
@@ -112,10 +113,9 @@ public partial class MainWindow : Window
             CommandManager.Execute(cmd);
         };
         
-        // Podpięcie LostFocus i KeyDown w RGB TextBoxach
-        _color.R.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
-        _color.G.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
-        _color.B.KeyDown += (s, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
+        _color.R.KeyDown += (_, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
+        _color.G.KeyDown += (_, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
+        _color.B.KeyDown += (_, e) => { if (e.Key == Key.Enter) _color.CommitFromInput(); };
 
         //Siatka
         _tools.Grid.IsVisible = true;
@@ -127,16 +127,14 @@ public partial class MainWindow : Window
 
         CommandManager.OnChanged += () =>
         {
-            renderer.Render(Layers.RootLayer, selectionManager.Selected);
+            _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
             LayerController.RefreshUi();
         };
 
-        selectionManager.OnChanged += () => renderer.Render(Layers.RootLayer, selectionManager.Selected);
+        selectionManager.OnChanged += () => _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+        _tools.OnChanged += () => _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
         
-        _editorContext.SaveAction = async (path) =>
-        {
-            return await PerformPhysicalSave(path);
-        };
+        _editorContext.SaveAction = async (path) => await PerformPhysicalSave(path);
     }
     
     private void ColorModeChanged(object? sender, RoutedEventArgs e)
@@ -203,7 +201,7 @@ public partial class MainWindow : Window
         // This needs to be handled to do something with this
     }
 
-    private async void SaveFile(object? sender, RoutedEventArgs e)
+    private void SaveFile(object? sender, RoutedEventArgs e)
     {
         _editorContext.Save();
         // This needs to be handled to do something with this
@@ -330,7 +328,7 @@ public partial class MainWindow : Window
         var options = new JsonSerializerOptions { WriteIndented = true };
         string jsonString = JsonSerializer.Serialize(dataToSave, options);
         
-        await System.IO.File.WriteAllTextAsync(path, jsonString);
+        await File.WriteAllTextAsync(path, jsonString);
         
         return true;
     }

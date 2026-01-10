@@ -87,7 +87,7 @@ public class Layer(string name) : ICanvas
     public double GetMaxY() => _children.Count == 0 ? 0 : _children.Max(c => c.GetMaxY());
 
     // --- SKALOWANIE ---
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked || _children.Count == 0) return;
 

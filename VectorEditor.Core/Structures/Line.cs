@@ -78,7 +78,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
         _endPoint = new Point(_endPoint.X + dx, _endPoint.Y + dy);
     }
 
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
 

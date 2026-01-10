@@ -10,7 +10,7 @@ public interface ICanvas
     bool IsBlocked { get; set; }
     bool IsVisible { get; set; }
     void Move(double dx, double dy);
-    void Scale(ScaleHandle handle, Point newPos); 
+    void Scale(ScaleHandle? handle, Point newPos); 
     void ScaleTransform(Point pivot, double sx, double sy);
     IEnumerable<Point> GetPoints();
     void SetPoints(List<Point> points);

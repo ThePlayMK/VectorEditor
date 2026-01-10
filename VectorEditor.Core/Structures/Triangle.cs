@@ -88,7 +88,7 @@ public class Triangle(
         _thirdPoint = new Point(_thirdPoint.X + dx, _thirdPoint.Y + dy);
     }
 
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
 

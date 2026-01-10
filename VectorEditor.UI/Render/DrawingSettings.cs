@@ -8,4 +8,6 @@ public class DrawingSettings
     public Color ContentColor { get; set; } = Colors.Red;
     public double StrokeWidth { get; set; } = 2;
     public double Opacity { get; set; } = 100;
+    
+    public double GridSize { get; set; } = 20;
 }

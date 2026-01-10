@@ -170,7 +170,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         return inside;
     }
     
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
 

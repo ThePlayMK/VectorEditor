@@ -29,9 +29,8 @@ public class MoveTool(SelectionManager selection) : ITool
     {
         if (selection.Selected.Count == 0)
             return;
-
-        var pos = e.GetPosition(window.CanvasCanvas);
-        _lastMouse = new Point(pos.X, pos.Y);
+        
+        _lastMouse = controller.GetSnappedPoint(e, window.CanvasCanvas);
         
         _accDx = 0;
         _accDy = 0;
@@ -43,9 +42,8 @@ public class MoveTool(SelectionManager selection) : ITool
     {
         if (_lastMouse == null || selection.Selected.Count == 0)
             return;
-
-        var pos = e.GetPosition(window.CanvasCanvas);
-        var current = new Point(pos.X, pos.Y);
+        
+        var current =controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         var dx = current.X - _lastMouse.X;
         var dy = current.Y - _lastMouse.Y;

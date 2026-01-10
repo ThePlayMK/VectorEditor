@@ -23,8 +23,7 @@ public class SelectTool(SelectionManager selection) : ITool
 
     public void PointerPressed(MainWindow window,  ToolController controller,PointerPressedEventArgs e)
     {
-        var p = e.GetPosition(window.CanvasCanvas);
-        _startPoint = new Point(p.X, p.Y);
+        _startPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
     }
 
     public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
@@ -32,7 +31,7 @@ public class SelectTool(SelectionManager selection) : ITool
         if (_startPoint == null)
             return;
 
-        var current = e.GetPosition(window.CanvasCanvas);
+        var current = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         if (_previewRectangle == null)
         {
@@ -62,7 +61,7 @@ public class SelectTool(SelectionManager selection) : ITool
         if (_startPoint is null)
             return;
 
-        var end = e.GetPosition(window.CanvasCanvas);
+        var end = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         // Jeśli nie było ruchu — klik punktowy
         if (_previewRectangle == null)
@@ -83,7 +82,7 @@ public class SelectTool(SelectionManager selection) : ITool
 
 
 
-    private void Finish(MainWindow window, Avalonia.Point end)
+    private void Finish(MainWindow window, Point end)
     {
         if (_previewRectangle != null)
         {
@@ -91,9 +90,7 @@ public class SelectTool(SelectionManager selection) : ITool
             _previewRectangle = null;
         }
 
-        var endPoint = new Point(end.X, end.Y);
-
-        selection.SelectArea(window.LayerController.ActiveLayer, _startPoint!, endPoint);
+        selection.SelectArea(window.LayerController.ActiveLayer, _startPoint!, end);
 
         _startPoint = null;
         _previewRectangle =  null;

@@ -3,7 +3,7 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Strategy;
 
-public class ScaleStrategy(ScaleHandle handle, Point newPos) : IModificationStrategy
+public class ScaleStrategy(ScaleHandle? handle, Point newPos) : IModificationStrategy
 {
     // Memento przechowuje oryginalne punkty, aby uniknąć błędów zaokrągleń
     private record ScaleMemento(Dictionary<ICanvas, List<Point>> State);
@@ -82,7 +82,7 @@ public class ScaleStrategy(ScaleHandle handle, Point newPos) : IModificationStra
     }
     // --- LOGIKA MATEMATYCZNA (PRZEKOPIOWANA Z LAYER LUB UPROSZCZONA) ---
 
-    private Point CalculatePivot(ScaleHandle h, double minX, double maxX, double minY, double maxY)
+    private Point CalculatePivot(ScaleHandle? h, double minX, double maxX, double minY, double maxY)
     {
         return h switch
         {
@@ -98,7 +98,7 @@ public class ScaleStrategy(ScaleHandle handle, Point newPos) : IModificationStra
         };
     }
 
-    private (double sx, double sy) CalculateScaleFactors(ScaleHandle h, Point pos, double minX, double maxX,
+    private (double sx, double sy) CalculateScaleFactors(ScaleHandle? h, Point pos, double minX, double maxX,
         double minY, double maxY)
     {
         var oldW = Math.Max(1, maxX - minX);

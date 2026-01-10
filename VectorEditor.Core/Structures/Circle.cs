@@ -95,7 +95,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         _centerPoint = new Point(_centerPoint.X + dx, _centerPoint.Y + dy);
     }
 
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
 

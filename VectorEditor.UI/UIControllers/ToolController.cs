@@ -1,28 +1,31 @@
+using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using VectorEditor.Core.Composite;
 using VectorEditor.UI.Tools.BuilderTools;
 using VectorEditor.UI.Select;
 using VectorEditor.Core.Net;
 using VectorEditor.UI.Tools.CommandTools;
+using VectorEditor.UI.Tools.StrategyTools;
 using CorePoint = VectorEditor.Core.Structures.Point;
 
 namespace VectorEditor.UI.UIControllers;
 
-public class ToolController
+public class ToolController(SelectionManager selectionManager, MainWindow window)
 {
-    private ITool? _activeTool;
     private Button? _activeToolButton;
-    private SelectionManager selectionManager;
-    public EditorGrid Grid { get; private set; }
+    public IReadOnlyList<ICanvas>? PreviewModel { get; set; }
+    public event Action? OnChanged;
+    public ITool? ActiveTool { get; private set; }
 
-    public ToolController(SelectionManager selectionManager)
+    public EditorGrid Grid { get; private set; } = new(window.Settings.GridSize)
     {
-        Grid = new EditorGrid(20.0);
-        Grid.IsVisible = true; 
-        Grid.SnapEnabled = true;
-        this.selectionManager = selectionManager;
-    }
+        IsVisible = true,
+        SnapEnabled = true
+    };
+
     public bool IsHandToolActive =>
         _activeToolButton?.Tag as string == "Hand";
     
@@ -32,7 +35,7 @@ public class ToolController
         _activeToolButton = button;
         _activeToolButton.Classes.Add("Selected");
         
-        _activeTool = button.Tag switch
+        ActiveTool = button.Tag switch
         {
             "Line"        => new LineTool(),
             "Rectangle"   => new RectangleTool(),
@@ -42,31 +45,35 @@ public class ToolController
             "Move"        => new MoveTool(selectionManager),
             "CustomShape" => new CustomShapeTool(),
             "Hand"        => null, // Pan tool handled separately
+            "Scale"       => new ScaleTool(selectionManager),
             _             => null
         };
         
-        if (_activeTool != null && _activeTool.ClearsSelectionBeforeUse())
+        if (ActiveTool != null && ActiveTool.ClearsSelectionBeforeUse())
         {
             selectionManager.Clear();
         }
+       
+        OnChanged?.Invoke();
+        
     }
 
     public void Reset()
     {
-        _activeTool = null;
+        ActiveTool = null;
         _activeToolButton?.Classes.Remove("Selected");
         _activeToolButton = null;
     }
 
     // Pamiętaj, że zaktualizowaliśmy metody, przekazując 'this'
     public void PointerPressed(MainWindow window, PointerPressedEventArgs e)
-        => _activeTool?.PointerPressed(window, this, e);
+        => ActiveTool?.PointerPressed(window, this, e);
 
     public void PointerMoved(MainWindow window, PointerEventArgs e)
-        => _activeTool?.PointerMoved(window, this, e);
+        => ActiveTool?.PointerMoved(window, this, e);
 
     public void PointerReleased(MainWindow window, PointerReleasedEventArgs e)
-        => _activeTool?.PointerReleased(window, this, e);
+        => ActiveTool?.PointerReleased(window, this, e);
 
     /// <summary>
     /// Metoda zwraca Twój CorePoint przyciągnięty do siatki

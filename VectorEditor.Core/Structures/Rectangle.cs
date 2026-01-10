@@ -80,7 +80,7 @@ public class Rectangle : IShape
     }
 
     // --- SKALOWANIE ---
-    public void Scale(ScaleHandle handle, Point newPos)
+    public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
 
