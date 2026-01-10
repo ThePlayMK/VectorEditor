@@ -2,9 +2,9 @@ using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Strategy;
 
-public class SetTransparencyStrategy(double transparency) : IModificationStrategy
+public class SetOpacityStrategy(double opacity) : IModificationStrategy
 {
-    private readonly double _transparency = Math.Clamp(transparency, 0, 100);
+    private readonly double _opacity = Math.Clamp(opacity, 0, 100);
     public object Apply(ICanvas target)
     {
         var oldTransparencies = new Dictionary<IShape, double>();
@@ -23,7 +23,7 @@ public class SetTransparencyStrategy(double transparency) : IModificationStrateg
         {
             case IShape shape:
                 memento[shape] = shape.GetOpacity();
-                shape.SetOpacity(_transparency);
+                shape.SetOpacity(_opacity);
                 break;
             case Layer layer:
             {
@@ -32,6 +32,37 @@ public class SetTransparencyStrategy(double transparency) : IModificationStrateg
                     ApplyRecursive(child, memento);
                 }
 
+                break;
+            }
+        }
+    }
+
+    public void PreviewApply(IReadOnlyList<ICanvas> targets)
+    {
+        foreach (var target in targets)
+        {
+            PreviewApplyRecursive(target);
+        }
+    }
+    
+    public void PreviewApplyRecursive(ICanvas target)
+    {
+        if (target.IsBlocked)
+        {
+            return;
+        }
+
+        switch (target)
+        {
+            case IShape shape:
+                shape.SetOpacity(_opacity);
+                break;
+            case Layer layer:
+            {
+                foreach (var child in layer.GetChildren())
+                {
+                    PreviewApplyRecursive(child);
+                }
                 break;
             }
         }

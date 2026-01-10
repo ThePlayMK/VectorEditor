@@ -80,6 +80,21 @@ public partial class MainWindow : Window
             OpacitySlider,
             OpacityInput
         );
+        
+        _opacity.CommitEdit += value =>
+        {
+            if (selectionManager.Selected.Count == 0)
+                return;
+
+            // Create strategy and command only on commit
+            var strategy = new SetOpacityStrategy(value / 100);
+            var cmd = new ApplyStrategyCommand(strategy, selectionManager.Selected);
+            CommandManager.Execute(cmd);
+
+            // Optional: refresh canvas
+            _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+        };
+        
 
         _color = new ColorController(
             () => _activeColorMode == ColorMode.Stroke

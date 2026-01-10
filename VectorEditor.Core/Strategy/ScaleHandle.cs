@@ -9,6 +9,5 @@ public enum ScaleHandle
     BottomRight, 
     Bottom, 
     BottomLeft, 
-    Left,
-    None
+    Left
 }
