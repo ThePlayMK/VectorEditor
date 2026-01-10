@@ -1,5 +1,4 @@
 ﻿using Avalonia.Media;
-using VectorEditor.Core.Builder;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.State;
@@ -1228,7 +1227,8 @@ destinationLayer.ConsoleDisplay();
 
 Console.WriteLine("\n>>> KONIEC TESTU COPY-CUT-PASTE <<<");*/
 
-
+// --- TEST 35 Scaling something ---
+/*
 var rootLayer = new Layer("Root Canvas");
 var builder1 = new LineBuilder()
     .SetStart(new Point(0, 0))
@@ -1254,3 +1254,47 @@ var scaleLayerCmd = new ApplyStrategyCommand(scale, rootLayer);
 cmdManager.Execute(scaleLayerCmd);
 
 rootLayer.ConsoleDisplay();
+*/
+
+
+// --- TEST 36 Organise CANVAS STRATEGY
+/*
+Console.WriteLine("\n>>> TEST: MOVE CANVAS STRATEGY <<<");
+
+var cmdManager = new CommandManager(new EditorContext());
+var testLayer = new Layer("Test Layer");
+
+// 1. Przygotowanie obiektów
+var rect = new Rectangle(new Point(0, 0), new Point(10, 10), Color.FromRgb(255, 0, 0), Color.FromRgb(255, 255, 255), 1);
+var circle = new Circle(new Point(20, 20), 5, Color.FromRgb(0, 255, 0), Color.FromRgb(255, 255, 255), 1);
+var triangle = new Triangle(new Point(50, 50), new Point(0, 0), new Point(10, 10), Color.FromRgb(0, 0, 255), Color.FromRgb(255, 255, 255), 1);
+
+testLayer.Add(rect);
+testLayer.Add(circle);
+testLayer.Add(triangle);
+
+Console.WriteLine("Stan początkowy Test Layer:");
+testLayer.ConsoleDisplay();
+
+// 2. Wykonanie strategii przesunięcia
+Console.WriteLine("\n--- Wykonuję MoveCanvasStrategy (przesunięcie rect i ellipse na indeks 1) ---");
+var canvasesToMove = new List<ICanvas> { rect, triangle };
+var moveStrategy = new LayerOrganisationStrategy(canvasesToMove, testLayer, 2);
+cmdManager.Execute(new ApplyStrategyCommand(moveStrategy, canvasesToMove));
+
+Console.WriteLine("Test Layer po Move:");
+testLayer.ConsoleDisplay();
+
+// 3. Undo przesunięcia
+Console.WriteLine("\n--- Wykonuję UNDO Move ---");
+cmdManager.Undo();
+Console.WriteLine("Test Layer po UNDO:");
+testLayer.ConsoleDisplay();
+
+// 4. Redo przesunięcia
+Console.WriteLine("\n--- Wykonuję REDO Move ---");
+cmdManager.Redo();
+Console.WriteLine("Test Layer po REDO:");
+testLayer.ConsoleDisplay();
+
+Console.WriteLine("\n>>> KONIEC TESTU MOVE CANVAS STRATEGY <<<");*/
