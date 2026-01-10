@@ -26,7 +26,8 @@ public class CanvasRenderer(Canvas canvas)
 
         if (tool.ActiveTool is ScaleTool)
         {
-            RenderHighlight(selected);
+            if(selected.Count != 0)
+                RenderHighlight(selected);
         }
         else
         {

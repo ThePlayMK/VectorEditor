@@ -40,11 +40,14 @@ public class ScaleTool(SelectionManager selection) : ITool
 
         CreatePreview();
         controller.PreviewModel = _previewModel;
-        Console.WriteLine($"PreviewModel count: {_previewModel?.Count}");
+        //Console.WriteLine($"PreviewModel count: {_previewModel?.Count}");
     }
 
     public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
+        if (selection.Selected.Count == 0)
+            return;
+        
         if (_lastMouse == null || _activeHandle == null)
             return;
 
@@ -62,6 +65,9 @@ public class ScaleTool(SelectionManager selection) : ITool
 
     public void PointerReleased(MainWindow window, ToolController controller, PointerReleasedEventArgs e)
     {
+        if (selection.Selected.Count == 0)
+            return;
+        
         if (_activeHandle == null || _lastMouse == null)
             return;
         
@@ -76,7 +82,7 @@ public class ScaleTool(SelectionManager selection) : ITool
         var strategy = new ScaleStrategy(_activeHandle.Value, endPos);
         var command = new ApplyStrategyCommand(strategy, layer);
 
-        DiscardFakeLayer(layer);
+        DiscardFakeLayer();
 
         window.CommandManager.Execute(command);
         
@@ -99,7 +105,7 @@ public class ScaleTool(SelectionManager selection) : ITool
         return layer;
     }
 
-    private void DiscardFakeLayer(Layer layer)
+    private void DiscardFakeLayer()
     {
         for(var i = 0; i < selection.Selected.Count; i++)
         {
@@ -135,7 +141,7 @@ public class ScaleTool(SelectionManager selection) : ITool
         var strategy = new ScaleStrategy(handle.Value, mouse);
 
         // używamy oryginałów zamiast kopii
-        strategy.Apply(_previewState.Keys.ToList());
+        strategy.PreviewApply(_previewState.Keys.ToList());
     }
 
     

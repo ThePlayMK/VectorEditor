@@ -22,10 +22,10 @@ public class ScaleStrategy(ScaleHandle? handle, Point newPos) : IModificationStr
         return new ScaleMemento(state);
     }
 
-    public object? Apply(List<ICanvas> target)
+    public void PreviewApply(List<ICanvas> target)
     {
         var elements = target.Where(e => !e.IsBlocked).ToList();
-        if (elements.Count == 0) return null;
+        if (elements.Count == 0) return;
 
         // 1. Obliczamy wspólny Bounding Box
         var minX = elements.Min(e => e.GetMinX());
@@ -36,20 +36,12 @@ public class ScaleStrategy(ScaleHandle? handle, Point newPos) : IModificationStr
         var pivot = CalculatePivot(handle, minX, maxX, minY, maxY);
         var (sx, sy) = CalculateScaleFactors(handle, newPos, minX, maxX, minY, maxY);
 
-        Console.WriteLine($"Scaling {elements.Count} elements: minX={minX}, maxX={maxX}, pivot={pivot}, sx={sx}");
-        
-        var states = new Dictionary<ICanvas, List<Point>>();
-
         foreach (var element in elements)
         {
-            // Zapisujemy punkty tego elementu i jego dzieci (rekurencja)
-            CaptureState(element, states);
-
             // SKALOWANIE: Każdy element używa tego samego Pivotu i współczynników
             element.ScaleTransform(pivot, sx, sy);
         }
 
-        return new ScaleMemento(states);
     }
 
     public void Undo(ICanvas target, object? memento)
