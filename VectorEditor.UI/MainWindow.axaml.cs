@@ -2,6 +2,8 @@ using System.IO;
 using System;
 using System.Threading.Tasks; // Naprawia błąd "Task<>"
 using System.Text.Json;
+using Avalonia;
+using System.Linq; 
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -14,6 +16,8 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.State;
+using Avalonia.Media.Imaging; // Do PNG/JPG
+using VectorEditor.UI.Utils;
 using VectorEditor.Core.Strategy;
 
 
@@ -321,29 +325,42 @@ public partial class MainWindow : Window
     {
     if (string.IsNullOrEmpty(path))
     {
-        var topLevel = GetTopLevel(this); // Upewnij się, że używasz TopLevel.GetTopLevel
+        var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel == null) return false;
 
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "Zapisz projekt",
-            DefaultExtension = "vec"
+            DefaultExtension = "svg",
+            FileTypeChoices = new[]
+            {
+                new FilePickerFileType("SVG Image") { Patterns = new[] { "*.svg" } },
+                new FilePickerFileType("Vector Project JSON") { Patterns = new[] { "*.vec" } }
+            }
         });
 
         if (file == null) return false;
-        
         path = file.Path.LocalPath;
         _editorContext.CurrentFilePath = path;
     }
 
-    try 
+    try
     {
-        var dataToSave = SelectedLayerModel.GetChildren(); 
-        
-        var options = new JsonSerializerOptions { WriteIndented = true };
-        string jsonString = JsonSerializer.Serialize(dataToSave, options);
-        
-        await File.WriteAllTextAsync(path, jsonString);
+        // POPRAWKA: Filtrujemy dzieci, biorąc tylko obiekty będące kształtami (IShape)
+        // To naprawia błąd konwersji ICanvas -> IShape
+        var shapes = SelectedLayerModel.GetChildren().OfType<VectorEditor.Core.Composite.IShape>();
+
+        if (path.EndsWith(".vec"))
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(shapes, options);
+            await System.IO.File.WriteAllTextAsync(path, jsonString);
+        }
+        else
+        {
+            var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);
+            await System.IO.File.WriteAllTextAsync(path, svgContent);
+        }
         
         return true;
     }
@@ -352,5 +369,73 @@ public partial class MainWindow : Window
         Console.WriteLine($"Błąd zapisu: {ex.Message}");
         return false;
     }
+    }
+    // Podpięcie w XAML: Click="ExportPng"
+    private async void ExportPng(object? sender, RoutedEventArgs e)
+    {
+        await ExportRasterImage("png");
+    }
+
+// Podpięcie w XAML: Click="ExportJpg"
+    private async void ExportJpg(object? sender, RoutedEventArgs e)
+    {
+    // Avalonia natywnie zapisuje głównie do PNG. 
+    // Zapiszemy jako PNG, ale z rozszerzeniem .jpg (większość przeglądarek to obsłuży),
+    // lub po prostu potraktujmy to jako eksport obrazka.
+        await ExportRasterImage("jpg");
+    }
+
+    private async Task ExportRasterImage(string extension)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Eksportuj obraz",
+            DefaultExtension = extension,
+            FileTypeChoices = new[] { new FilePickerFileType("Image") { Patterns = new[] { $"*.{extension}" } } }
+        });
+
+        if (file == null) return;
+
+        // 1. Ukrywamy siatkę
+        bool gridWasVisible = _tools.Grid.IsVisible;
+        if (gridWasVisible)
+        {
+            _tools.Grid.IsVisible = false;
+            GridRenderer.Render(CanvasCanvas, _tools.Grid); 
+            CanvasCanvas.UpdateLayout();
+        }
+
+        try
+        {
+        // 2. Renderujemy
+        // Używamy PixelSize i Vector (teraz działają dzięki 'using Avalonia;')
+            var pixelSize = new PixelSize((int)CanvasCanvas.Bounds.Width, (int)CanvasCanvas.Bounds.Height);
+            var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
+        
+            bitmap.Render(CanvasCanvas);
+
+            // 3. Zapisujemy
+            using (var stream = await file.OpenWriteAsync())
+            {
+                // Prosty zapis (Avalonia domyślnie koduje to jako PNG)
+                bitmap.Save(stream);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd eksportu: {ex.Message}");
+        }
+        finally
+        {
+            // 4. Przywracamy siatkę
+            if (gridWasVisible)
+            {
+                _tools.Grid.IsVisible = true;
+                GridRenderer.Render(CanvasCanvas, _tools.Grid);
+            }
+        }
     }
 }
