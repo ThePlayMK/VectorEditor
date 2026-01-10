@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.Core.Strategy;
 using VectorEditor.Core.Structures;
 using VectorEditor.UI.Select;
 
@@ -102,6 +103,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
         widget.SetLayerName(layer.GetName());
 
+        widget.BindLock(commands, selectionManager); // 🔥 TO TU
         widget.PointerPressed += (_, _) => OnLayerClicked(widget);
         widget.DoubleTapped += (_, _) => EnterLayer(layer);
 
@@ -135,7 +137,12 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
         eyeBtn.Click += (_, _) =>
         {
-            shape.IsVisible = !shape.IsVisible;
+            IModificationStrategy strategy =
+                shape.IsBlocked
+                    ? new HideCanvasStrategy()
+                    : new ShowCanvasStrategy();
+            var cmd = new ApplyStrategyCommand(strategy, shape);
+            commands.Execute(cmd);
 
             eyeBtn.Content = new Material.Icons.Avalonia.MaterialIcon
             {
@@ -164,7 +171,12 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
         lockBtn.Click += (_, _) =>
         {
-            shape.IsBlocked = !shape.IsBlocked;
+            IModificationStrategy strategy =
+                shape.IsBlocked
+                    ? new UnblockCanvasStrategy()
+                    : new BlockCanvasStrategy();
+            var cmd = new ApplyStrategyCommand(strategy, shape);
+            commands.Execute(cmd);
             
             lockBtn.Content = new Material.Icons.Avalonia.MaterialIcon
             {
@@ -176,7 +188,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
             
             if (shape.IsBlocked)
             {
-                // Tutaj blokowanie
+                selectionManager.Clear();
             }
         };
         
