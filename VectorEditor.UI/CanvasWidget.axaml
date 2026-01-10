@@ -36,12 +36,7 @@
                           Name="VisibilityButton"
                           IsChecked="True"
                           Margin="0,0,2,0">
-                <Panel>
-                    <material:MaterialIcon Kind="Eye" Width="14" Height="14"
-                                           IsVisible="{Binding $parent[ToggleButton].IsChecked}" />
-                    <material:MaterialIcon Kind="EyeOff" Width="14" Height="14"
-                                           IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
-                </Panel>
+                <material:MaterialIcon Name="VisibilityIcon" Width="14" Height="14" />
             </ToggleButton>
 
             <ToggleButton Grid.Column="1" 

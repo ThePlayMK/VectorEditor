@@ -15,7 +15,6 @@ public partial class CanvasWidget : UserControl
     public CanvasWidget()
     {
         InitializeComponent();
-       // _lockButton = LockButton;
     }
 
     public void Bind(
@@ -43,12 +42,16 @@ public partial class CanvasWidget : UserControl
 
             UpdateVisibilityIcon();
         };
-        
+        UpdateVisibilityIcon();
     }
     
     private void UpdateVisibilityIcon()
     {
         VisibilityButton.IsChecked = CanvasModel.IsVisible;
+        
+        VisibilityIcon.Kind = CanvasModel.IsVisible
+            ? Material.Icons.MaterialIconKind.Eye
+            : Material.Icons.MaterialIconKind.EyeOff;
     }
     
     private void BindLock(
@@ -69,6 +72,7 @@ public partial class CanvasWidget : UserControl
 
             UpdateLockIcon();
         };
+        UpdateLockIcon();
     }
 
     private void UpdateLockIcon()
