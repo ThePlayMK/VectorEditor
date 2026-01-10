@@ -16,6 +16,7 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.State;
+using Avalonia.Media;
 using Avalonia.Media.Imaging; // Do PNG/JPG
 using VectorEditor.UI.Utils;
 using VectorEditor.Core.Strategy;
@@ -52,7 +53,7 @@ public partial class MainWindow : Window
     public Canvas CanvasCanvas => _myCanvas!;
     private readonly EditorContext _editorContext;
 
-    private Layer SelectedLayerModel =>
+    public Layer SelectedLayerModel =>
         LayerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
 
 
@@ -323,6 +324,13 @@ public partial class MainWindow : Window
     }
     private async Task<bool> PerformPhysicalSave(string? path)
     {
+    //testy
+    //var layerToSave = SelectedLayerModel; // Ta właściwość musi być publiczna!
+
+    // --- DIAGNOSTYKA (ODCISK PALCA) ---
+    //System.Diagnostics.Debug.WriteLine($"[SAVE] Używam warstwy ID: {layerToSave.GetHashCode()}");
+    //System.Diagnostics.Debug.WriteLine($"[SAVE] Liczba dzieci w tej warstwie: {layerToSave.GetChildren().ToList().Count}");
+    // ----------------------------------
     if (string.IsNullOrEmpty(path))
     {
         var topLevel = TopLevel.GetTopLevel(this);
@@ -330,43 +338,47 @@ public partial class MainWindow : Window
 
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Zapisz projekt",
+            Title = "Zapisz projekt SVG",
             DefaultExtension = "svg",
+            SuggestedFileName = "projekt.svg",
             FileTypeChoices = new[]
             {
-                new FilePickerFileType("SVG Image") { Patterns = new[] { "*.svg" } },
-                new FilePickerFileType("Vector Project JSON") { Patterns = new[] { "*.vec" } }
+                new FilePickerFileType("SVG Image") { Patterns = new[] { "*.svg" } }
             }
         });
 
-        if (file == null) return false;
+        if (file == null) return false; // Anulowano
+        
         path = file.Path.LocalPath;
+        
+        // ZAPAMIĘTUJEMY ŚCIEŻKĘ! To klucz do "cichego zapisu" w przyszłości
         _editorContext.CurrentFilePath = path;
     }
 
+    // KROK 2: Właściwy zapis "po cichu" (mechanika Exportu, ale do znanego pliku)
     try
     {
-        // POPRAWKA: Filtrujemy dzieci, biorąc tylko obiekty będące kształtami (IShape)
-        // To naprawia błąd konwersji ICanvas -> IShape
         var shapes = SelectedLayerModel.GetChildren().OfType<VectorEditor.Core.Composite.IShape>();
+        
+        // Generujemy treść
+        var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);
 
-        if (path.EndsWith(".vec"))
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string jsonString = JsonSerializer.Serialize(shapes, options);
-            await System.IO.File.WriteAllTextAsync(path, jsonString);
-        }
-        else
-        {
-            var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);
-            await System.IO.File.WriteAllTextAsync(path, svgContent);
-        }
+        // --- SZPIEG 1: Gdzie zapisuję? ---
+        System.Diagnostics.Debug.WriteLine($"[PATH CHECK] Zapisuję do pliku: {path}");
+
+        // --- SZPIEG 2: Czy treść nie jest pusta? ---
+        System.Diagnostics.Debug.WriteLine($"[CONTENT CHECK] Długość tekstu SVG: {svgContent.Length} znaków");
+        // Jeśli długość jest mała (np. < 100), to znaczy że SVG jest puste!
+
+        await System.IO.File.WriteAllTextAsync(path, svgContent);
+
+        // --- SZPIEG 3: Potwierdzenie ---
+        System.Diagnostics.Debug.WriteLine($"[DISK CHECK] Fizyczny zapis zakończony o: {DateTime.Now}");
         
         return true;
     }
-    catch (Exception ex)
+    catch
     {
-        Console.WriteLine($"Błąd zapisu: {ex.Message}");
         return false;
     }
     }
@@ -387,55 +399,172 @@ public partial class MainWindow : Window
 
     private async Task ExportRasterImage(string extension)
     {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null) return;
+    var topLevel = TopLevel.GetTopLevel(this);
+    if (topLevel == null) return;
 
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-        {
-            Title = "Eksportuj obraz",
-            DefaultExtension = extension,
-            FileTypeChoices = new[] { new FilePickerFileType("Image") { Patterns = new[] { $"*.{extension}" } } }
-        });
+    var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+    {
+        Title = $"Eksportuj do {extension.ToUpper()}",
+        DefaultExtension = extension,
+        FileTypeChoices = new[] { new FilePickerFileType($"{extension.ToUpper()} Image") { Patterns = new[] { $"*.{extension}" } } }
+    });
 
-        if (file == null) return;
+    if (file == null) return;
 
-        // 1. Ukrywamy siatkę
-        bool gridWasVisible = _tools.Grid.IsVisible;
+    // --- 1. ZAPAMIĘTUJEMY STAN (Gdzie patrzy użytkownik) ---
+    bool gridWasVisible = _tools.Grid.IsVisible;
+    var originalTransform = CanvasCanvas.RenderTransform; // Zapamiętujemy przesunięcie/zoom
+    var originalWidth = CanvasCanvas.Width;
+    var originalHeight = CanvasCanvas.Height;
+
+    try
+    {
+        // --- 2. PRZYGOTOWANIE DO ZDJĘCIA ---
+        
+        // Ukrywamy siatkę
+       // 1. Ukrywamy siatkę (w modelu)
         if (gridWasVisible)
         {
             _tools.Grid.IsVisible = false;
-            GridRenderer.Render(CanvasCanvas, _tools.Grid); 
-            CanvasCanvas.UpdateLayout();
+        // KLUCZOWE: Zmuszamy GridRenderer do odświeżenia (usunięcia kresek)
+        GridRenderer.Render(CanvasCanvas, _tools.Grid);
         }
 
-        try
-        {
-        // 2. Renderujemy
-        // Używamy PixelSize i Vector (teraz działają dzięki 'using Avalonia;')
-            var pixelSize = new PixelSize((int)CanvasCanvas.Bounds.Width, (int)CanvasCanvas.Bounds.Height);
-            var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
+        // Obliczamy ile miejsca potrzebują nasze figury
+        var contentSize = CalculateContentSize();
         
-            bitmap.Render(CanvasCanvas);
+        // RESET: Ustawiamy transformację na Identity (czyli (0,0), brak zoomu)
+        // To naprawia problem "przesuniętego płótna"!
+        CanvasCanvas.RenderTransform = null;
+        
+        // Rozciągamy Canvas, żeby objął wszystko
+        CanvasCanvas.Width = contentSize.Width;
+        CanvasCanvas.Height = contentSize.Height;
 
-            // 3. Zapisujemy
-            using (var stream = await file.OpenWriteAsync())
-            {
-                // Prosty zapis (Avalonia domyślnie koduje to jako PNG)
-                bitmap.Save(stream);
-            }
-        }
-        catch (Exception ex)
+        // WAŻNE: Wymuszamy przeliczenie układu przed zrobieniem zdjęcia
+        CanvasCanvas.UpdateLayout();
+        // Czasami potrzebne jest też to dla rodzica:
+        // (this.GetVisualRoot() as Control)?.UpdateLayout();
+
+        // --- 3. RENDEROWANIE ---
+        var pixelSize = new PixelSize((int)contentSize.Width, (int)contentSize.Height);
+        var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
+        
+        // Robimy zdjęcie samego Canvasa
+        bitmap.Render(CanvasCanvas);
+
+        // --- 4. ZAPIS ---
+        using (var stream = await file.OpenWriteAsync())
         {
-            Console.WriteLine($"Błąd eksportu: {ex.Message}");
-        }
-        finally
-        {
-            // 4. Przywracamy siatkę
-            if (gridWasVisible)
-            {
-                _tools.Grid.IsVisible = true;
-                GridRenderer.Render(CanvasCanvas, _tools.Grid);
-            }
+            bitmap.Save(stream);
         }
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Błąd eksportu: {ex.Message}");
+    }
+    finally
+    {
+        // --- 5. PRZYWRACANIE STANU (Żeby użytkownik nie zauważył zmiany) ---
+        CanvasCanvas.Width = originalWidth;
+        CanvasCanvas.Height = originalHeight;
+        CanvasCanvas.RenderTransform = originalTransform; // Przywracamy przesunięcie i zoom
+
+        if (gridWasVisible)
+        {
+            _tools.Grid.IsVisible = true;
+        }
+        
+        // Odświeżamy widok po przywróceniu
+        CanvasCanvas.UpdateLayout();
+        GridRenderer.Render(CanvasCanvas, _tools.Grid);
+    }
+    }
+
+    private async void ExportSvg(object? sender, RoutedEventArgs e)
+    {
+    var topLevel = TopLevel.GetTopLevel(this);
+    if (topLevel == null) return;
+
+    // 1. ZAWSZE otwieramy okno dialogowe (Save As)
+    var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+    {
+        Title = "Eksportuj jako SVG",
+        DefaultExtension = "svg",
+        SuggestedFileName = "rysunek.svg", // Domyślna nazwa
+        FileTypeChoices = new[] 
+        { 
+            new FilePickerFileType("Obraz SVG") { Patterns = new[] { "*.svg" } } 
+        }
+    });
+
+    if (file == null) return; // Anulowano
+
+    try
+    {
+        // 2. Pobieramy kształty (pamiętaj o .OfType<IShape>(), żeby uniknąć błędów)
+        var shapes = SelectedLayerModel.GetChildren().OfType<VectorEditor.Core.Composite.IShape>();
+        
+        // Zabezpieczenie wymiarów (żeby SVG nie miało 0x0)
+        var w = CanvasCanvas.Bounds.Width > 0 ? CanvasCanvas.Bounds.Width : 800;
+        var h = CanvasCanvas.Bounds.Height > 0 ? CanvasCanvas.Bounds.Height : 600;
+
+        // 3. Generujemy treść SVG
+        var svgContent = SvgExporter.GenerateSvg(shapes, w, h);
+        
+        // 4. Zapisujemy do wybranego pliku
+        using (var stream = await file.OpenWriteAsync())
+        using (var writer = new StreamWriter(stream))
+        {
+            await writer.WriteAsync(svgContent);
+        }
+        
+        Console.WriteLine($"[EXPORT] Wyeksportowano pomyślnie do: {file.Path}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[EXPORT BŁĄD]: {ex.Message}");
+    }   
+    }
+    // Dodaj to w klasie MainWindow
+private Size CalculateContentSize()
+{
+    // Pobieramy wszystkie kształty z naszej publicznej warstwy
+    var shapes = SelectedLayerModel.GetChildren().OfType<VectorEditor.Core.Composite.IShape>().ToList();
+    
+    if (!shapes.Any()) return new Size(800, 600); // Domyślny rozmiar, jak pusto
+
+    double maxX = 0;
+    double maxY = 0;
+
+    foreach (var shape in shapes)
+    {
+        // Sprawdzamy punkty każdego kształtu, żeby znaleźć najdalszy punkt
+        var points = shape.GetPoints();
+        if (points != null)
+        {
+            foreach (var p in points)
+            {
+                // Szukamy maksimum X i Y
+                if (p.X > maxX) maxX = p.X;
+                if (p.Y > maxY) maxY = p.Y;
+            }
+        }
+        
+        // Ważne: Dodajemy połowę grubości linii, żeby nie ucięło krawędzi
+        // (Zakładam, że GetWidth() zwraca grubość obrysu)
+        double halfStroke = shape.GetWidth() / 2.0;
+        if ((maxX + halfStroke) > maxX) maxX += halfStroke;
+        if ((maxY + halfStroke) > maxY) maxY += halfStroke;
+        
+        // Dla koła musimy uważać, bo GetPoints zwraca środek i promień.
+        // Jeśli masz metodę GetMaxX() w interfejsie IShape, użyj jej.
+        // Jeśli nie, powyższa logika z punktami zadziała dla Linii i Prostokąta, 
+        // a dla koła może wymagać poprawki (dlatego dodamy margines).
+    }
+
+    // Dodajemy bezpieczny margines (np. 50px), żeby rysunek "oddychał"
+    return new Size(maxX + 50, maxY + 50);
+}
+
 }

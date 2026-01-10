@@ -96,6 +96,11 @@ public class RectangleTool : ITool
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
 
+            //testy
+        //var targetLayer = window.SelectedLayerModel; 
+    // --- DIAGNOSTYKA (ODCISK PALCA) ---
+    //System.Diagnostics.Debug.WriteLine($"[TOOL] Próbuję dodać do warstwy ID: {targetLayer.GetHashCode()}");
+    // ----------------------------------
         var cmd = new AddShapeCommand(builder, window.LayerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
 
