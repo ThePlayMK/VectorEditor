@@ -98,9 +98,6 @@
                     <Button Classes="Round" ToolTip.Tip="Brush" Tag="Brush">
                         <material:MaterialIcon Kind="Brush" />
                     </Button>
-                    <Button Classes="Round" ToolTip.Tip="Eraser" Tag="Eraser">
-                        <material:MaterialIcon Kind="Eraser" />
-                    </Button>
                     <Button Classes="Round" ToolTip.Tip="Line" Tag="Line" Click="SelectTool">
                         <material:MaterialIcon Kind="VectorLine" />
                     </Button>
@@ -246,8 +243,8 @@
                                     ToolTip.Tip="Remove Layer">-</Button>
                         </Grid>
 
-                        <!-- BREADCRUMB -->
-                        <StackPanel x:Name="LayerBreadcrumb"
+                        <!-- GO BACK BUTTON -->
+                        <StackPanel x:Name="LayerGoBack"
                                     Orientation="Horizontal"
                                     Spacing="6"
                                     Margin="0 8 0 8"/>
