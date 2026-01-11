@@ -20,7 +20,7 @@ public class LayerOrganisationStrategy(IEnumerable<ICanvas> canvases, Layer laye
         }
 
         // 3. Wstaw elementy w nowe miejsce
-        int insertIndex = Math.Min(targetIndex, layer.GetChildren().Count());
+        var insertIndex = Math.Min(targetIndex, layer.GetChildren().Count());
         foreach (var canvas in _canvases)
         {
             layer.Insert(insertIndex, canvas);
@@ -44,9 +44,9 @@ public class LayerOrganisationStrategy(IEnumerable<ICanvas> canvases, Layer laye
         }
 
         // Wstaw elementy z powrotem na ich oryginalne miejsca
-        for (int i = 0; i < _canvases.Count; i++)
+        for (var i = 0; i < _canvases.Count; i++)
         {
-            int index = Math.Min(originalIndices[i], layer.GetChildren().Count());
+            var index = Math.Min(originalIndices[i], layer.GetChildren().Count());
             layer.Insert(index, _canvases[i]);
         }
     }

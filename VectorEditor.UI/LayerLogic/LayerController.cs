@@ -1,8 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Layout;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
+using VectorEditor.Core.Strategy;
 using VectorEditor.UI.Select;
 
 namespace VectorEditor.UI.LayerLogic;
@@ -24,7 +26,68 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         _layerListPanel = layerList;
         _layerGoBackButton = goBackButton;
 
+        if (_layerListPanel != null)
+        {
+            DragDrop.SetAllowDrop(_layerListPanel, true);
+            _layerListPanel.AddHandler(DragDrop.DropEvent, OnDrop);
+        }
+
         RefreshUi();
+    }
+    
+    private void OnDrop(object? sender, DragEventArgs e)
+    {
+        var droppedModel = e.Data.Get("CanvasModel") as ICanvas;
+        if (droppedModel == null || _layerListPanel == null) return;
+
+        // 1. Obliczamy targetIndex na podstawie pozycji Y myszy
+        var point = e.GetPosition(_layerListPanel);
+        int targetIndex = CalculateTargetIndex(point.Y);
+
+        // 2. Pobieramy aktualny indeks elementu w modelu
+        var currentIndex = layerManager.CurrentContext.GetIndexOf(droppedModel);
+
+        // 3. Logika korygująca indeks (UX)
+        // Jeśli przesuwamy w dół, docelowy indeks w kolekcji musi uwzględnić 
+        // fakt, że element zostanie najpierw usunięty
+        if (currentIndex != -1 && targetIndex > currentIndex)
+        {
+            targetIndex--; 
+        }
+
+        // Jeśli upuszczamy dokładnie tam, gdzie element już jest - nic nie rób
+        if (currentIndex == targetIndex) return;
+
+        // 4. Wykonanie Twojej strategii
+        var strategy = new LayerOrganisationStrategy(
+            new[] { droppedModel }, 
+            layerManager.CurrentContext, 
+            targetIndex
+        );
+
+        commands.Execute(new ApplyStrategyCommand(strategy, layerManager.CurrentContext));
+    }
+    
+    private int CalculateTargetIndex(double yCursor)
+    {
+        if (_layerListPanel == null) return 0;
+
+        int index = 0;
+        double currentAccumulatedY = 0;
+
+        foreach (var child in _layerListPanel.Children)
+        {
+            // Sprawdzamy środek każdego widgetu, aby "celowanie" było bardziej naturalne
+            double midPoint = currentAccumulatedY + (child.Bounds.Height / 2);
+        
+            if (yCursor < midPoint)
+                return index;
+
+            currentAccumulatedY += child.Bounds.Height;
+            index++;
+        }
+
+        return index; // Jeśli kursor jest poniżej wszystkich elementów, wstaw na koniec
     }
 
     // -----------------------------------------
