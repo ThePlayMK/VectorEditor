@@ -18,7 +18,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     public Layer RootLayer => layerManager.RootLayer;
 
 
-    private Border? _dropIndicator = new Border
+    private Border? _dropIndicator = new()
     {
         Height = 2,
         Background = Brushes.DodgerBlue,
@@ -220,42 +220,9 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     {
         layerManager.EnterLayer(layer);
         SelectedLayerWidget = null;
-        layerManager.SelectLayer(layerManager.CurrentContext); // albo null, jeśli dopuszczasz
         selectionManager.Clear();
         RefreshUi();
     }
-
-
-    // -----------------------------------------
-    // REMOVE SELECTED LAYER
-    // -----------------------------------------
-    [Obsolete("Obsolete")]
-    public void RemoveSelectedLayer()
-    {
-        if (SelectedLayerWidget == null)
-            return;
-
-        var layer = SelectedLayerWidget.LayerModel;
-
-        var cmd = new RemoveLayerCommand(layer);
-        commands.Execute(cmd);
-
-        SelectedLayerWidget = null;
-        RefreshUi();
-    }
-
-
-    // -----------------------------------------
-    // RESET
-    // -----------------------------------------
-    [Obsolete("Obsolete")]
-    public void ResetUi()
-    {
-        layerManager.Reset();
-        SelectedLayerWidget = null;
-        RefreshUi();
-    }
-
     private void OnDragOver(object? sender, DragEventArgs e)
     {
         if (_layerListPanel == null || _dropIndicator == null) return;

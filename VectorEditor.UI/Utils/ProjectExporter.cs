@@ -51,7 +51,7 @@ public class ProjectExporter(Canvas canvas)
             var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
             bitmap.Render(canvas);
 
-            using var stream = await file.OpenWriteAsync();
+            await using var stream = await file.OpenWriteAsync();
             bitmap.Save(stream);
         }
         finally

@@ -4,11 +4,11 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class CircleBuilder : IShapeBuilder 
+public class CircleBuilder : IShapeBuilder
 {
     private Point _centerPoint = new(0, 0);
     private Color _contourColor = Colors.Black;
-    private Color _contentColor  = Colors.White;
+    private Color _contentColor = Colors.White;
     private double _width = 2.0;
     private double _opacity = 1.0;
     private double _radius;
@@ -18,7 +18,7 @@ public class CircleBuilder : IShapeBuilder
         _centerPoint = start;
         return this;
     }
-    
+
     public CircleBuilder SetRadius(Point end)
     {
         _radius = Math.Sqrt(Math.Pow(end.X - _centerPoint.X, 2) + Math.Pow(end.Y - _centerPoint.Y, 2));
@@ -54,7 +54,7 @@ public class CircleBuilder : IShapeBuilder
         _width = width;
         return this;
     }
-    
+
     public IShape Build()
     {
         if (_centerPoint == null || _radius == 0)

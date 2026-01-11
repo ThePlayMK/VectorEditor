@@ -3,7 +3,7 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Command;
 
-public class ApplyStrategyCommand: ICommand
+public class ApplyStrategyCommand : ICommand
 {
     private readonly List<ICanvas> _targets;
     private readonly IModificationStrategy _strategy;
@@ -28,7 +28,7 @@ public class ApplyStrategyCommand: ICommand
         if (_mementos.Count > 0) // już wykonana wcześniej
         {
             // redo – tylko wywołujemy strategie bez tworzenia nowych mement
-            foreach (var (target, memento) in _targets.Zip(_mementos, (t,m)=> (t,m)))
+            foreach (var (target, _) in _targets.Zip(_mementos, (t, m) => (t, m)))
                 _strategy.Apply(target); // lub specjalnie redo, jeśli strategy ma redo
             return;
         }

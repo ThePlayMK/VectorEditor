@@ -8,8 +8,9 @@ public class LineBuilder : IShapeBuilder
 {
     private Point _start = new(0, 0);
     private Point _end = new(0, 0);
+
     private Color _contourColor = Colors.Black;
-    //private Color _contentColor = Colors.White;
+
     private double _width = 2.0;
     private double _opacity = 1.0;
 
@@ -18,13 +19,13 @@ public class LineBuilder : IShapeBuilder
         _start = start;
         return this;
     }
-    
+
     public LineBuilder SetEnd(Point end)
     {
         _end = end;
         return this;
     }
-    
+
     public LineBuilder SetContourColor(Color contourColor)
     {
         _contourColor = contourColor;
@@ -47,7 +48,7 @@ public class LineBuilder : IShapeBuilder
         _width = width;
         return this;
     }
-    
+
     public IShape Build()
     {
         if (_start == null || _end == null)

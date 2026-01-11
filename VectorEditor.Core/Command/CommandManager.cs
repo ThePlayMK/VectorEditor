@@ -1,7 +1,6 @@
 using VectorEditor.Core.State;
+
 namespace VectorEditor.Core.Command;
-
-
 
 public class CommandManager(EditorContext editorContext)
 {
@@ -15,41 +14,38 @@ public class CommandManager(EditorContext editorContext)
         command.Execute();
         _undoStack.Push(command);
         _redoStack.Clear();
-        
+
         editorContext.Modify();
         OnChanged?.Invoke();
-
     }
-    
+
     public void Undo()
     {
         if (_undoStack.Count == 0)
         {
             return;
         }
-        
+
         var command = _undoStack.Pop();
         command.Undo();
         _redoStack.Push(command);
-        
+
         editorContext.Modify();
         OnChanged?.Invoke();
-  
     }
-    
+
     public void Redo()
     {
         if (_redoStack.Count == 0)
         {
             return;
         }
-        
+
         var command = _redoStack.Pop();
         command.Execute();
         _undoStack.Push(command);
 
         editorContext.Modify();
         OnChanged?.Invoke();
-        
     }
 }

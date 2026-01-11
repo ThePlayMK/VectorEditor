@@ -4,12 +4,12 @@ using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Builder;
 
-public class RectangleBuilder : IShapeBuilder 
+public class RectangleBuilder : IShapeBuilder
 {
     private Point _startPoint = new(0, 0);
     private Point _endPoint = new(0, 0);
     private Color _contourColor = Colors.Black;
-    private Color _contentColor  = Colors.White;
+    private Color _contentColor = Colors.White;
     private double _width = 2.0;
     private double _opacity = 1.0;
 
@@ -18,13 +18,13 @@ public class RectangleBuilder : IShapeBuilder
         _startPoint = start;
         return this;
     }
-    
+
     public RectangleBuilder SetEnd(Point end)
     {
         _endPoint = end;
         return this;
     }
-    
+
     public RectangleBuilder SetContourColor(Color contourColor)
     {
         _contourColor = contourColor;
@@ -48,7 +48,7 @@ public class RectangleBuilder : IShapeBuilder
         _width = width;
         return this;
     }
-    
+
     public IShape Build()
     {
         if (_startPoint == null || _endPoint == null)
