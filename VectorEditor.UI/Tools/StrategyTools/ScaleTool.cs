@@ -58,7 +58,12 @@ public class ScaleTool(SelectionManager selection) : ITool
 
         ScalePreview(_activeHandle, current);
         
-        window.Renderer.Render(window.Layers.RootLayer, selection.Selected, controller);
+        window.Renderer.Render(
+            window.Layers.RootLayer, 
+            selection.Selected, 
+            controller,
+            selection.Selected
+        );
         
         _lastMouse = current;
     }

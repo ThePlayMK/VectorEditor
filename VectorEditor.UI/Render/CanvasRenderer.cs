@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
@@ -10,11 +11,11 @@ namespace VectorEditor.UI.Render;
 
 public class CanvasRenderer(Canvas canvas)
 {
-    public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected, ToolController tool,  List<ICanvas>? preview = null)
+    public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected, ToolController tool, IReadOnlyList<ICanvas>? toIgnore = null)
     {
         canvas.Children.Clear();
 
-        rootLayer.Render(canvas);
+        RenderFiltered(rootLayer, toIgnore);
         
         if (tool.PreviewModel != null)
         {
@@ -99,6 +100,27 @@ public class CanvasRenderer(Canvas canvas)
         Canvas.SetTop(ui, y);
 
         canvas.Children.Add(ui);
+    }
+    
+    private void RenderFiltered(ICanvas element, IReadOnlyList<ICanvas>? toIgnore)
+    {
+        // Jeśli to jest element, którego mamy nie rysować: wychodzimy
+        if (toIgnore != null && toIgnore.Contains(element))
+            return;
+
+        if (element is Layer layer)
+        {
+            // Jeśli to warstwa, rekurencyjnie rysujemy jej dzieci
+            foreach (var child in layer.GetChildren())
+            {
+                RenderFiltered(child, toIgnore);
+            }
+        }
+        else
+        {
+            // Jeśli to zwykły kształt i nie jest na czarnej liście: rysujemy
+            element.Render(canvas);
+        }
     }
     
 }
