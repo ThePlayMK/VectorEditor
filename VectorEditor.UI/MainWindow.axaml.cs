@@ -357,7 +357,7 @@ public partial class MainWindow : Window
     // KROK 2: Właściwy zapis "po cichu" (mechanika Export, ale do znanego pliku)
     try
     {
-        var shapes = SelectedLayerModel.GetChildren().OfType<IShape>();
+        var shapes = Layers.RootLayer.GetChildren().OfType<ICanvas>();
         
         // Generujemy treść
         var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);

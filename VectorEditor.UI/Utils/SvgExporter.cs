@@ -21,7 +21,7 @@ public static class SvgExporter
     
     private static string ToOpacity(double op) => F(op);
 
-    public static string GenerateSvg(IEnumerable<IShape> shapes, double width, double height)
+    public static string GenerateSvg(IEnumerable<ICanvas> shapes, double width, double height)
     {
         var sb = new StringBuilder();
         
@@ -36,8 +36,12 @@ public static class SvgExporter
 
         foreach (var shape in shapes)
         {
+            if (shape is Layer layer)
+            {
+                GenerateSvg(layer.GetChildren(), width, height);
+            }
             // --- LINIA ---
-            if (shape is Line line) 
+            else if (shape is Line line) 
             {
                 var s = line.GetStartPoint();
                 var e = line.GetEndPoint();
@@ -83,7 +87,7 @@ public static class SvgExporter
             
             // --- INNE WIELOKĄTY (Triangle, CustomShape) ---
             // Dla tych figur GetPoints() powinno zwracać wszystkie wierzchołki (3 lub więcej)
-            else 
+            else if (shape is Triangle triangle)
             {
                 var points = shape.GetPoints()?.ToList();
                 if (points != null && points.Count >= 2)
@@ -91,10 +95,24 @@ public static class SvgExporter
                     var ptsString = string.Join(" ", points.Select(p => $"{F(p.X)},{F(p.Y)}"));
 
                     sb.AppendLine($"<polygon points=\"{ptsString}\" " +
-                                  $"stroke=\"{ToStroke(shape.GetContourColor())}\" " +
-                                  $"stroke-width=\"{F(shape.GetWidth())}\" " +
-                                  $"fill=\"{ToFill(shape.GetContentColor())}\" " +
-                                  $"opacity=\"{ToOpacity(shape.GetOpacity())}\" />");
+                                  $"stroke=\"{ToStroke(triangle.GetContourColor())}\" " +
+                                  $"stroke-width=\"{F(triangle.GetWidth())}\" " +
+                                  $"fill=\"{ToFill(triangle.GetContentColor())}\" " +
+                                  $"opacity=\"{ToOpacity(triangle.GetOpacity())}\" />");
+                }
+            }
+            else if (shape is CustomShape customShape)
+            {
+                var points = shape.GetPoints()?.ToList();
+                if (points != null && points.Count >= 2)
+                {
+                    var ptsString = string.Join(" ", points.Select(p => $"{F(p.X)},{F(p.Y)}"));
+
+                    sb.AppendLine($"<polygon points=\"{ptsString}\" " +
+                                  $"stroke=\"{ToStroke(customShape.GetContourColor())}\" " +
+                                  $"stroke-width=\"{F(customShape.GetWidth())}\" " +
+                                  $"fill=\"{ToFill(customShape.GetContentColor())}\" " +
+                                  $"opacity=\"{ToOpacity(customShape.GetOpacity())}\" />");
                 }
             }
         }
