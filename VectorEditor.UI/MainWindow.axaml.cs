@@ -426,7 +426,7 @@ public partial class MainWindow : Window
     }
 
     private async Task ExportRasterImage(string extension)
-    {
+{
     var topLevel = TopLevel.GetTopLevel(this);
     if (topLevel == null) return;
 
@@ -434,57 +434,55 @@ public partial class MainWindow : Window
     {
         Title = $"Eksportuj do {extension.ToUpper()}",
         DefaultExtension = extension,
-        FileTypeChoices = [new FilePickerFileType($"{extension.ToUpper()} Image") { Patterns = [$"*.{extension}"] }
-        ]
+        FileTypeChoices = new[] { new FilePickerFileType($"{extension.ToUpper()} Image") { Patterns = new[] { $"*.{extension}" } } }
     });
 
     if (file == null) return;
 
-    // --- 1. ZAPAMIĘTUJEMY STAN (Gdzie patrzy użytkownik) ---
+    // --- 1. ZAPAMIĘTUJEMY STAN ---
     bool gridWasVisible = _tools.Grid.IsVisible;
-    var originalTransform = CanvasCanvas.RenderTransform; // Zapamiętujemy przesunięcie/zoom
-    var originalWidth = CanvasCanvas.Width;
-    var originalHeight = CanvasCanvas.Height;
+    var originalTransform = CanvasCanvas.RenderTransform; 
+    
+    // Jeśli Canvas ma ustawione Width/Height na sztywno (np. 800x600), to bierzemy to.
+    // Jeśli jest na "Auto" (NaN), bierzemy aktualne Bounds (widoczny obszar).
+    double finalWidth = double.IsNaN(CanvasCanvas.Width) ? CanvasCanvas.Bounds.Width : CanvasCanvas.Width;
+    double finalHeight = double.IsNaN(CanvasCanvas.Height) ? CanvasCanvas.Bounds.Height : CanvasCanvas.Height;
+    
+    // Zabezpieczenie przed zerowym rozmiarem (gdyby Bounds było 0)
+    if (finalWidth <= 0) finalWidth = 800;
+    if (finalHeight <= 0) finalHeight = 600;
 
     try
     {
-        // --- 2. PRZYGOTOWANIE DO ZDJĘCIA ---
+        // --- 2. PRZYGOTOWANIE ---
         
-        // Ukrywamy siatkę
-       // 1. Ukrywamy siatkę (w modelu)
+        // Ukrywamy siatkę i czyścimy ją
         if (gridWasVisible)
         {
             _tools.Grid.IsVisible = false;
-        // KLUCZOWE: Zmuszamy grid renderer do odświeżenia (usunięcia kresek)
-        GridRenderer.Render(CanvasCanvas, _tools.Grid);
+            GridRenderer.Render(CanvasCanvas, _tools.Grid);
         }
 
-        // Obliczamy ile miejsca potrzebują nasze figury
-        var contentSize = CalculateContentSize();
-        
-        // RESET: Ustawiamy transformację na Identity (czyli (0,0), brak zoomu)
-        // To naprawia problem "przesuniętego płótna"!
-        CanvasCanvas.RenderTransform = null;
-        
-        // Rozciągamy Canvas, żeby objął wszystko
-        CanvasCanvas.Width = contentSize.Width;
-        CanvasCanvas.Height = contentSize.Height;
+        // RESETUJEMY ZOOM I PRZESUNIĘCIE (Pan)
+        // To jest kluczowe: ustawiamy widok na (0,0), żeby zdjęcie zaczęło się od lewego górnego rogu
+        CanvasCanvas.RenderTransform = null; 
 
-        // WAŻNE: Wymuszamy przeliczenie układu przed zrobieniem zdjęcia
+        // Wymuszamy odświeżenie układu
         CanvasCanvas.UpdateLayout();
-        // Czasami potrzebne jest też to dla rodzica:
-        // (this.GetVisualRoot() as Control)?.UpdateLayout();
 
         // --- 3. RENDEROWANIE ---
-        var pixelSize = new PixelSize((int)contentSize.Width, (int)contentSize.Height);
+        // Tworzymy bitmapę o rozmiarze "kartki", a nie figur.
+        // Wszystko co wystaje poza ten rozmiar, zostanie automatycznie ucięte przez RenderTargetBitmap.
+        var pixelSize = new PixelSize((int)finalWidth, (int)finalHeight);
         var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
         
-        // Robimy zdjęcie samego Canvas
         bitmap.Render(CanvasCanvas);
 
         // --- 4. ZAPIS ---
-        await using var stream = await file.OpenWriteAsync();
-        bitmap.Save(stream);
+        using (var stream = await file.OpenWriteAsync())
+        {
+            bitmap.Save(stream);
+        }
     }
     catch (Exception ex)
     {
@@ -492,21 +490,20 @@ public partial class MainWindow : Window
     }
     finally
     {
-        // --- 5. PRZYWRACANIE STANU (Żeby użytkownik nie zauważył zmiany) ---
-        CanvasCanvas.Width = originalWidth;
-        CanvasCanvas.Height = originalHeight;
-        CanvasCanvas.RenderTransform = originalTransform; // Przywracamy przesunięcie i zoom
+        // --- 5. PRZYWRACANIE STANU ---
+        // Przywracamy transformację (zoom/pan), żeby użytkownik nie stracił widoku
+        CanvasCanvas.RenderTransform = originalTransform; 
 
         if (gridWasVisible)
         {
             _tools.Grid.IsVisible = true;
         }
         
-        // Odświeżamy widok po przywróceniu
+        // Przerysowujemy siatkę
         CanvasCanvas.UpdateLayout();
         GridRenderer.Render(CanvasCanvas, _tools.Grid);
     }
-    }
+}
 
     private async void ExportSvg(object? sender, RoutedEventArgs e)
     {
