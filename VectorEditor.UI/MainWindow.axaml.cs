@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks; // Naprawia błąd "Task<>"
 using Avalonia;
 using System.Linq; 
+using System.Collections.Generic; // <- TO NAPRAWI BŁĄD IEnumerable
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -321,6 +322,33 @@ public partial class MainWindow : Window
         // 2. Odświeżamy widok (Renderowanie)
         GridRenderer.Render(CanvasCanvas, _tools.Grid);
     }
+    
+    // Ta metoda wyciągnie wszystkie figury z całego drzewa warstw (rekurencyjnie)
+// Metoda rekurencyjna - wyciąga wszystkie kształty z warstw i podwarstw
+    private IEnumerable<IShape> GetAllShapes(Layer rootLayer)
+    {
+    var allShapes = new List<IShape>();
+
+    // Iterujemy po wszystkich dzieciach (Layer implementuje ICanvas, więc pobieramy dzieci)
+    foreach (var child in rootLayer.GetChildren())
+    {
+        // 1. Jeśli dziecko to kolejna Warstwa -> wchodzimy głębiej (rekurencja)
+        if (child is Layer childLayer)
+        {
+            if (childLayer.IsVisible) // Opcjonalnie: pomijamy ukryte warstwy
+            {
+                allShapes.AddRange(GetAllShapes(childLayer));
+            }
+        }
+        // 2. Jeśli dziecko to Kształt (ale nie warstwa) -> dodajemy do listy
+        else if (child is IShape shape)
+        {
+            allShapes.Add(shape);
+        }
+    }
+
+    return allShapes;
+    }
     private async Task<bool> PerformPhysicalSave(string? path)
     {
     //testy
@@ -357,22 +385,23 @@ public partial class MainWindow : Window
     // KROK 2: Właściwy zapis "po cichu" (mechanika Export, ale do znanego pliku)
     try
     {
-        var shapes = Layers.RootLayer.GetChildren().OfType<ICanvas>();
+        var root = LayerController.RootLayer;
+        var shapes = GetAllShapes(root);
         
         // Generujemy treść
         var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);
 
         // --- SZPIEG 1: Gdzie zapisuję? ---
-        System.Diagnostics.Debug.WriteLine($"[PATH CHECK] Zapisuję do pliku: {path}");
+        //System.Diagnostics.Debug.WriteLine($"[PATH CHECK] Zapisuję do pliku: {path}");
 
         // --- SZPIEG 2: Czy treść nie jest pusta? ---
-        System.Diagnostics.Debug.WriteLine($"[CONTENT CHECK] Długość tekstu SVG: {svgContent.Length} znaków");
+        //System.Diagnostics.Debug.WriteLine($"[CONTENT CHECK] Długość tekstu SVG: {svgContent.Length} znaków");
         // Jeśli długość jest mała (np. < 100), to znaczy, że SVG jest puste!
 
         await File.WriteAllTextAsync(path, svgContent);
 
         // --- SZPIEG 3: Potwierdzenie ---
-        System.Diagnostics.Debug.WriteLine($"[DISK CHECK] Fizyczny zapis zakończony o: {DateTime.Now}");
+        //System.Diagnostics.Debug.WriteLine($"[DISK CHECK] Fizyczny zapis zakończony o: {DateTime.Now}");
         
         return true;
     }
@@ -501,7 +530,8 @@ public partial class MainWindow : Window
     try
     {
         // 2. Pobieramy kształty (pamiętaj o .OfType<IShape>(), żeby uniknąć błędów)
-        var shapes = SelectedLayerModel.GetChildren().OfType<IShape>();
+        var root = LayerController.RootLayer;
+        var shapes = GetAllShapes(root);
         
         // Zabezpieczenie wymiarów (żeby SVG nie miało 0 × 0)
         var w = CanvasCanvas.Bounds.Width > 0 ? CanvasCanvas.Bounds.Width : 800;
@@ -525,41 +555,37 @@ public partial class MainWindow : Window
     }   
     }
     // Dodaj to w klasie main window
-private Size CalculateContentSize()
-{
-    // Pobieramy wszystkie kształty z naszej publicznej warstwy
-    var shapes = SelectedLayerModel.GetChildren().OfType<IShape>().ToList();
+    private Size CalculateContentSize()
+    {
+    var root = LayerController.RootLayer;
+    // Pobieramy Główną Warstwę (RootLayer) z kontrolera
     
-    if (!shapes.Any()) return new Size(800, 600); // Domyślny rozmiar, jak pusto
+    // Pobieramy WSZYSTKIE kształty (płaska lista)
+    var shapes = GetAllShapes(root).ToList();
+
+    if (!shapes.Any()) return new Size(800, 600);
 
     double maxX = 0;
     double maxY = 0;
 
     foreach (var shape in shapes)
     {
-        // Sprawdzamy punkty każdego kształtu, żeby znaleźć najdalszy punkt
         var points = shape.GetPoints();
-        foreach (var p in points)
+        if (points != null)
         {
-            // Szukamy maksimum X i Y
-            if (p.X > maxX) maxX = p.X;
-            if (p.Y > maxY) maxY = p.Y;
+            foreach (var p in points)
+            {
+                if (p.X > maxX) maxX = p.X;
+                if (p.Y > maxY) maxY = p.Y;
+            }
         }
-
-        // Ważne: Dodajemy połowę grubości linii, żeby nie ucięło krawędzi
-        // (Zakładam, że GetWidth() zwraca grubość obrysu)
+        
         double halfStroke = shape.GetWidth() / 2.0;
         if ((maxX + halfStroke) > maxX) maxX += halfStroke;
         if ((maxY + halfStroke) > maxY) maxY += halfStroke;
-        
-        // Dla koła musimy uważać, bo get points zwraca środek i promień.
-        // Jeśli masz metodę GetMaxX() w interfejsie IShape, użyj jej.
-        // Jeśli nie, powyższa logika z punktami zadziała dla Linii i Prostokąta, 
-        // a dla koła może wymagać poprawki (dlatego dodamy margines).
     }
 
-    // Dodajemy bezpieczny margines (np. 50px), żeby rysunek "oddychał"
     return new Size(maxX + 50, maxY + 50);
-}
+    }
 
 }

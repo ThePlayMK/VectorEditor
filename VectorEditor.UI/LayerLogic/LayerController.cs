@@ -14,6 +14,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 {
     private StackPanel? _layerListPanel;
     private StackPanel? _layerGoBackButton;
+    public Layer RootLayer => layerManager.RootLayer;
     
     
     private Border? _dropIndicator = new Border
