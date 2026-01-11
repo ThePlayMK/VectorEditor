@@ -326,7 +326,7 @@ public partial class MainWindow : Window
     {
     if (string.IsNullOrEmpty(path))
     {
-        var topLevel = TopLevel.GetTopLevel(this);
+        var topLevel = GetTopLevel(this);
         if (topLevel == null) return false;
 
         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
@@ -349,18 +349,18 @@ public partial class MainWindow : Window
     {
         // POPRAWKA: Filtrujemy dzieci, biorąc tylko obiekty będące kształtami (IShape)
         // To naprawia błąd konwersji ICanvas -> IShape
-        var shapes = SelectedLayerModel.GetChildren().OfType<VectorEditor.Core.Composite.IShape>();
+        var shapes = SelectedLayerModel.GetChildren().OfType<IShape>();
 
         if (path.EndsWith(".vec"))
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
-            string jsonString = JsonSerializer.Serialize(shapes, options);
-            await System.IO.File.WriteAllTextAsync(path, jsonString);
+            var jsonString = JsonSerializer.Serialize(shapes, options);
+            await File.WriteAllTextAsync(path, jsonString);
         }
         else
         {
             var svgContent = SvgExporter.GenerateSvg(shapes, CanvasCanvas.Bounds.Width, CanvasCanvas.Bounds.Height);
-            await System.IO.File.WriteAllTextAsync(path, svgContent);
+            await File.WriteAllTextAsync(path, svgContent);
         }
         
         return true;
