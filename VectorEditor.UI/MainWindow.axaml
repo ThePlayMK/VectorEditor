@@ -95,9 +95,6 @@
                     <Button Classes="Round" ToolTip.Tip="Scale" Tag="Scale">
                         <material:MaterialIcon Kind="Resize" />
                     </Button>
-                    <Button Classes="Round" ToolTip.Tip="Brush" Tag="Brush">
-                        <material:MaterialIcon Kind="Brush" />
-                    </Button>
                     <Button Classes="Round" ToolTip.Tip="Line" Tag="Line" Click="SelectTool">
                         <material:MaterialIcon Kind="VectorLine" />
                     </Button>
