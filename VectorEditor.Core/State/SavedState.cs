@@ -2,9 +2,13 @@ namespace VectorEditor.Core.State;
 
 public class SavedState : IEditorState
 {
-    public void Save(EditorContext context)
+    public async void Save(EditorContext context)
     {
-        //nic nie robi
+        //testy
+        //System.Diagnostics.Debug.WriteLine("[STATE] Wymuszam zapis w SavedState.");
+        
+        // Wywołujemy akcję zapisu (tę samą co w ModifiedState)
+        await context.SaveAction(context.CurrentFilePath);
     }
 
     public void Modify(EditorContext context)
