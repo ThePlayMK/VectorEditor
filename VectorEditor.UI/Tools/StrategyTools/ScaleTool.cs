@@ -61,8 +61,7 @@ public class ScaleTool(SelectionManager selection) : ITool
         window.Renderer.Render(
             window.Layers.RootLayer, 
             selection.Selected, 
-            controller,
-            selection.Selected
+            controller
         );
         
         _lastMouse = current;
