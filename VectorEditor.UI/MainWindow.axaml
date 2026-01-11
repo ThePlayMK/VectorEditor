@@ -243,19 +243,35 @@
                                     ToolTip.Tip="Remove Layer">-</Button>
                         </Grid>
 
-                        <!-- GO BACK BUTTON -->
                         <StackPanel x:Name="LayerGoBack"
                                     Orientation="Horizontal"
                                     Spacing="6"
                                     Margin="0 8 0 8"/>
 
-                        <!-- LAYER LIST -->
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Height="300">
-                            <StackPanel x:Name="LayersStackPanel"
-                                        Orientation="Vertical"
-                                        Spacing="4"/>
-                        </ScrollViewer>
+                        <Panel Name="LayersWrapper" Margin="0,5">
+                            <ScrollViewer Name="LayersScrollViewer" 
+                                          VerticalScrollBarVisibility="Auto" 
+                                          Height="300">
+                                <StackPanel x:Name="LayersStackPanel"
+                                            Orientation="Vertical"
+                                            Spacing="4"
+                                            Background="Transparent"
+                                            DragDrop.AllowDrop="True"/>
+                            </ScrollViewer>
+
+                            <Canvas IsHitTestVisible="False" VerticalAlignment="Top">
+                                <Border Name="DropIndicator" 
+                                        Height="2" 
+                                        Background="#0078D7" 
+                                        IsVisible="False"
+                                        HorizontalAlignment="Stretch"
+                                        ZIndex="1000">
+                                    <Border.BoxShadow>
+                                        <BoxShadows>0 0 5 1 #880078D7</BoxShadows>
+                                    </Border.BoxShadow>
+                                </Border>
+                            </Canvas>
+                        </Panel>
 
                         <Border BorderBrush="Gray" BorderThickness="1" Margin="0 5">
                         </Border>

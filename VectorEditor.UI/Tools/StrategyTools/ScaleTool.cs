@@ -30,11 +30,11 @@ public class ScaleTool(SelectionManager selection) : ITool
     {
         if (selection.Selected.Count == 0)
             return;
-
+        
         _lastMouse = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         _activeHandle = HitTest(_lastMouse);
-
+        
         if (_activeHandle == null)
             return; // klik poza konturem — ignorujemy
 
@@ -70,7 +70,6 @@ public class ScaleTool(SelectionManager selection) : ITool
         
         if (_activeHandle == null || _lastMouse == null)
             return;
-        
 
         var endPos = controller.GetSnappedPoint(e, window.CanvasCanvas);
 

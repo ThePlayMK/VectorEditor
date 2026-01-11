@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
+using Avalonia.Media;
 using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 using VectorEditor.Core.Strategy;
@@ -13,6 +14,16 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 {
     private StackPanel? _layerListPanel;
     private StackPanel? _layerGoBackButton;
+    
+    
+    private Border? _dropIndicator = new Border
+    {
+        Height = 2,
+        Background = Brushes.DodgerBlue,
+        IsVisible = false,
+        ZIndex = 100, // Nad innymi elementami
+        Margin = new Thickness(0, -1)
+    };
 
     public Layer ActiveLayer => layerManager.CurrentContext;
 
@@ -21,15 +32,19 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // INITIALIZE UI REFERENCES
     // -----------------------------------------
-    public void BindUi(StackPanel? layerList, StackPanel? goBackButton)
+    public void BindUi(StackPanel? layerList, StackPanel? goBackButton, Border? dropIndicator)
     {
         _layerListPanel = layerList;
         _layerGoBackButton = goBackButton;
+        _dropIndicator = dropIndicator; // Przypisujemy referencję
 
         if (_layerListPanel != null)
         {
             DragDrop.SetAllowDrop(_layerListPanel, true);
             _layerListPanel.AddHandler(DragDrop.DropEvent, OnDrop);
+            
+            _layerListPanel.AddHandler(DragDrop.DragOverEvent, OnDragOver);
+            _layerListPanel.AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
         RefreshUi();
@@ -37,6 +52,8 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     
     private void OnDrop(object? sender, DragEventArgs e)
     {
+        OnDragLeave(null, e);
+        
         var droppedModel = e.Data.Get("CanvasModel") as ICanvas;
         if (droppedModel == null || _layerListPanel == null) return;
 
@@ -231,4 +248,33 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         SelectedLayerWidget = null;
         RefreshUi();
     }
+    
+    private void OnDragOver(object? sender, DragEventArgs e)
+    {
+        if (_layerListPanel == null || _dropIndicator == null) return;
+
+        var point = e.GetPosition(_layerListPanel);
+        int targetIndex = CalculateTargetIndex(point.Y);
+
+        // Obliczamy Y na podstawie sumy wysokości widgetów nad indeksem docelowym
+        double targetY = 0;
+        for (int i = 0; i < targetIndex && i < _layerListPanel.Children.Count; i++)
+        {
+            targetY += _layerListPanel.Children[i].Bounds.Height + _layerListPanel.Spacing;
+        }
+
+        // Ustawiamy szerokość i pozycję bez modyfikowania struktury StackPanel
+        _dropIndicator.IsVisible = true;
+        _dropIndicator.Width = _layerListPanel.Bounds.Width;
+        Canvas.SetTop(_dropIndicator, targetY);
+
+        e.DragEffects = DragDropEffects.Move;
+    }
+
+    private void OnDragLeave(object? sender, DragEventArgs e)
+    {
+        if (_dropIndicator != null) _dropIndicator.IsVisible = false;
+    }
+    
+    
 }

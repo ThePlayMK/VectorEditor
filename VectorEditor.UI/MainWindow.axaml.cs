@@ -65,7 +65,8 @@ public partial class MainWindow : Window
         _tools = new ToolController(selectionManager, this);
         var layersPanel = this.FindControl<StackPanel>("LayersStackPanel");
         var layerGoBack = this.FindControl<StackPanel>("LayerGoBack");
-        LayerController.BindUi(layersPanel, layerGoBack);
+        var dropIndicator = this.FindControl<Border>("DropIndicator");
+        LayerController.BindUi(layersPanel, layerGoBack, dropIndicator);
         _editorContext = new EditorContext();
 
 
