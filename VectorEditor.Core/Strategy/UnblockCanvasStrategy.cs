@@ -11,17 +11,18 @@ public class UnblockCanvasStrategy : IModificationStrategy
         return states;
     }
 
-    private void ApplyRecursive(ICanvas target, Dictionary<ICanvas, bool> states)
+    private static void ApplyRecursive(ICanvas target, Dictionary<ICanvas, bool> states)
     {
         states[target] = target.IsBlocked;
         target.IsBlocked = false;
 
-        if (target is Layer layer)
+        if (target is not Layer layer)
         {
-            foreach (var child in layer.GetChildren())
-            {
-                ApplyRecursive(child, states);
-            }
+            return;
+        }
+        foreach (var child in layer.GetChildren())
+        {
+            ApplyRecursive(child, states);
         }
     }
 

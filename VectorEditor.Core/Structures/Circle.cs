@@ -5,7 +5,13 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class Circle(Point centerPoint, double radius, Color contentColor, Color contourColor, double width, double opacity = 1.0) : IShape
+public class Circle(
+    Point centerPoint,
+    double radius,
+    Color contentColor,
+    Color contourColor,
+    double width,
+    double opacity = 1.0) : IShape
 {
     private Point _centerPoint = centerPoint;
     private double _radiusX = radius;
@@ -19,7 +25,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     public Layer? ParentLayer { get; set; }
     public bool IsBlocked { get; set; }
     public bool IsVisible { get; set; } = true;
-    
+
     // --- GETTERY ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
@@ -28,24 +34,26 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     public double GetOpacity() => _opacity;
     public double GetRadiusX() => _radiusX;
     public double GetRadiusY() => _radiusY;
-    public IEnumerable<Point> GetPoints() => 
+
+    public IEnumerable<Point> GetPoints() =>
     [
-        _centerPoint, 
+        _centerPoint,
         new Point(_centerPoint.X + _radiusX, _centerPoint.Y + _radiusY)
     ];
+
     public double GetMinX() => _centerPoint.X - _radiusX;
     public double GetMaxX() => _centerPoint.X + _radiusX;
     public double GetMinY() => _centerPoint.Y - _radiusY;
     public double GetMaxY() => _centerPoint.Y + _radiusY;
-    
+
     // --- SETERY (Z LOGIKĄ BLOKADY) ---
-    public void SetContentColor(Color  color)
+    public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
         _contentColor = color;
     }
 
-    public void SetContourColor(Color  color)
+    public void SetContourColor(Color color)
     {
         if (IsBlocked) return;
         _contourColor = color;
@@ -70,14 +78,14 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         _radiusX = radiusX;
         _radiusY = radiusY;
     }
-    
+
     public void SetPoints(List<Point> points)
     {
         if (IsBlocked || points.Count < 2)
         {
             return;
         }
-        
+
         _centerPoint = points[0];
         _radiusX = Math.Abs(points[1].X - points[0].X);
         _radiusY = Math.Abs(points[1].Y - points[0].Y);
@@ -87,7 +95,7 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
     {
         _opacity = transparency;
     }
-    
+
     // --- GEOMETRIA ---
     public void Move(double dx, double dy)
     {
@@ -130,29 +138,29 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
                 newW = right - newPos.X;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Top: 
-                newH = bottom - newPos.Y; 
+            case ScaleHandle.Top:
+                newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.TopRight:
                 newW = newPos.X - left;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Right: 
-                newW = newPos.X - left; 
+            case ScaleHandle.Right:
+                newW = newPos.X - left;
                 break;
             case ScaleHandle.BottomRight:
                 newW = newPos.X - left;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Bottom:
-                newH = newPos.Y - top; 
+                newH = newPos.Y - top;
                 break;
             case ScaleHandle.BottomLeft:
                 newW = right - newPos.X;
                 newH = newPos.Y - top;
                 break;
-            case ScaleHandle.Left: 
-                newW = right - newPos.X; 
+            case ScaleHandle.Left:
+                newW = right - newPos.X;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
@@ -185,13 +193,13 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         {
             return;
         }
-        
+
         var ui = new Avalonia.Controls.Shapes.Ellipse
         {
             Width = _radiusX * 2,
             Height = _radiusY * 2,
             Stroke = new SolidColorBrush(_contourColor, _opacity),
-            Fill = new SolidColorBrush(_contentColor,_opacity),
+            Fill = new SolidColorBrush(_contentColor, _opacity),
             StrokeThickness = _width
         };
 
@@ -219,18 +227,18 @@ public class Circle(Point centerPoint, double radius, Color contentColor, Color 
         // (Unikamy wyciągania pierwiastka dla wydajności)
         return dx * dx + dy * dy <= 1;
     }
-    
+
     public ICanvas Clone() => new Circle(_centerPoint, _radiusX, _contentColor, _contourColor, _width)
     {
-        _radiusY =  _radiusY,
+        _radiusY = _radiusY,
         IsBlocked = IsBlocked,
-        IsVisible =  IsVisible,
-        _opacity =  _opacity
+        IsVisible = IsVisible,
+        _opacity = _opacity
     };
-    
-    public override string ToString() => 
+
+    public override string ToString() =>
         $"Circle Center: {_centerPoint}, Radius: {_radiusX} x {_radiusY}, Color: {_contentColor} and {_contourColor}, Width: {_width}px";
-    
+
     public void ConsoleDisplay(int depth = 0)
     {
         if (!IsVisible) return;

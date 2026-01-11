@@ -41,7 +41,6 @@ public class ScaleStrategy(ScaleHandle? handle, Point newPos) : IModificationStr
             // SKALOWANIE: Każdy element używa tego samego Pivotu i współczynników
             element.ScaleTransform(pivot, sx, sy);
         }
-
     }
 
     public void Undo(ICanvas target, object? memento)

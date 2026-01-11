@@ -18,7 +18,7 @@ public class ChangeContourColorStrategy(Color newColor) : IModificationStrategy
         {
             return;
         }
-        
+
         switch (target)
         {
             case IShape shape:
@@ -36,7 +36,7 @@ public class ChangeContourColorStrategy(Color newColor) : IModificationStrategy
             }
         }
     }
-    
+
     public void Undo(ICanvas target, object? memento)
     {
         if (memento is not Dictionary<IShape, Color> oldColors || oldColors.Count == 0)

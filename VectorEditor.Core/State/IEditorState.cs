@@ -7,7 +7,6 @@ public interface IEditorState
 
     // Wywoływane, gdy użytkownik coś narysuje/zmieni
     void Modify(EditorContext context);
-    
+
     // Opcjonalnie: Zwraca nazwę stanu dla paska tytułu (np. "Projekt*")
-    string GetStatus();
 }

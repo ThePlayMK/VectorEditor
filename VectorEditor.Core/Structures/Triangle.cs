@@ -35,8 +35,8 @@ public class Triangle(
     public Point GetSecondPoint() => _secondPoint;
     public Point GetThirdPoint() => _thirdPoint;
     public double GetOpacity() => _opacity;
-    public IEnumerable<Point> GetPoints() => new List<Point> {_firstPoint, _secondPoint, _thirdPoint};
-    
+    public IEnumerable<Point> GetPoints() => new List<Point> { _firstPoint, _secondPoint, _thirdPoint };
+
     public double GetMinX() => Math.Min(_firstPoint.X, Math.Min(_secondPoint.X, _thirdPoint.X));
     public double GetMaxX() => Math.Max(_firstPoint.X, Math.Max(_secondPoint.X, _thirdPoint.X));
     public double GetMinY() => Math.Min(_firstPoint.Y, Math.Min(_secondPoint.Y, _thirdPoint.Y));
@@ -64,21 +64,22 @@ public class Triangle(
     public void SetPoints(List<Point> points)
     {
         if (IsBlocked) return;
-        
+
         if (points.Count < 3)
         {
             return;
         }
+
         _firstPoint = points[0];
         _secondPoint = points[1];
         _thirdPoint = points[2];
     }
-    
+
     public void SetOpacity(double transparency)
     {
         _opacity = transparency;
     }
-    
+
     // --- GEOMETRIA ---
     public void Move(double dx, double dy)
     {
@@ -123,29 +124,29 @@ public class Triangle(
                 newW = right - newPos.X;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Top: 
-                newH = bottom - newPos.Y; 
+            case ScaleHandle.Top:
+                newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.TopRight:
                 newW = newPos.X - left;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Right: 
-                newW = newPos.X - left; 
+            case ScaleHandle.Right:
+                newW = newPos.X - left;
                 break;
             case ScaleHandle.BottomRight:
                 newW = newPos.X - left;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Bottom:
-                newH = newPos.Y - top; 
+                newH = newPos.Y - top;
                 break;
             case ScaleHandle.BottomLeft:
                 newW = right - newPos.X;
                 newH = newPos.Y - top;
                 break;
-            case ScaleHandle.Left: 
-                newW = right - newPos.X; 
+            case ScaleHandle.Left:
+                newW = right - newPos.X;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
@@ -181,7 +182,7 @@ public class Triangle(
         {
             return;
         }
-        
+
         var ui = new Avalonia.Controls.Shapes.Polygon
         {
             Points =
@@ -191,7 +192,7 @@ public class Triangle(
                 new Avalonia.Point(_thirdPoint.X, _thirdPoint.Y)
             },
             Stroke = new SolidColorBrush(_contourColor, _opacity),
-            Fill = new SolidColorBrush(_contentColor,_opacity),
+            Fill = new SolidColorBrush(_contentColor, _opacity),
             StrokeThickness = _width
         };
 
@@ -253,13 +254,13 @@ public class Triangle(
                wb is >= 0 and <= 1 &&
                wc is >= 0 and <= 1;
     }
-    
+
     // --- KOPIOWANIE
-    public ICanvas Clone() => new Triangle(_firstPoint,_secondPoint, _thirdPoint, _contentColor, _contourColor, _width)
+    public ICanvas Clone() => new Triangle(_firstPoint, _secondPoint, _thirdPoint, _contentColor, _contourColor, _width)
     {
         IsBlocked = IsBlocked,
-        IsVisible =  IsVisible,
-        _opacity =  _opacity
+        IsVisible = IsVisible,
+        _opacity = _opacity
     };
 
     public override string ToString() =>

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks; // Naprawia błąd "Task<>"
 using System.Collections.Generic; // <- TO NAPRAWI BŁĄD IEnumerable
@@ -23,13 +24,6 @@ public partial class MainWindow : Window
 {
     private readonly Canvas? _myCanvas;
 
-    private readonly FilePickerFileType _svgFiles = new("SVG Images")
-    {
-        Patterns = ["*.svg", "*.SVG"],
-        AppleUniformTypeIdentifiers = ["public.svg-image"],
-        MimeTypes = ["image/svg+xml"]
-    };
-
     private ColorMode _activeColorMode = ColorMode.Stroke;
 
 
@@ -53,6 +47,7 @@ public partial class MainWindow : Window
         LayerController.SelectedLayerWidget?.LayerModel ?? Layers.RootLayer;
 
 
+    [Obsolete("Obsolete")]
     public MainWindow()
     {
         InitializeComponent();
@@ -210,71 +205,11 @@ public partial class MainWindow : Window
         _color.OnRgbInputChange();
     }
 
-    private async void OpenFile(object? sender, RoutedEventArgs e)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null) return;
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Select an SVG File",
-            FileTypeFilter = [_svgFiles],
-            AllowMultiple = false
-        });
-        if (files.Count < 1) return;
-        await using var stream = await files[0].OpenReadAsync();
-        using var reader = new StreamReader(stream);
-        //var svgContent = await reader.ReadToEndAsync();
-        // This needs to be handled to do something with this
-    }
-
-    private void SaveFile(object? sender, RoutedEventArgs e)
-    {
-        _editorContext.Save();
-        // This needs to be handled to do something with this
-    }
-
-    private void NewProject(object? sender, RoutedEventArgs e)
-    {
-        LayerController.ResetUi();
-        _opacity.Reset();
-        _color.Reset();
-        _tools.Reset();
-        CanvasController.CenterCanvas(_myCanvas!);
-    }
-
-    /*private void AddLayer(object? sender, RoutedEventArgs e)
-    {
-        _layerCount++;
-        var newLayer = new CanvasWidget();
-        newLayer.SetLayerName($"Layer{_layerCount}");
-        LayersStackPanel.Children.Insert(0, newLayer);
-    }*/
-    private void AddLayer(object? sender, RoutedEventArgs e)
-    {
-        LayerController.AddLayer();
-    }
-
-    /*private void SelectLayer(object? sender, RoutedEventArgs e)
-    {
-        if (e.Source is not Button button) return;
-        var oldBtn = _selectedLayer?.FindDescendantOfType<Button>();
-        if (oldBtn != null) oldBtn.Background = Brushes.Transparent;
-        _selectedLayer = button.FindAncestorOfType<CanvasWidget>();
-        if (_selectedLayer != null)
-        {
-            button.Background = Brushes.Gray;
-        }
-    }*/
-
-    /*private void RemoveLayer(object? sender, RoutedEventArgs e)
-    {
-        if (_selectedLayer == null) return;
-        LayersStackPanel.Children.Remove(_selectedLayer);
-        _selectedLayer = null;
-    }*/
+    [Obsolete("Obsolete")]
+    private void AddLayer(object? sender, RoutedEventArgs e) => LayerController.AddLayer();
 
     private void Canvas_PointerWheelChanged(object? s, PointerWheelEventArgs e)
-        => _canvasController.OnPointerWheel(_myCanvas!, e);
+        => CanvasController.OnPointerWheel(_myCanvas!, e);
 
     private void Canvas_PointerPressed(object? s, PointerPressedEventArgs e)
     {

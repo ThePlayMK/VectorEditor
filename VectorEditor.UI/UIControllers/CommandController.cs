@@ -28,6 +28,9 @@ public class CommandController(
             case KeyModifiers.Control when e.Key == Key.C:
                 OnCopyClick();
                 return;
+            case KeyModifiers.Control when e.Key == Key.X:
+                OnCutClick();
+                return;
             // CTRL + V → Paste
             case KeyModifiers.Control when e.Key == Key.V:
                 OnPasteClick();
@@ -79,6 +82,21 @@ public class CommandController(
         var cmd = new ApplyStrategyCommand(strategy, selectionManager.Selected);
         commandManager.Execute(cmd);
 
+        selectionManager.Clear();
+    }
+    
+    private void OnCutClick()
+    {
+        if (selectionManager.Selected.Count == 0)
+            return;
+
+        // Tworzymy komendę przekazując kopię listy zaznaczonych elementów
+        var cmd = new CutCommand(selectionManager.Selected);
+    
+        // Wykonujemy przez CommandManager, aby trafiła na stos Undo
+        commandManager.Execute(cmd);
+
+        // Po wycięciu obiekty znikają, więc czyścimy zaznaczenie
         selectionManager.Clear();
     }
 }

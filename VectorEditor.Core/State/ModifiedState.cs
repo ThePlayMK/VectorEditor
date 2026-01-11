@@ -6,7 +6,7 @@ public class ModifiedState : IEditorState
     {
         // Jeśli mamy już ścieżkę -> szybki zapis.
         // Jeśli nie mamy (CurrentFilePath == null) -> Save As.
-        bool success = await context.SaveAction(context.CurrentFilePath);
+        var success = await context.SaveAction(context.CurrentFilePath);
 
         if (success)
         {

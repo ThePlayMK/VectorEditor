@@ -17,9 +17,9 @@ public class RemoveStrategy : IModificationStrategy
         var parent = target.ParentLayer;
         var index = parent.GetIndexOf(target); // Zapamiętujemy pozycję
         var memento = new RemovalMemento(target, parent, index);
-        
+
         parent.Remove(target);
-        
+
         return memento;
     }
 

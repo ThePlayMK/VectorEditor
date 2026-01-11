@@ -1,6 +1,5 @@
 using Avalonia.Media;
 using VectorEditor.Core.Composite;
-using VectorEditor.Core.Structures;
 
 namespace VectorEditor.Core.Strategy;
 

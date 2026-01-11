@@ -1,12 +1,9 @@
-using System;
-using System.Threading.Tasks;
-
 namespace VectorEditor.Core.State;
 
 public class EditorContext
 {
     // Aktualny stan
-    public IEditorState CurrentState { get; private set; }
+    private IEditorState CurrentState { get; set; }
 
     // Ścieżka do aktualnego pliku (może być null, jeśli to nowy projekt)
     public string? CurrentFilePath { get; set; }
@@ -14,6 +11,7 @@ public class EditorContext
     // Delegat/Akcja do wywoływania zapisu fizycznego (wstrzykniemy tu logikę z UI)
     // Func<string?, Task<bool>>: przyjmuje ścieżkę (opcjonalną), zwraca czy się udało
     public Func<string?, Task<bool>> SaveAction { get; set; } = _ => Task.FromResult(false);
+
     public EditorContext()
     {
         // Stan początkowy: Pusty (nowy projekt)
@@ -28,7 +26,7 @@ public class EditorContext
     }
 
     // Metody wywoływane przez UI / CommandManager
-    public void Save() 
+    public void Save()
     {
         //System.Diagnostics.Debug.WriteLine($"[STATE] Próba zapisu w stanie: {CurrentState.GetType().Name}");
         CurrentState.Save(this);

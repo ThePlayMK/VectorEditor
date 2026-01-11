@@ -1,4 +1,3 @@
-using VectorEditor.Core.Command;
 using VectorEditor.Core.Composite;
 
 namespace VectorEditor.Core.Command;
@@ -9,7 +8,7 @@ public class PasteCommand(Layer targetLayer) : ICommand
     private const int Dx = 10;
     private const int Dy = 10;
     private bool _executedOnce;
-    
+
     public IReadOnlyList<ICanvas> PastedElements => _pastedElements;
 
     public void Execute()

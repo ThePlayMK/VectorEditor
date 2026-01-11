@@ -5,7 +5,8 @@ using VectorEditor.Core.Strategy;
 
 namespace VectorEditor.Core.Structures;
 
-public class CustomShape(List<Point> points, Color contentColor, Color contourColor, double width, double opacity = 1.0) : IShape
+public class CustomShape(List<Point> points, Color contentColor, Color contourColor, double width, double opacity = 1.0)
+    : IShape
 {
     private Color _contentColor = contentColor;
     private Color _contourColor = contourColor;
@@ -16,7 +17,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     public bool IsBlocked { get; set; }
     public bool IsVisible { get; set; } = true;
     public string Name => "CustomShape";
-    
+
     // --- GETTERY ---
     public Color GetContentColor() => _contentColor;
     public Color GetContourColor() => _contourColor;
@@ -27,7 +28,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
     public double GetMaxX() => points.Count == 0 ? 0 : points.Max(p => p.X);
     public double GetMinY() => points.Count == 0 ? 0 : points.Min(p => p.Y);
     public double GetMaxY() => points.Count == 0 ? 0 : points.Max(p => p.Y);
-    
+
 
     // --- SETTERY (Z LOGIKĄ BLOKADY) ---
     public void SetContentColor(Color color)
@@ -47,7 +48,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         if (IsBlocked) return;
         _width = width;
     }
-    
+
     public void SetPoints(List<Point> points1)
     {
         if (IsBlocked) return;
@@ -62,7 +63,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
             points[i] = points1[i];
         }
     }
-    
+
     public void SetOpacity(double transparency)
     {
         if (IsBlocked) return;
@@ -85,7 +86,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         {
             return;
         }
-        
+
         var avaloniaList = points.Select(p => new Avalonia.Point(p.X, p.Y)).ToList();
         avaloniaList.Add(avaloniaList[0]);
 
@@ -93,7 +94,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         {
             Points = new List<Avalonia.Point>(avaloniaList),
             Stroke = new SolidColorBrush(_contourColor, _opacity),
-            Fill = new SolidColorBrush(_contentColor,_opacity),
+            Fill = new SolidColorBrush(_contentColor, _opacity),
             StrokeThickness = _width
         };
 
@@ -114,7 +115,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
 
         // 1. Sprawdź, czy jakikolwiek punkt kształtu jest wewnątrz zaznaczenia
         if (points.Any(p =>
-                p.X >= startPoint.X && p.X <= oppositePoint.X && 
+                p.X >= startPoint.X && p.X <= oppositePoint.X &&
                 p.Y >= startPoint.Y && p.Y <= oppositePoint.Y))
         {
             return true;
@@ -135,7 +136,6 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         var center = new Point((startPoint.X + oppositePoint.X) / 2, (startPoint.Y + oppositePoint.Y) / 2);
 
         return IsPointInPolygon(center, points);
-
     }
 
     private static bool LineIntersectsRect(Point p1, Point p2, Point tl, Point br)
@@ -157,7 +157,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         var u = ((b1.X - a1.X) * (b2.Y - b1.Y) - (b1.Y - a1.Y) * (b2.X - b1.X)) / d;
         var v = ((b1.X - a1.X) * (a2.Y - a1.Y) - (b1.Y - a1.Y) * (a2.X - a1.X)) / d;
 
-        return u is >= 0 and <= 1 && 
+        return u is >= 0 and <= 1 &&
                v is >= 0 and <= 1;
     }
 
@@ -172,9 +172,10 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
                 inside = !inside;
             }
         }
+
         return inside;
     }
-    
+
     public void Scale(ScaleHandle? handle, Point newPos)
     {
         if (IsBlocked) return;
@@ -210,29 +211,29 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
                 newW = right - newPos.X;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Top: 
-                newH = bottom - newPos.Y; 
+            case ScaleHandle.Top:
+                newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.TopRight:
                 newW = newPos.X - left;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Right: 
-                newW = newPos.X - left; 
+            case ScaleHandle.Right:
+                newW = newPos.X - left;
                 break;
             case ScaleHandle.BottomRight:
                 newW = newPos.X - left;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Bottom:
-                newH = newPos.Y - top; 
+                newH = newPos.Y - top;
                 break;
             case ScaleHandle.BottomLeft:
                 newW = right - newPos.X;
                 newH = newPos.Y - top;
                 break;
-            case ScaleHandle.Left: 
-                newW = right - newPos.X; 
+            case ScaleHandle.Left:
+                newW = right - newPos.X;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
@@ -257,13 +258,14 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
             );
         }
     }
-    
+
     // --- KOPIOWANIE
-    public ICanvas Clone() => new CustomShape(points.Select(p => new Point(p.X, p.Y)).ToList(), _contentColor, _contourColor, _width)
+    public ICanvas Clone() => new CustomShape(points.Select(p => new Point(p.X, p.Y)).ToList(), _contentColor,
+        _contourColor, _width)
     {
         IsBlocked = IsBlocked,
-        IsVisible =  IsVisible,
-        _opacity =  _opacity
+        IsVisible = IsVisible,
+        _opacity = _opacity
     };
 
     public void ConsoleDisplay(int depth = 0)
@@ -271,7 +273,7 @@ public class CustomShape(List<Point> points, Color contentColor, Color contourCo
         if (!IsVisible) return;
         Console.WriteLine(new string('-', depth) + Name + ": " + ToString());
     }
-    
+
     public override string ToString()
     {
         var pointsStr = string.Join(",  ", points.Select(p => p.ToString()));

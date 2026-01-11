@@ -6,7 +6,7 @@ public class SavedState : IEditorState
     {
         //testy
         //System.Diagnostics.Debug.WriteLine("[STATE] Wymuszam zapis w SavedState.");
-        
+
         // Wywołujemy akcję zapisu (tę samą co w ModifiedState)
         await context.SaveAction(context.CurrentFilePath);
     }

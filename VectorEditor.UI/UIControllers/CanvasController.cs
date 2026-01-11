@@ -14,7 +14,7 @@ public class CanvasController
     // -------------------------
     // ZOOM (scroll wheel)
     // -------------------------
-    public void OnPointerWheel(Canvas canvas, PointerWheelEventArgs e)
+    public static void OnPointerWheel(Canvas canvas, PointerWheelEventArgs e)
     {
         if (canvas.RenderTransform is not MatrixTransform transform)
             return;

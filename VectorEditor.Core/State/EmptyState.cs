@@ -6,8 +6,8 @@ public class EmptyState : IEditorState
     {
         // Pusty projekt -> Save działa jak "Save As"
         // Przekazujemy null jako ścieżkę, co wymusi otwarcie okna dialogowego w SaveAction
-        bool success = await context.SaveAction(null);
-        
+        var success = await context.SaveAction(null);
+
         if (success)
         {
             context.ChangeState(new SavedState());

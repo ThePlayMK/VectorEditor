@@ -22,7 +22,8 @@ public class Rectangle : IShape
     public bool IsVisible { get; set; } = true;
     public string Name => "Rectangle";
 
-    public Rectangle(Point startPoint, Point oppositePoint, Color contentColor, Color contourColor, double width, double opacity = 1.0)
+    public Rectangle(Point startPoint, Point oppositePoint, Color contentColor, Color contourColor, double width,
+        double opacity = 1.0)
     {
         _startPoint = startPoint;
         _oppositePoint = oppositePoint;
@@ -40,22 +41,23 @@ public class Rectangle : IShape
     public Point GetStartPoint() => _startPoint;
     public Point GetOppositePoint() => _oppositePoint;
     public double GetOpacity() => _opacity;
-    public IEnumerable<Point> GetPoints() => new List<Point> {_startPoint, _oppositePoint};
+    public IEnumerable<Point> GetPoints() => new List<Point> { _startPoint, _oppositePoint };
 
     // --- SETERY (Publiczne) ---
     public void SetPoints(List<Point> points)
     {
         if (IsBlocked) return;
-        
+
         if (points.Count < 2)
         {
             return;
         }
+
         _startPoint = points[0];
         _oppositePoint = points[1];
         UpdateHelperPoints();
     }
-    
+
     public void SetContentColor(Color color)
     {
         if (IsBlocked) return;
@@ -73,7 +75,7 @@ public class Rectangle : IShape
         if (IsBlocked) return;
         _width = width;
     }
-    
+
     public void SetOpacity(double transparency)
     {
         _opacity = transparency;
@@ -154,7 +156,7 @@ public class Rectangle : IShape
     public void ScaleTransform(Point pivot, double sx, double sy)
     {
         if (IsBlocked) return;
-        
+
         _startPoint = TransformPoint(_startPoint, pivot, sx, sy);
         _oppositePoint = TransformPoint(_oppositePoint, pivot, sx, sy);
 
@@ -185,7 +187,7 @@ public class Rectangle : IShape
         _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
         _helperPoint2 = new Point(_oppositePoint.X, _startPoint.Y);
     }
-    
+
     private void UpdateHelperPoints()
     {
         _helperPoint1 = new Point(_startPoint.X, _oppositePoint.Y);
@@ -209,7 +211,7 @@ public class Rectangle : IShape
             Width = w,
             Height = h,
             Stroke = new SolidColorBrush(_contourColor, _opacity),
-            Fill = new SolidColorBrush(_contentColor,_opacity),
+            Fill = new SolidColorBrush(_contentColor, _opacity),
             StrokeThickness = _width
         };
 
@@ -241,13 +243,13 @@ public class Rectangle : IShape
 
         return overlapX && overlapY;
     }
-    
+
     // --- KOPIOWANIE
     public ICanvas Clone() => new Rectangle(_startPoint, _oppositePoint, _contentColor, _contourColor, _width)
     {
         IsBlocked = IsBlocked,
-        IsVisible =  IsVisible,
-        _opacity =  _opacity
+        IsVisible = IsVisible,
+        _opacity = _opacity
     };
 
     public override string ToString() =>

@@ -1,22 +1,16 @@
-using System;
 using VectorEditor.Core.Structures; // Upewnij się, że to pasuje do Twojego Point
 
 namespace VectorEditor.Core.Net
 {
-    public class EditorGrid
+    public class EditorGrid(double cellSize = 20.0)
     {
-        public double CellSize { get; set; } = 20.0;
+        public double CellSize { get; } = cellSize;
 
         // TU BYŁ BŁĄD: Musi się nazywać IsVisible, żeby pasowało do Controllera
         public bool IsVisible { get; set; } = false;
 
         // TU BYŁ BŁĄD: Musi się nazywać SnapEnabled
         public bool SnapEnabled { get; set; } = false;
-
-        public EditorGrid(double cellSize = 20.0)
-        {
-            CellSize = cellSize;
-        }
 
         public Point Snap(Point inputPoint)
         {

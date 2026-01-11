@@ -5,11 +5,12 @@ namespace VectorEditor.Core.Strategy;
 public class SetOpacityStrategy(double opacity) : IModificationStrategy
 {
     private readonly double _opacity = Math.Clamp(opacity, 0, 100);
+
     public object Apply(ICanvas target)
     {
         var oldTransparencies = new Dictionary<IShape, double>();
         ApplyRecursive(target, oldTransparencies);
-        return oldTransparencies ;
+        return oldTransparencies;
     }
 
     private void ApplyRecursive(ICanvas target, Dictionary<IShape, double> memento)

@@ -64,7 +64,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
         _startPoint = points[0];
         _endPoint = points[1];
     }
-    
+
     public void SetOpacity(double transparency)
     {
         _opacity = transparency;
@@ -113,29 +113,29 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
                 newW = right - newPos.X;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Top: 
-                newH = bottom - newPos.Y; 
+            case ScaleHandle.Top:
+                newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.TopRight:
                 newW = newPos.X - left;
                 newH = bottom - newPos.Y;
                 break;
-            case ScaleHandle.Right: 
-                newW = newPos.X - left; 
+            case ScaleHandle.Right:
+                newW = newPos.X - left;
                 break;
             case ScaleHandle.BottomRight:
                 newW = newPos.X - left;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Bottom:
-                newH = newPos.Y - top; 
+                newH = newPos.Y - top;
                 break;
             case ScaleHandle.BottomLeft:
                 newW = right - newPos.X;
                 newH = newPos.Y - top;
                 break;
-            case ScaleHandle.Left: 
-                newW = right - newPos.X; 
+            case ScaleHandle.Left:
+                newW = right - newPos.X;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
@@ -170,7 +170,7 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
         {
             return;
         }
-        
+
 
         var ui = new Avalonia.Controls.Shapes.Line
         {
@@ -221,13 +221,13 @@ public class Line(Point startPoint, Point endPoint, Color contourColor, double w
         return u is >= 0 and <= 1 &&
                v is >= 0 and <= 1;
     }
-    
+
     // --- KOPIOWANIE
     public ICanvas Clone() => new Line(_startPoint, _endPoint, _contourColor, _width)
     {
         IsBlocked = IsBlocked,
-        IsVisible =  IsVisible,
-        _opacity =  _opacity
+        IsVisible = IsVisible,
+        _opacity = _opacity
     };
 
     public override string ToString() =>

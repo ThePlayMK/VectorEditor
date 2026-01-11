@@ -27,19 +27,19 @@ public class Layer(string name) : ICanvas
 
         foreach (var child in _children)
         {
-
             var pointsNeeded = child.GetPoints().Count();
 
             if (currentOffset + pointsNeeded > points.Count)
             {
                 continue;
             }
+
             var childPoints = points.GetRange(currentOffset, pointsNeeded);
             child.SetPoints(childPoints);
             currentOffset += pointsNeeded;
         }
     }
-    
+
     // --- ZARZĄDZANIE STRUKTURĄ ---
     public void Add(ICanvas canvas)
     {
@@ -125,28 +125,28 @@ public class Layer(string name) : ICanvas
                 newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.Top:
-                newH = bottom - newPos.Y; 
+                newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.TopRight:
                 newW = newPos.X - left;
                 newH = bottom - newPos.Y;
                 break;
             case ScaleHandle.Right:
-                newW = newPos.X - left; 
+                newW = newPos.X - left;
                 break;
             case ScaleHandle.BottomRight:
                 newW = newPos.X - left;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Bottom:
-                newH = newPos.Y - top; 
+                newH = newPos.Y - top;
                 break;
             case ScaleHandle.BottomLeft:
                 newW = right - newPos.X;
                 newH = newPos.Y - top;
                 break;
             case ScaleHandle.Left:
-                newW = right - newPos.X; 
+                newW = right - newPos.X;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(handle), handle, null);
@@ -174,7 +174,7 @@ public class Layer(string name) : ICanvas
         {
             return;
         }
-        
+
         foreach (var child in _children)
         {
             child.Render(canvas);
@@ -191,7 +191,7 @@ public class Layer(string name) : ICanvas
     {
         return _children.IndexOf(element);
     }
-    
+
     // --- KOPIOWANIE
     public ICanvas Clone()
     {
@@ -200,7 +200,7 @@ public class Layer(string name) : ICanvas
             IsVisible = IsVisible,
             IsBlocked = IsBlocked
         };
-        
+
         foreach (var child in _children)
         {
             clonedLayer.Add(child.Clone());

@@ -53,11 +53,6 @@
 
         <SplitView.Pane>
             <StackPanel Margin="0,50,0,0">
-                <TextBlock Text="PROJECT" FontWeight="Bold" Margin="15,10" Opacity="0.6" />
-                <Button Classes="MenuLink" Click="NewProject">New Project</Button>
-                <Button Classes="MenuLink" Click="OpenFile">Open File</Button>
-                <Button Content="Save" Click="SaveFile" Classes="MenuLink" />
-                <Separator Margin="10" Opacity="0.2" />
                 <TextBlock Text="EXPORT" FontWeight="Bold" Margin="15,10" Opacity="0.6" />
                 <Button Content="Export PNG" Click="ExportPng" Classes="MenuLink" />
                 <Button Content="Export JPG" Click="ExportJpg" Classes="MenuLink" />

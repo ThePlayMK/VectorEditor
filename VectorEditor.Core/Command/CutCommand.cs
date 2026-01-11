@@ -23,9 +23,10 @@ public class CutCommand(IEnumerable<ICanvas> elements) : ICommand
             {
                 continue;
             }
+
             var index = parent.GetChildIndex(element);
             _memento.Add((parent, index, element));
-                
+
             // Korzystamy z Twojej metody Remove
             parent.Remove(element);
         }
