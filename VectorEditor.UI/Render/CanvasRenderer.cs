@@ -13,10 +13,13 @@ public class CanvasRenderer(Canvas canvas)
 {
     public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected, ToolController tool, IReadOnlyList<ICanvas>? toIgnore = null)
     {
+        // 1. CZYŚCIMY RAZ na samym początku
         canvas.Children.Clear();
 
-        RenderFiltered(rootLayer, toIgnore);
-        
+        // 2. Rysujemy drzewo elementów (z pominięciem ignorowanych)
+        RenderRecursive(rootLayer, toIgnore);
+    
+        // 3. Rysujemy podgląd (Preview) narzędzia (np. szkielet podczas przeciągania)
         if (tool.PreviewModel != null)
         {
             foreach (var element in tool.PreviewModel)
@@ -25,16 +28,20 @@ public class CanvasRenderer(Canvas canvas)
             }
         }
 
-        if (tool.ActiveTool is ScaleTool)
+        // 4. Rysujemy obramowanie (Highlight)
+        if (tool.ActiveTool is ScaleTool && tool.PreviewModel != null && tool.PreviewModel.Any())
         {
-            if(selected.Count != 0)
-                RenderHighlight(selected);
+            RenderHighlight(tool.PreviewModel.ToList()); // Ramka wokół tego co widzimy w skali
         }
-        else
+        else if (selected.Count > 0)
         {
-            foreach (var shape in selected)
+            // Standardowe rysowanie ramek
+            if (tool.ActiveTool is ScaleTool)
+                RenderHighlight(selected);
+            else
             {
-                RenderHighlight(shape);
+                foreach (var shape in selected)
+                    RenderHighlight(shape);
             }
         }
     }
@@ -102,23 +109,34 @@ public class CanvasRenderer(Canvas canvas)
         canvas.Children.Add(ui);
     }
     
-    private void RenderFiltered(ICanvas element, IReadOnlyList<ICanvas>? toIgnore)
+    private void RenderRecursive(ICanvas element, IReadOnlyList<ICanvas>? toIgnore)
     {
-        // Jeśli to jest element, którego mamy nie rysować: wychodzimy
-        if (toIgnore != null && toIgnore.Contains(element))
+        // 1. Sprawdzenie właściwości IsVisible (to naprawi przyciski w UI)
+        if (!element.IsVisible)
             return;
+
+        // 2. Sprawdzenie listy toIgnore (dla poprawnego działania ScaleTool)
+        if (toIgnore != null)
+        {
+            bool skip = false;
+            foreach (var ignoreItem in toIgnore)
+            {
+                if (ReferenceEquals(element, ignoreItem)) { skip = true; break; }
+            }
+            if (skip) return;
+        }
 
         if (element is Layer layer)
         {
-            // Jeśli to warstwa, rekurencyjnie rysujemy jej dzieci
+            // Jeśli to warstwa, renderujemy jej dzieci
             foreach (var child in layer.GetChildren())
             {
-                RenderFiltered(child, toIgnore);
+                RenderRecursive(child, toIgnore);
             }
         }
         else
         {
-            // Jeśli to zwykły kształt i nie jest na czarnej liście: rysujemy
+            // Jeśli to zwykły kształt, wywołujemy jego metodę Render
             element.Render(canvas);
         }
     }
