@@ -16,15 +16,14 @@ public static class GridRenderer
             return;
         }
 
-        double size = grid.CellSize;
+        var size = grid.CellSize;
 
         var geometryDrawing = new GeometryDrawing
         {
+            Brush = Brushes.White,
 
-            Brush = Brushes.White, 
 
-            
-            Pen = new Pen(Brushes.LightGray, 1),
+            Pen = new Pen(Brushes.LightGray),
             Geometry = new RectangleGeometry(new Rect(0, 0, size, size))
         };
 

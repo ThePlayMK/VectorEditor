@@ -16,9 +16,9 @@ public class CircleTool : ITool
     private Ellipse? _previewEllipse;
     private const double PreviewOpacity = 0.5;
     private const bool ClearsSelection = true;
-    
+
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
+
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
@@ -43,7 +43,8 @@ public class CircleTool : ITool
         {
             _previewEllipse = new Ellipse
             {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Stroke = new SolidColorBrush(window.Settings.ContourColor,
+                    window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth,
                 IsHitTestVisible = false
             };
@@ -53,8 +54,8 @@ public class CircleTool : ITool
         var dx = snappedCurrent.X - _centerPoint.X;
         var dy = snappedCurrent.Y - _centerPoint.Y;
         var radius = Math.Sqrt(dx * dx + dy * dy);
-        
-        
+
+
         Canvas.SetLeft(_previewEllipse, _centerPoint.X - radius);
         Canvas.SetTop(_previewEllipse, _centerPoint.Y - radius);
         _previewEllipse.Width = radius * 2;
@@ -81,20 +82,20 @@ public class CircleTool : ITool
             window.CanvasCanvas.Children.Remove(_previewEllipse);
             _previewEllipse = null;
         }
-        
-        
+
+
         // Twój Builder idealnie tu pasuje: SetStart (środek) i SetRadius (punkt na obwodzie)
         var builder = new CircleBuilder()
-            .SetStart(_centerPoint!)    // Środek
-            .SetRadius(endPoint)        // Punkt końcowy (do wyliczenia promienia)
+            .SetStart(_centerPoint!) // Środek
+            .SetRadius(endPoint) // Punkt końcowy (do wyliczenia promienia)
             .SetContourColor(window.Settings.ContourColor)
             .SetContentColor(window.Settings.ContentColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
-            
+
         var cmd = new AddShapeCommand(builder, window.LayerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
-        
+
         _centerPoint = null;
         _previewEllipse = null;
     }

@@ -20,7 +20,7 @@ public class ToolController(SelectionManager selectionManager, MainWindow window
     public event Action? OnChanged;
     public ITool? ActiveTool { get; private set; }
 
-    public EditorGrid Grid { get; private set; } = new(window.Settings.GridSize)
+    public EditorGrid Grid { get; } = new(window.Settings.GridSize)
     {
         IsVisible = true,
         SnapEnabled = true
@@ -28,28 +28,28 @@ public class ToolController(SelectionManager selectionManager, MainWindow window
 
     public bool IsHandToolActive =>
         _activeToolButton?.Tag as string == "Hand";
-    
+
     public void SelectTool(Button button)
     {
         _activeToolButton?.Classes.Remove("Selected");
         _activeToolButton = button;
         _activeToolButton.Classes.Add("Selected");
-        
+
         ActiveTool = button.Tag switch
         {
-            "Line"        => new LineTool(),
-            "Rectangle"   => new RectangleTool(),
-            "Triangle"    => new TriangleTool(),
-            "Ellipse"     => new CircleTool(),
-            "Selector"    => new SelectTool(selectionManager),
-            "Move"        => new MoveTool(selectionManager),
+            "Line" => new LineTool(),
+            "Rectangle" => new RectangleTool(),
+            "Triangle" => new TriangleTool(),
+            "Ellipse" => new CircleTool(),
+            "Selector" => new SelectTool(selectionManager),
+            "Move" => new MoveTool(selectionManager),
             "CustomShape" => new CustomShapeTool(),
-            "Hand"        => null, // Pan tool handled separately
-            "Scale"       => new ScaleTool(selectionManager),
-            "Eraser"      => new RemoveTool(selectionManager), 
-            _             => null
+            "Hand" => null, // Pan tool handled separately
+            "Scale" => new ScaleTool(selectionManager),
+            "Eraser" => new RemoveTool(selectionManager),
+            _ => null
         };
-        
+
         if (ActiveTool != null && ActiveTool.ClearsSelectionBeforeUse())
         {
             selectionManager.Clear();
@@ -60,9 +60,8 @@ public class ToolController(SelectionManager selectionManager, MainWindow window
             removeTool.ApplyRemove(window);
             ActiveTool = null;
         }
-       
+
         OnChanged?.Invoke();
-        
     }
 
     public void Reset()

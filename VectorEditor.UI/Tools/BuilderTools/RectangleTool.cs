@@ -18,7 +18,7 @@ public class RectangleTool : ITool
     private const bool ClearsSelection = true;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
+
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
@@ -43,7 +43,8 @@ public class RectangleTool : ITool
         {
             _previewRect = new Rectangle
             {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Stroke = new SolidColorBrush(window.Settings.ContourColor,
+                    window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth,
                 IsHitTestVisible = false
             };
@@ -77,7 +78,7 @@ public class RectangleTool : ITool
             FinishShape(window, endPoint);
         }
     }
-    
+
 
     private void FinishShape(MainWindow window, CorePoint endPoint)
     {
@@ -96,11 +97,11 @@ public class RectangleTool : ITool
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100);
 
-            //testy
+        //testy
         //var targetLayer = window.SelectedLayerModel; 
-    // --- DIAGNOSTYKA (ODCISK PALCA) ---
-    //System.Diagnostics.Debug.WriteLine($"[TOOL] Próbuję dodać do warstwy ID: {targetLayer.GetHashCode()}");
-    // ----------------------------------
+        // --- DIAGNOSTYKA (ODCISK PALCA) ---
+        //System.Diagnostics.Debug.WriteLine($"[TOOL] Próbuję dodać do warstwy ID: {targetLayer.GetHashCode()}");
+        // ----------------------------------
         var cmd = new AddShapeCommand(builder, window.LayerController.ActiveLayer);
         window.CommandManager.Execute(cmd);
 

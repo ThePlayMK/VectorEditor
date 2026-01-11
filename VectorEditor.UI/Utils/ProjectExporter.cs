@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -25,12 +24,10 @@ public class ProjectExporter(Canvas canvas)
             await using var stream = await file.OpenWriteAsync();
             await using var writer = new StreamWriter(stream);
             await writer.WriteAsync(svgContent);
-            return;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[EXPORT BŁĄD]: {ex.Message}");
-            return;
         }
     }
 
@@ -81,6 +78,7 @@ public class ProjectExporter(Canvas canvas)
                 allShapes.Add(shape);
             }
         }
+
         return allShapes;
     }
 }

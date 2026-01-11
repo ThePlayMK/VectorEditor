@@ -11,14 +11,15 @@ namespace VectorEditor.UI.Render;
 
 public class CanvasRenderer(Canvas canvas)
 {
-    public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected, ToolController tool, IReadOnlyList<ICanvas>? toIgnore = null)
+    public void Render(Layer rootLayer, IReadOnlyList<ICanvas> selected, ToolController tool,
+        IReadOnlyList<ICanvas>? toIgnore = null)
     {
         // 1. CZYŚCIMY RAZ na samym początku
         canvas.Children.Clear();
 
         // 2. Rysujemy drzewo elementów (z pominięciem ignorowanych)
         RenderRecursive(rootLayer, toIgnore);
-    
+
         // 3. Rysujemy podgląd (Preview) narzędzia (np. szkielet podczas przeciągania)
         if (tool.PreviewModel != null)
         {
@@ -29,7 +30,7 @@ public class CanvasRenderer(Canvas canvas)
         }
 
         // 4. Rysujemy obramowanie (Highlight)
-        if (tool.ActiveTool is ScaleTool && tool.PreviewModel != null && tool.PreviewModel.Any())
+        if (tool is { ActiveTool: ScaleTool, PreviewModel: not null } && tool.PreviewModel.Any())
         {
             RenderHighlight(tool.PreviewModel.ToList()); // Ramka wokół tego co widzimy w skali
         }
@@ -45,7 +46,7 @@ public class CanvasRenderer(Canvas canvas)
             }
         }
     }
-    
+
     private void RenderHighlight(ICanvas shape)
     {
         var left = shape.GetMinX();
@@ -72,7 +73,7 @@ public class CanvasRenderer(Canvas canvas)
 
         canvas.Children.Add(ui);
     }
-    
+
     private void RenderHighlight(IReadOnlyList<ICanvas> canvasList)
     {
         var left = double.PositiveInfinity;
@@ -86,8 +87,7 @@ public class CanvasRenderer(Canvas canvas)
             top = Math.Min(top, shape.GetMinY());
             bottom = Math.Max(bottom, shape.GetMaxY());
         }
-        
-        
+
 
         var x = left - 3;
         var y = top - 3;
@@ -108,7 +108,7 @@ public class CanvasRenderer(Canvas canvas)
 
         canvas.Children.Add(ui);
     }
-    
+
     private void RenderRecursive(ICanvas element, IReadOnlyList<ICanvas>? toIgnore)
     {
         // 1. Sprawdzenie właściwości IsVisible (to naprawi przyciski w UI)
@@ -121,8 +121,13 @@ public class CanvasRenderer(Canvas canvas)
             bool skip = false;
             foreach (var ignoreItem in toIgnore)
             {
-                if (ReferenceEquals(element, ignoreItem)) { skip = true; break; }
+                if (ReferenceEquals(element, ignoreItem))
+                {
+                    skip = true;
+                    break;
+                }
             }
+
             if (skip) return;
         }
 
@@ -140,5 +145,4 @@ public class CanvasRenderer(Canvas canvas)
             element.Render(canvas);
         }
     }
-    
 }

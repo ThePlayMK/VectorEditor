@@ -20,31 +20,31 @@ public class MoveTool(SelectionManager selection) : ITool
     private Point? _lastMouse;
     private double _accDx;
     private double _accDy;
-    
+
     private readonly List<Control> _previewShapes = [];
     private const bool ClearsSelection = false;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
+
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         if (selection.Selected.Count == 0)
             return;
-        
+
         _lastMouse = controller.GetSnappedPoint(e, window.CanvasCanvas);
-        
+
         _accDx = 0;
         _accDy = 0;
-        
+
         CreatePreview(window);
     }
 
-    public void PointerMoved(MainWindow window, ToolController controller,PointerEventArgs e)
+    public void PointerMoved(MainWindow window, ToolController controller, PointerEventArgs e)
     {
         if (_lastMouse == null || selection.Selected.Count == 0)
             return;
-        
-        var current =controller.GetSnappedPoint(e, window.CanvasCanvas);
+
+        var current = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         var dx = current.X - _lastMouse.X;
         var dy = current.Y - _lastMouse.Y;
@@ -78,7 +78,7 @@ public class MoveTool(SelectionManager selection) : ITool
 
         if (actionable.Count == 0)
             return; // Nic do zrobienia, nie twórz komendy
-        
+
         var strategy = new MoveCanvasStrategy(_accDx, _accDy);
         var command = new ApplyStrategyCommand(strategy, selection.Selected);
 
@@ -107,6 +107,7 @@ public class MoveTool(SelectionManager selection) : ITool
                 {
                     continue;
                 }
+
                 _previewShapes.Add(preview);
                 window.CanvasCanvas.Children.Add(preview);
             }
@@ -132,7 +133,7 @@ public class MoveTool(SelectionManager selection) : ITool
                     poly.Points = newPoints;
                     break;
 
-                case Avalonia.Controls.Shapes.Ellipse ellipse:  
+                case Avalonia.Controls.Shapes.Ellipse ellipse:
                     Canvas.SetLeft(ellipse, Canvas.GetLeft(ellipse) + dx);
                     Canvas.SetTop(ellipse, Canvas.GetTop(ellipse) + dy);
                     break;
@@ -142,9 +143,7 @@ public class MoveTool(SelectionManager selection) : ITool
                     Canvas.SetTop(ui, Canvas.GetTop(ui) + dy);
                     break;
             }
-
         }
-
     }
 
     private void RemovePreview(MainWindow window)
@@ -169,7 +168,7 @@ public class MoveTool(SelectionManager selection) : ITool
             StrokeDashArray = [4, 4]
         };
     }
-    
+
     private Control CreateRectPreview(Rectangle rect)
     {
         var s = rect.GetStartPoint();
@@ -210,7 +209,7 @@ public class MoveTool(SelectionManager selection) : ITool
             StrokeDashArray = [4, 4]
         };
     }
-    
+
     private Control CreateCirclePreview(Circle circle)
     {
         var center = circle.GetCenterPoint();
@@ -231,7 +230,7 @@ public class MoveTool(SelectionManager selection) : ITool
 
         return ui;
     }
-    
+
     private Control CreateCustomShapePreview(CustomShape shape)
     {
         var poly = new Avalonia.Controls.Shapes.Polygon
@@ -246,7 +245,7 @@ public class MoveTool(SelectionManager selection) : ITool
 
         return poly;
     }
-    
+
     private IEnumerable<ICanvas> Expand(ICanvas canvas)
     {
         if (canvas is Layer layer)
@@ -260,6 +259,4 @@ public class MoveTool(SelectionManager selection) : ITool
             yield return canvas;
         }
     }
-
-    
 }

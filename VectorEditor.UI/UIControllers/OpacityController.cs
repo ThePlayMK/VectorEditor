@@ -14,9 +14,9 @@ public class OpacityController
     private double _liveOpacity;
     private bool _isDragging;
 
-    
+
     public event Action<double>? CommitEdit;
-    
+
     public OpacityController(DrawingSettings settings, Slider slider, TextBox input)
     {
         _settings = settings;
@@ -24,7 +24,7 @@ public class OpacityController
         _input = input;
 
         input.LostFocus += (_, _) => Commit();
-        
+
         slider.AddHandler(
             InputElement.PointerPressedEvent,
             OnSliderPointerPressed,
@@ -37,12 +37,12 @@ public class OpacityController
             Avalonia.Interactivity.RoutingStrategies.Tunnel,
             handledEventsToo: true);
     }
-    
+
     private void OnSliderPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         _isDragging = true;
     }
-    
+
     private void OnSliderPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         if (_isDragging)
@@ -51,7 +51,6 @@ public class OpacityController
             Commit();
         }
     }
-
 
 
     public void OnSliderChanged()
@@ -72,7 +71,6 @@ public class OpacityController
         _input.CaretIndex = _input.Text.Length;
 
         _liveOpacity = value;
-        
     }
 
     public void OnWheel(PointerWheelEventArgs e)
@@ -96,7 +94,7 @@ public class OpacityController
     {
         CommitEdit?.Invoke(_liveOpacity); // now commit
     }
-    
+
 
     public void Reset()
     {

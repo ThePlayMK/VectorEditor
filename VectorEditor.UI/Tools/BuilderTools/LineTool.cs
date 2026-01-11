@@ -12,15 +12,15 @@ public class LineTool : ITool
 {
     // Używamy obiektu, ale z pytajnikiem (Nullable).
     // Jeśli jest null -> nie rysujemy. Jeśli jest obiekt -> rysujemy.
-    private CorePoint? _startPoint; 
-    
+    private CorePoint? _startPoint;
+
     private Avalonia.Controls.Shapes.Line? _previewLine;
     private const double PreviewOpacity = 0.2;
     private const bool ClearsSelection = true;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
-    public void PointerPressed(MainWindow window,ToolController controller, PointerPressedEventArgs e)
+
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
@@ -30,7 +30,7 @@ public class LineTool : ITool
             FinishLine(window, snappedPoint);
             return;
         }
-        
+
         // TU BYŁ PROBLEM WCZEŚNIEJ:
         // Zamiast przypisywać referencję, tworzymy NOWY, niezależny obiekt.
         // To jest bezpieczne podejście.
@@ -48,7 +48,8 @@ public class LineTool : ITool
         {
             _previewLine = new Avalonia.Controls.Shapes.Line
             {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Stroke = new SolidColorBrush(window.Settings.ContourColor,
+                    window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth,
                 IsHitTestVisible = false
             };
@@ -81,9 +82,9 @@ public class LineTool : ITool
             window.CanvasCanvas.Children.Remove(_previewLine);
             _previewLine = null;
         }
-        
+
         var builder = new LineBuilder()
-            .SetStart(_startPoint!) 
+            .SetStart(_startPoint!)
             .SetContourColor(window.Settings.ContourColor)
             .SetWidth(window.Settings.StrokeWidth)
             .SetOpacity(window.Settings.Opacity / 100)

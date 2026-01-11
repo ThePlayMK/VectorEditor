@@ -6,8 +6,7 @@ public class LayerManager
 {
     public Layer RootLayer { get; } = new("RootLayer");
 
-    public Layer? SelectedLayer { get; private set; }
-    public Layer CurrentContext { get; set; }
+    public Layer CurrentContext { get; private set; }
 
     public LayerManager()
     {
@@ -16,7 +15,6 @@ public class LayerManager
 
     public void SelectLayer(Layer layer)
     {
-        SelectedLayer = layer;
     }
 
     public void EnterLayer(Layer layer)
@@ -32,7 +30,6 @@ public class LayerManager
 
     public void Reset()
     {
-        SelectedLayer = null;
         CurrentContext = RootLayer;
     }
 }

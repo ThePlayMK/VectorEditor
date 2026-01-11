@@ -20,21 +20,21 @@ public class ScaleTool(SelectionManager selection) : ITool
     private Dictionary<ICanvas, List<Point>>? _previewState;
     private const double HitTolerance = 30;
     private ScaleHandle? _activeHandle;
-    
+
     private const bool ClearsSelection = false;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
-    
+
+
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         if (selection.Selected.Count == 0)
             return;
-        
+
         _lastMouse = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         _activeHandle = HitTest(_lastMouse);
-        
+
         if (_activeHandle == null)
             return; // klik poza konturem — ignorujemy
 
@@ -47,7 +47,7 @@ public class ScaleTool(SelectionManager selection) : ITool
     {
         if (selection.Selected.Count == 0)
             return;
-        
+
         if (_lastMouse == null || _activeHandle == null)
             return;
 
@@ -57,14 +57,14 @@ public class ScaleTool(SelectionManager selection) : ITool
             return;
 
         ScalePreview(_activeHandle, current);
-        
+
         window.Renderer.Render(
-            window.Layers.RootLayer, 
-            selection.Selected, 
+            window.Layers.RootLayer,
+            selection.Selected,
             controller,
             selection.Selected
         );
-        
+
         _lastMouse = current;
     }
 
@@ -72,7 +72,7 @@ public class ScaleTool(SelectionManager selection) : ITool
     {
         if (selection.Selected.Count == 0)
             return;
-        
+
         if (_activeHandle == null || _lastMouse == null)
             return;
 
@@ -88,7 +88,7 @@ public class ScaleTool(SelectionManager selection) : ITool
 
         if (actionable.Count == 0)
             return; // Nic do zrobienia, nie twórz komendy
-        
+
         var layer = CreateFakeLayer();
         var strategy = new ScaleStrategy(_activeHandle.Value, endPos);
         var command = new ApplyStrategyCommand(strategy, layer);
@@ -96,7 +96,7 @@ public class ScaleTool(SelectionManager selection) : ITool
         DiscardFakeLayer();
 
         window.CommandManager.Execute(command);
-        
+
         controller.PreviewModel = null;
         _activeHandle = null;
         _lastMouse = null;
@@ -118,13 +118,13 @@ public class ScaleTool(SelectionManager selection) : ITool
 
     private void DiscardFakeLayer()
     {
-        for(var i = 0; i < selection.Selected.Count; i++)
+        for (var i = 0; i < selection.Selected.Count; i++)
         {
             var canvas = selection.Selected[i];
             canvas.ParentLayer = _oldParentLayers[i];
         }
     }
-    
+
     private void CreatePreview()
     {
         _previewModel = selection.Selected
@@ -155,7 +155,6 @@ public class ScaleTool(SelectionManager selection) : ITool
         strategy.PreviewApply(_previewState.Keys.ToList());
     }
 
-    
 
     private (double left, double right, double top, double bottom)
         GetSelectionBounds()
@@ -175,7 +174,7 @@ public class ScaleTool(SelectionManager selection) : ITool
 
         return (left, right, top, bottom);
     }
-    
+
     private ScaleHandle? HitTest(Point mouse)
     {
         if (selection.Selected.Count == 0)
@@ -215,11 +214,10 @@ public class ScaleTool(SelectionManager selection) : ITool
 
         return null;
     }
-    
+
     private static bool Near(Point mouse, double x, double y)
     {
         return Math.Abs(mouse.X - x) <= HitTolerance &&
                Math.Abs(mouse.Y - y) <= HitTolerance;
     }
 }
-

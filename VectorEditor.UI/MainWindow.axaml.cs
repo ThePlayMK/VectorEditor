@@ -1,5 +1,4 @@
 using System.IO;
-using System;
 using System.Threading.Tasks; // Naprawia błąd "Task<>"
 using System.Collections.Generic; // <- TO NAPRAWI BŁĄD IEnumerable
 using Avalonia.Controls;
@@ -14,7 +13,6 @@ using VectorEditor.UI.Render;
 using VectorEditor.UI.Select;
 using VectorEditor.UI.UIControllers;
 using VectorEditor.Core.State;
-using Avalonia.Media.Imaging; // Do PNG/JPG
 using VectorEditor.UI.Utils;
 using VectorEditor.Core.Strategy;
 
@@ -275,9 +273,6 @@ public partial class MainWindow : Window
         _selectedLayer = null;
     }*/
 
-    private void RemoveLayer(object? s, RoutedEventArgs e)
-        => LayerController.RemoveSelectedLayer();
-
     private void Canvas_PointerWheelChanged(object? s, PointerWheelEventArgs e)
         => _canvasController.OnPointerWheel(_myCanvas!, e);
 
@@ -442,14 +437,16 @@ public partial class MainWindow : Window
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel == null) return;
 
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
             Title = $"Eksportuj do {extension.ToUpper()}",
             DefaultExtension = extension
         });
 
         if (file != null)
         {
-            await _projectExporter.ExportToRaster(file, (isVisible) => {
+            await _projectExporter.ExportToRaster(file, (isVisible) =>
+            {
                 // Przekazujemy logikę przełączania siatki jako prosty callback
                 _tools.Grid.IsVisible = isVisible;
                 GridRenderer.Render(CanvasCanvas, _tools.Grid);
@@ -458,21 +455,21 @@ public partial class MainWindow : Window
     }
 
     private async void ExportSvg(object? sender, RoutedEventArgs e)
-{
-    var topLevel = TopLevel.GetTopLevel(this);
-    if (topLevel == null) return;
-
-    var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
-        Title = "Eksportuj jako SVG",
-        DefaultExtension = "svg",
-        FileTypeChoices = [new FilePickerFileType("Obraz SVG") { Patterns = ["*.svg"] }]
-    });
-
-    if (file != null)
     {
-        var shapes = _projectExporter.GetAllShapes(LayerController.RootLayer);
-        await _projectExporter.ExportToSvg(shapes, file);
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Eksportuj jako SVG",
+            DefaultExtension = "svg",
+            FileTypeChoices = [new FilePickerFileType("Obraz SVG") { Patterns = ["*.svg"] }]
+        });
+
+        if (file != null)
+        {
+            var shapes = _projectExporter.GetAllShapes(LayerController.RootLayer);
+            await _projectExporter.ExportToSvg(shapes, file);
+        }
     }
-}
-    
 }

@@ -21,7 +21,7 @@ public class SelectTool(SelectionManager selection) : ITool
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
 
-    public void PointerPressed(MainWindow window,  ToolController controller,PointerPressedEventArgs e)
+    public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         _startPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
     }
@@ -81,7 +81,6 @@ public class SelectTool(SelectionManager selection) : ITool
     }
 
 
-
     private void Finish(MainWindow window, Point end)
     {
         if (_previewRectangle != null)
@@ -93,8 +92,6 @@ public class SelectTool(SelectionManager selection) : ITool
         selection.SelectArea(window.LayerController.ActiveLayer, _startPoint!, end);
 
         _startPoint = null;
-        _previewRectangle =  null;
+        _previewRectangle = null;
     }
-
-
 }

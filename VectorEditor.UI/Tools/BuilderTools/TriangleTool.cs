@@ -16,13 +16,13 @@ public class TriangleTool : ITool
     // Przechowujemy dwa pierwsze punkty jako obiekty CorePoint
     private CorePoint? _firstPoint;
     private CorePoint? _secondPoint;
-    
+
     private Polygon? _previewTriangle;
     private const double PreviewOpacity = 0.2;
     private const bool ClearsSelection = true;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
+
 
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
@@ -30,7 +30,7 @@ public class TriangleTool : ITool
         var snappedPoint = controller.GetSnappedPoint(e, window.CanvasCanvas);
 
         // 2. Logika maszyny stanów:
-        
+
         // ETAP 1: Nie mamy jeszcze nic -> Ustawiamy pierwszy punkt
         if (_firstPoint == null)
         {
@@ -64,8 +64,10 @@ public class TriangleTool : ITool
         {
             _previewTriangle = new Polygon
             {
-                Stroke = new SolidColorBrush(window.Settings.ContourColor, window.Settings.Opacity * PreviewOpacity / 100),
-                Fill = new SolidColorBrush(window.Settings.ContentColor, window.Settings.Opacity * PreviewOpacity / 100),
+                Stroke = new SolidColorBrush(window.Settings.ContourColor,
+                    window.Settings.Opacity * PreviewOpacity / 100),
+                Fill = new SolidColorBrush(window.Settings.ContentColor,
+                    window.Settings.Opacity * PreviewOpacity / 100),
                 StrokeThickness = window.Settings.StrokeWidth,
                 IsHitTestVisible = false
             };
@@ -80,7 +82,7 @@ public class TriangleTool : ITool
                 new(snappedCurrent.X, snappedCurrent.Y)
             };
         }
-        
+
         else
         {
             _previewTriangle.Points = new List<Avalonia.Point>()

@@ -43,6 +43,7 @@ public class ColorController(
         {
             return;
         }
+
         r.Text = brush.Color.R.ToString();
         g.Text = brush.Color.G.ToString();
         b.Text = brush.Color.B.ToString();

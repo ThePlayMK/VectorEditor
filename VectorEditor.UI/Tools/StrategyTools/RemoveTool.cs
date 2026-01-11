@@ -13,7 +13,7 @@ public class RemoveTool(SelectionManager selection) : ITool
     private const bool ClearsSelection = false;
 
     public bool ClearsSelectionBeforeUse() => ClearsSelection;
-    
+
     public void PointerPressed(MainWindow window, ToolController controller, PointerPressedEventArgs e)
     {
         // Nie potrzebne dla tego narzędzia
@@ -40,11 +40,10 @@ public class RemoveTool(SelectionManager selection) : ITool
 
         if (actionable.Count == 0)
             return; // Nic do zrobienia, nie twórz komendy
-        
-        var strategy = new RemoveStrategy(); 
+
+        var strategy = new RemoveStrategy();
         var cmd = new ApplyStrategyCommand(strategy, selection.Selected);
         window.CommandManager.Execute(cmd);
         selection.Clear();
     }
-    
 }

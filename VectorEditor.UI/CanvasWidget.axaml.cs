@@ -20,6 +20,7 @@ public partial class CanvasWidget : UserControl
         InitializeComponent();
     }
 
+    [Obsolete("Obsolete")]
     public void Bind(
         ICanvas canvas,
         CommandManager commands,
@@ -31,12 +32,12 @@ public partial class CanvasWidget : UserControl
 
         BindVisibility(commands);
         BindLock(commands, selectionManager);
-        
+
         this.PointerPressed += OnPointerPressed;
         this.PointerMoved += OnPointerMoved;
         this.PointerReleased += OnPointerReleased;
     }
-    
+
     private void BindVisibility(CommandManager commands)
     {
         VisibilityButton.Click += (_, _) =>
@@ -51,16 +52,16 @@ public partial class CanvasWidget : UserControl
         };
         UpdateVisibilityIcon();
     }
-    
+
     private void UpdateVisibilityIcon()
     {
         VisibilityButton.IsChecked = CanvasModel.IsVisible;
-        
+
         VisibilityIcon.Kind = CanvasModel.IsVisible
             ? Material.Icons.MaterialIconKind.Eye
             : Material.Icons.MaterialIconKind.EyeOff;
     }
-    
+
     private void BindLock(
         CommandManager commands,
         SelectionManager selectionManager)
@@ -86,22 +87,24 @@ public partial class CanvasWidget : UserControl
     {
         LockButton.IsChecked = !CanvasModel.IsBlocked;
     }
-    
+
     private Point _dragStartPoint;
     private bool _isPressed;
 
-    private async void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var pointer = e.GetCurrentPoint(this);
-        if (pointer.Properties.IsLeftButtonPressed)
+        if (!pointer.Properties.IsLeftButtonPressed)
         {
-            _isPressed = true;
-            _dragStartPoint = e.GetPosition(this);
-        
-            // Pozwól zdarzeniu polecieć dalej, aby LayerController mógł zaznaczyć warstwę
+            return;
         }
+        _isPressed = true;
+        _dragStartPoint = e.GetPosition(this);
+
+        // Pozwól zdarzeniu polecieć dalej, aby LayerController mógł zaznaczyć warstwę
     }
 
+    [Obsolete("Obsolete")]
     private async void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         if (!_isPressed) return;
@@ -110,16 +113,17 @@ public partial class CanvasWidget : UserControl
         var delta = _dragStartPoint - currentPoint;
 
         // Próg 5 pikseli zapobiega przypadkowemu draggowaniu przy zwykłym kliknięciu
-        if (Math.Abs(delta.X) > 5 || Math.Abs(delta.Y) > 5)
+        if (!(Math.Abs(delta.X) > 5) && !(Math.Abs(delta.Y) > 5))
         {
-            _isPressed = false; // Resetujemy stan, by nie odpalać DragDrop wielokrotnie
-
-            var dragData = new DataObject();
-            dragData.Set("CanvasModel", this.CanvasModel);
-
-            // Uruchomienie sesji przeciągania
-            await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
+            return;
         }
+        _isPressed = false; // Resetujemy stan, by nie odpalać DragDrop wielokrotnie
+
+        var dragData = new DataObject();
+        dragData.Set("CanvasModel", this.CanvasModel);
+
+        // Uruchomienie sesji przeciągania
+        await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
     }
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)

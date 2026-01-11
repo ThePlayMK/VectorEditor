@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -15,8 +16,8 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     private StackPanel? _layerListPanel;
     private StackPanel? _layerGoBackButton;
     public Layer RootLayer => layerManager.RootLayer;
-    
-    
+
+
     private Border? _dropIndicator = new Border
     {
         Height = 2,
@@ -33,6 +34,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // INITIALIZE UI REFERENCES
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     public void BindUi(StackPanel? layerList, StackPanel? goBackButton, Border? dropIndicator)
     {
         _layerListPanel = layerList;
@@ -43,24 +45,24 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         {
             DragDrop.SetAllowDrop(_layerListPanel, true);
             _layerListPanel.AddHandler(DragDrop.DropEvent, OnDrop);
-            
+
             _layerListPanel.AddHandler(DragDrop.DragOverEvent, OnDragOver);
             _layerListPanel.AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
         RefreshUi();
     }
-    
+
+    [Obsolete("Obsolete")]
     private void OnDrop(object? sender, DragEventArgs e)
     {
         OnDragLeave(null, e);
-        
-        var droppedModel = e.Data.Get("CanvasModel") as ICanvas;
-        if (droppedModel == null || _layerListPanel == null) return;
+
+        if (e.Data.Get("CanvasModel") is not ICanvas droppedModel || _layerListPanel == null) return;
 
         // 1. Obliczamy targetIndex na podstawie pozycji Y myszy
         var point = e.GetPosition(_layerListPanel);
-        int targetIndex = CalculateTargetIndex(point.Y);
+        var targetIndex = CalculateTargetIndex(point.Y);
 
         // 2. Pobieramy aktualny indeks elementu w modelu
         var currentIndex = layerManager.CurrentContext.GetIndexOf(droppedModel);
@@ -70,7 +72,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         // fakt, że element zostanie najpierw usunięty
         if (currentIndex != -1 && targetIndex > currentIndex)
         {
-            targetIndex--; 
+            targetIndex--;
         }
 
         // Jeśli upuszczamy dokładnie tam, gdzie element już jest - nic nie rób
@@ -78,26 +80,26 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
         // 4. Wykonanie Twojej strategii
         var strategy = new LayerOrganisationStrategy(
-            new[] { droppedModel }, 
-            layerManager.CurrentContext, 
+            [droppedModel],
+            layerManager.CurrentContext,
             targetIndex
         );
 
         commands.Execute(new ApplyStrategyCommand(strategy, layerManager.CurrentContext));
     }
-    
+
     private int CalculateTargetIndex(double yCursor)
     {
         if (_layerListPanel == null) return 0;
 
-        int index = 0;
+        var index = 0;
         double currentAccumulatedY = 0;
 
         foreach (var child in _layerListPanel.Children)
         {
             // Sprawdzamy środek każdego widgetu, aby "celowanie" było bardziej naturalne
-            double midPoint = currentAccumulatedY + (child.Bounds.Height / 2);
-        
+            var midPoint = currentAccumulatedY + (child.Bounds.Height / 2);
+
             if (yCursor < midPoint)
                 return index;
 
@@ -111,6 +113,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // REFRESH UI (list + back button)
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     public void RefreshUi()
     {
         if (_layerListPanel == null || _layerGoBackButton == null)
@@ -123,17 +126,18 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // LAYER GO BACK BUTTON
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     private void LayerGoBack()
     {
         _layerGoBackButton!.Children.Clear();
 
         var current = layerManager.CurrentContext;
-        
+
         if (current.ParentLayer == null)
         {
             return;
         }
-        
+
         var backBtn = new Button
         {
             Content = $"⬅ Back to {current.ParentLayer.GetName()}",
@@ -142,15 +146,13 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
             Margin = new Thickness(0, 0, 0, 10)
         };
 
-        backBtn.Click += (_, _) =>
-        {
-            EnterLayer(current.ParentLayer);
-        };
+        backBtn.Click += (_, _) => { EnterLayer(current.ParentLayer); };
 
         _layerGoBackButton.Children.Add(backBtn);
     }
-    
-    
+
+
+    [Obsolete("Obsolete")]
     private void BuildLayerList()
     {
         _layerListPanel!.Children.Clear();
@@ -172,6 +174,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         }
     }
 
+    [Obsolete("Obsolete")]
     private Control CreateLayerWidget(Layer layer)
     {
         var widget = new CanvasWidget();
@@ -185,7 +188,8 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
 
         return widget;
     }
-    
+
+    [Obsolete("Obsolete")]
     private Control CreateShapeWidget(ICanvas shape)
     {
         var widget = new CanvasWidget();
@@ -198,10 +202,10 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     }
 
 
-
     // -----------------------------------------
     // ADD LAYER (as child of current context)
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     public void AddLayer()
     {
         var parent = layerManager.CurrentContext;
@@ -211,6 +215,7 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     }
 
 
+    [Obsolete("Obsolete")]
     private void EnterLayer(Layer layer)
     {
         layerManager.EnterLayer(layer);
@@ -220,11 +225,11 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
         RefreshUi();
     }
 
-    
 
     // -----------------------------------------
     // REMOVE SELECTED LAYER
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     public void RemoveSelectedLayer()
     {
         if (SelectedLayerWidget == null)
@@ -243,23 +248,24 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     // -----------------------------------------
     // RESET
     // -----------------------------------------
+    [Obsolete("Obsolete")]
     public void ResetUi()
     {
         layerManager.Reset();
         SelectedLayerWidget = null;
         RefreshUi();
     }
-    
+
     private void OnDragOver(object? sender, DragEventArgs e)
     {
         if (_layerListPanel == null || _dropIndicator == null) return;
 
         var point = e.GetPosition(_layerListPanel);
-        int targetIndex = CalculateTargetIndex(point.Y);
+        var targetIndex = CalculateTargetIndex(point.Y);
 
         // Obliczamy Y na podstawie sumy wysokości widgetów nad indeksem docelowym
         double targetY = 0;
-        for (int i = 0; i < targetIndex && i < _layerListPanel.Children.Count; i++)
+        for (var i = 0; i < targetIndex && i < _layerListPanel.Children.Count; i++)
         {
             targetY += _layerListPanel.Children[i].Bounds.Height + _layerListPanel.Spacing;
         }
@@ -276,6 +282,4 @@ public class LayerController(LayerManager layerManager, CommandManager commands,
     {
         if (_dropIndicator != null) _dropIndicator.IsVisible = false;
     }
-    
-    
 }

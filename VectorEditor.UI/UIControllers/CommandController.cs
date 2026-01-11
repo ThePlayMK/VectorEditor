@@ -33,7 +33,7 @@ public class CommandController(
                 OnPasteClick();
                 return;
         }
-        
+
         if (e.Key == Key.Delete)
         {
             OnDeleteClick();
@@ -56,10 +56,9 @@ public class CommandController(
     {
         var cmd = new PasteCommand(getSelectedLayer());
         commandManager.Execute(cmd);
-        
+
         selectionManager.Clear();
         selectionManager.AddRange(cmd.PastedElements);
-
     }
 
     private void OnCopyClick()
@@ -68,10 +67,10 @@ public class CommandController(
             return;
 
         var copy = new CopyCommand(selectionManager.Selected);
-        copy.Execute(); 
+        copy.Execute();
     }
 
-    public void OnDeleteClick()
+    private void OnDeleteClick()
     {
         if (selectionManager.Selected.Count == 0)
             return;

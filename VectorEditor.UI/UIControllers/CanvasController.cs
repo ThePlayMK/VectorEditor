@@ -73,11 +73,12 @@ public class CanvasController
     {
         _isPanning = false;
 
-        if (_capturedControl != null)
+        if (_capturedControl == null)
         {
-            e.Pointer.Capture(null);
-            _capturedControl = null;
+            return;
         }
+        e.Pointer.Capture(null);
+        _capturedControl = null;
     }
 
     // -------------------------

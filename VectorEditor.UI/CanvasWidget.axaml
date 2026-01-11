@@ -18,29 +18,29 @@
             <Setter Property="Padding" Value="2" />
             <Setter Property="Width" Value="24" />
             <Setter Property="Height" Value="24" />
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="4" />
         </Style>
-        
+
         <Style Selector="ToggleButton.LayerIcon:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#22FFFFFF" />
         </Style>
     </UserControl.Styles>
-    
+
     <Border Classes="LayerContainer">
         <Grid ColumnDefinitions="Auto, Auto, *">
-            
-            <ToggleButton Grid.Column="0" 
-                          Classes="LayerIcon" 
+
+            <ToggleButton Grid.Column="0"
+                          Classes="LayerIcon"
                           Name="VisibilityButton"
                           IsChecked="True"
                           Margin="0,0,2,0">
                 <material:MaterialIcon Name="VisibilityIcon" Width="14" Height="14" />
             </ToggleButton>
 
-            <ToggleButton Grid.Column="1" 
-                          Classes="LayerIcon" 
+            <ToggleButton Grid.Column="1"
+                          Classes="LayerIcon"
                           Name="LockButton"
                           IsChecked="True"
                           Margin="0,0,6,0">
@@ -52,12 +52,12 @@
                 </Panel>
             </ToggleButton>
 
-            <TextBlock Grid.Column="2" 
-                       Text="Layer Name" 
-                       VerticalAlignment="Center" 
+            <TextBlock Grid.Column="2"
+                       Text="Layer Name"
+                       VerticalAlignment="Center"
                        Name="LayerNameBlock"
                        FontWeight="SemiBold"
-                       FontSize="12"/>
+                       FontSize="12" />
         </Grid>
     </Border>
 </UserControl>
