@@ -33,13 +33,13 @@ public partial class MainWindow : Window
     private readonly ToolController _tools;
     private readonly OpacityController _opacity;
     private readonly ColorController _color;
-    private readonly CanvasRenderer _renderer;
     private readonly ProjectExporter _projectExporter;
     public LayerManager Layers { get; } = new();
 
     public DrawingSettings Settings { get; } = new();
     public CommandManager CommandManager { get; }
-    public CanvasRenderer Renderer => _renderer;
+    public CanvasRenderer Renderer { get; }
+
     public Canvas CanvasCanvas => _myCanvas!;
     private readonly EditorContext _editorContext;
 
@@ -55,7 +55,7 @@ public partial class MainWindow : Window
         CommandManager = new CommandManager(_editorContext);
         _myCanvas = this.FindControl<Canvas>("MyCanvas");
         var selectionManager = new SelectionManager();
-        _renderer = new CanvasRenderer(CanvasCanvas);
+        Renderer = new CanvasRenderer(CanvasCanvas);
         LayerController = new LayerController(Layers, CommandManager, selectionManager);
         _canvasController = new CanvasController();
         _tools = new ToolController(selectionManager, this);
@@ -90,7 +90,7 @@ public partial class MainWindow : Window
             CommandManager.Execute(cmd);
 
             // Optional: refresh canvas
-            _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+            Renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
         };
 
 
@@ -148,14 +148,25 @@ public partial class MainWindow : Window
 
         CommandManager.OnChanged += () =>
         {
-            _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+            ValidateCurrentLayerContext();
+            Renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
             LayerController.RefreshUi();
         };
 
-        selectionManager.OnChanged += () => _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
-        _tools.OnChanged += () => _renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+        selectionManager.OnChanged += () => Renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
+        _tools.OnChanged += () => Renderer.Render(Layers.RootLayer, selectionManager.Selected, _tools);
 
         _editorContext.SaveAction = async (path) => await PerformPhysicalSave(path);
+    }
+    
+    private void ValidateCurrentLayerContext()
+    {
+        // Sprawdzamy, czy aktualny kontekst nie jest RootLayerem
+        // i czy stracił połączenie z drzewem (Parent == null)
+        if (Layers.CurrentContext != Layers.RootLayer && Layers.CurrentContext.ParentLayer == null)
+        {
+            Layers.EnterLayer(Layers.RootLayer);
+        }
     }
 
     private void ColorModeChanged(object? sender, RoutedEventArgs e)

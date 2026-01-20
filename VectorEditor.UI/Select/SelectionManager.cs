@@ -24,7 +24,7 @@ public class SelectionManager
 
     public void SelectSingle(ICanvas element)
     {
-        if (!element.IsVisible)
+        if (!element.IsVisible || IsAnyParentLocked(element) || element.IsBlocked)
         {
             return;
         }
@@ -32,6 +32,20 @@ public class SelectionManager
         _currentSelection.Clear();
         _currentSelection.Add(element);
         OnChanged?.Invoke();
+    }
+    
+    private bool IsAnyParentLocked(ICanvas element)
+    {
+        if (element.IsBlocked) return true;
+            
+        // Rekurencyjnie sprawdzamy rodziców, aż do RootLayer
+        var current = element.ParentLayer;
+        while (current != null)
+        {
+            if (current.IsBlocked) return true;
+            current = current.ParentLayer;
+        }
+        return false;
     }
 
     public void AddRange(IEnumerable<ICanvas> elements)
@@ -46,7 +60,7 @@ public class SelectionManager
         var bottomRight = new Point(Math.Max(p1.X, p2.X), Math.Max(p1.Y, p2.Y));
 
         var foundElements = targetLayer.GetChildren()
-            .Where(child => child.IsWithinBounds(topLeft, bottomRight))
+            .Where(child => child.IsVisible && !child.IsBlocked && child.IsWithinBounds(topLeft, bottomRight))
             .ToList();
 
         Clear();
