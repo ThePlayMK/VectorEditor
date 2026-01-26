@@ -304,7 +304,6 @@ public partial class MainWindow : Window
     private void SaveFile(object? sender, RoutedEventArgs e)
     {
         _editorContext.Save();
-        // This needs to be handled to do something with this
     }
 
     private async Task<bool> PerformPhysicalSave(string? path)
