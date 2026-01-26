@@ -54,6 +54,7 @@
         <SplitView.Pane>
             <StackPanel Margin="0,50,0,0">
                 <TextBlock Text="EXPORT" FontWeight="Bold" Margin="15,10" Opacity="0.6" />
+                <Button Content="Save" Click="SaveFile" Classes="MenuLink"/>
                 <Button Content="Export PNG" Click="ExportPng" Classes="MenuLink" />
                 <Button Content="Export JPG" Click="ExportJpg" Classes="MenuLink" />
                 <Button Content="Export SVG" Click="ExportSvg" Classes="MenuLink" />

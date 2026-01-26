@@ -301,6 +301,12 @@ public partial class MainWindow : Window
         return allShapes;
     }
 
+    private void SaveFile(object? sender, RoutedEventArgs e)
+    {
+        _editorContext.Save();
+        // This needs to be handled to do something with this
+    }
+
     private async Task<bool> PerformPhysicalSave(string? path)
     {
         //testy
